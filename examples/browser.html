@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mokuji.js - sandbox</title>
+</head>
+<body>
+  <div id="mokuji"></div>
+  <hr>
+  <div id="result">
+    <h1>one</h1>
+    
+    <h2>two</h2>
+    <h3>three - one</h3>
+    <h3>three - two</h3>
+    
+    <h2>two</h2>
+    <h3>three</h3>
+    
+    <h2>two</h2>
+    <h4>four</h4>
+    
+    <h2>two</h2>
+    <h5>five</h5>
+    <h6>six</h6>
+  </div>
+  <script src="../dist/mokuji.js"></script>
+  <script>
+  var result = document.getElementById('result');
+  var hoge = document.getElementById('mokuji');
+  hoge.appendChild( Mokuji.init(result) );
+  </script>
+  <style>
+  #result {
+    margin-bottom: 100vh;
+  }
+  </style>
+</body>
+</html>
