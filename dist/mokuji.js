@@ -11,215 +11,241 @@
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
-
+/******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
-
+/******/
 /******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
+/******/ 		if(installedModules[moduleId]) {
 /******/ 			return installedModules[moduleId].exports;
-
+/******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
-/******/ 			exports: {},
-/******/ 			id: moduleId,
-/******/ 			loaded: false
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
 /******/ 		};
-
+/******/
 /******/ 		// Execute the module function
 /******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-
+/******/
 /******/ 		// Flag the module as loaded
-/******/ 		module.loaded = true;
-
+/******/ 		module.l = true;
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-
-
+/******/
+/******/
 /******/ 	// expose the modules object (__webpack_modules__)
 /******/ 	__webpack_require__.m = modules;
-
+/******/
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
-
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
-
+/******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
+"use strict";
 
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.init = init;
-	function init(element) {
-	  if (!element) {
-	    return;
-	  }
 
-	  // generate mokuji list
-	  var mokuji = generateMokuji(element);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.init = init;
+function init(element) {
+  if (!element) {
+    return;
+  }
 
-	  if (!mokuji) {
-	    return;
-	  }
+  // generate mokuji list
+  var mokuji = generateMokuji(element);
 
-	  // remove duplicates by adding suffi
-	  removeDuplicateIds(element, mokuji);
+  if (!mokuji) {
+    return;
+  }
 
-	  return mokuji;
-	}
+  // remove duplicates by adding suffi
+  removeDuplicateIds(element, mokuji);
 
-	function createHeadingWalker(element) {
-	  return document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT, function (node) {
-	    return (/^H[1-6]$/.test(node.tagName) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
-	    );
-	  }, false);
-	}
+  return mokuji;
+}
 
-	function generateMokuji(element) {
-	  // get heading tags
-	  var walker = createHeadingWalker(element);
-	  var node = null;
-	  var number = 1;
+function createHeadingWalker(element) {
+  return document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT, function (node) {
+    return (/^H[1-6]$/.test(node.tagName) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
+    );
+  }, false);
+}
 
-	  var ol = document.createElement('ol');
-	  var li = document.createElement('li');
-	  var a = document.createElement('a');
+function generateMokuji(element) {
+  // get heading tags
+  var walker = createHeadingWalker(element);
+  var node = null;
+  var number = 1;
 
-	  while (node = walker.nextNode()) {
-	    var currentNumber = node.tagName.match(/\d/g).join(''); // heading number
+  var ol = document.createElement('ol');
+  var li = document.createElement('li');
+  var a = document.createElement('a');
 
-	    // check list hierarchy
-	    if (number < currentNumber) {
-	      // number of the heading is large (small as heading)
-	      var next = document.createElement('ol');
-	      ol.lastChild.appendChild(next);
-	      ol = next;
-	    } else if (number > currentNumber) {
-	      // number of heading is small (large as heading)
-	      for (var i = 0; i < number - currentNumber; i++) {
-	        ol = ol.parentNode.parentNode;
-	      }
-	    }
+  while (node = walker.nextNode()) {
+    var currentNumber = node.tagName.match(/\d/g).join(''); // heading number
 
-	    // add to wrapper
-	    node.id = node.id || replaceSpace2Underscore(node.textContent);
-	    ol.appendChild(buildList(node, a.cloneNode(false), li.cloneNode(false)));
+    // check list hierarchy
+    if (number < currentNumber) {
+      // number of the heading is large (small as heading)
+      var next = document.createElement('ol');
+      ol.lastChild.appendChild(next);
+      ol = next;
+    } else if (number > currentNumber) {
+      // number of heading is small (large as heading)
+      for (var i = 0; i < number - currentNumber; i++) {
+        ol = ol.parentNode.parentNode;
+      }
+    }
 
-	    // upadte current number
-	    number = currentNumber;
-	  }
+    // add to wrapper
+    node.id = node.id || replaceSpace2Underscore(node.textContent);
+    ol.appendChild(buildList(node, a.cloneNode(false), li.cloneNode(false)));
 
-	  ol = reverseMokuji(ol);
+    // upadte current number
+    number = currentNumber;
+  }
 
-	  return ol;
-	}
+  ol = reverseMokuji(ol);
 
-	function replaceSpace2Underscore(text) {
-	  return String(text).replace(/\s+/g, '_');
-	}
+  return ol;
+}
 
-	function buildList(node, a, li) {
-	  a.href = '#' + node.id;
-	  a.textContent = node.textContent;
-	  li.appendChild(a);
+function replaceSpace2Underscore(text) {
+  return String(text).replace(/\s+/g, '_');
+}
 
-	  return li;
-	}
+function buildList(node, a, li) {
+  a.href = '#' + node.id;
+  a.textContent = node.textContent;
+  li.appendChild(a);
 
-	function reverseMokuji(ol) {
-	  while (ol.parentNode) {
-	    ol = ol.parentNode;
-	  }
+  return li;
+}
 
-	  return ol;
-	}
+function reverseMokuji(ol) {
+  while (ol.parentNode) {
+    ol = ol.parentNode;
+  }
 
-	function removeDuplicateIds(mokuji) {
-	  var lists = mokuji.getElementsByTagName('a');
+  return ol;
+}
 
-	  for (var i = 0; i < lists.length; i++) {
-	    var hash = lists[i].hash;
-	    var headings = document.querySelectorAll(hash);
+function removeDuplicateIds(mokuji) {
+  var lists = mokuji.getElementsByTagName('a');
 
-	    if (headings.length === 1) {
-	      continue;
-	    }
+  for (var i = 0; i < lists.length; i++) {
+    var hash = lists[i].hash;
+    var headings = document.querySelectorAll(hash);
 
-	    // duplicated id
-	    var count = 0;
+    if (headings.length === 1) {
+      continue;
+    }
 
-	    var _iteratorNormalCompletion = true;
-	    var _didIteratorError = false;
-	    var _iteratorError = undefined;
+    // duplicated id
+    var count = 0;
 
-	    try {
-	      for (var _iterator = headings[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	        var heading = _step.value;
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
 
-	        var id = heading.id + '-' + count;
+    try {
+      for (var _iterator = headings[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var heading = _step.value;
 
-	        // search duplicate list
-	        var _iteratorNormalCompletion2 = true;
-	        var _didIteratorError2 = false;
-	        var _iteratorError2 = undefined;
+        var id = heading.id + '-' + count;
 
-	        try {
-	          for (var _iterator2 = lists[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	            var list = _step2.value;
+        // search duplicate list
+        var _iteratorNormalCompletion2 = true;
+        var _didIteratorError2 = false;
+        var _iteratorError2 = undefined;
 
-	            if (list.hash === hash) {
-	              // update hash
-	              list.href = '#' + id;
-	              break;
-	            }
-	          }
-	          // update id
-	        } catch (err) {
-	          _didIteratorError2 = true;
-	          _iteratorError2 = err;
-	        } finally {
-	          try {
-	            if (!_iteratorNormalCompletion2 && _iterator2.return) {
-	              _iterator2.return();
-	            }
-	          } finally {
-	            if (_didIteratorError2) {
-	              throw _iteratorError2;
-	            }
-	          }
-	        }
+        try {
+          for (var _iterator2 = lists[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var list = _step2.value;
 
-	        heading.id = id;
-	        count++;
-	      }
-	    } catch (err) {
-	      _didIteratorError = true;
-	      _iteratorError = err;
-	    } finally {
-	      try {
-	        if (!_iteratorNormalCompletion && _iterator.return) {
-	          _iterator.return();
-	        }
-	      } finally {
-	        if (_didIteratorError) {
-	          throw _iteratorError;
-	        }
-	      }
-	    }
-	  }
-	}
+            if (list.hash === hash) {
+              // update hash
+              list.href = '#' + id;
+              break;
+            }
+          }
+          // update id
+        } catch (err) {
+          _didIteratorError2 = true;
+          _iteratorError2 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+              _iterator2.return();
+            }
+          } finally {
+            if (_didIteratorError2) {
+              throw _iteratorError2;
+            }
+          }
+        }
+
+        heading.id = id;
+        count++;
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+  }
+}
 
 /***/ })
-/******/ ])
+/******/ ]);
 });
-;
