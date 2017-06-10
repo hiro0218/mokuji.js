@@ -259,8 +259,8 @@ function replaceSpace2Underscore(text) {
   return String(text).replace(/\s+/g, '_');
 }
 
-function isNumber(str) {
-  return parseInt(str, 10) !== NaN ? true : false;
+function isNumber(text) {
+  return !isNaN(parseInt(text, 10)) ? true : false;
 }
 
 function buildList(node, a, li) {
