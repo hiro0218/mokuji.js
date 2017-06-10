@@ -22,8 +22,8 @@ export function init(element, options) {
     return;
   }
 
-  // remove duplicates by adding suffi
-  removeDuplicateIds(element, mokuji);
+  // remove duplicates by adding suffix
+  removeDuplicateIds(mokuji);
 
   return mokuji;
 }
@@ -137,6 +137,7 @@ function removeDuplicateIds(mokuji) {
           break;
         }
       }
+
       // update id
       heading.id = id;
       count++;
