@@ -79,7 +79,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -120,6 +120,30 @@ module.exports = function (defaults, options) {
 "use strict";
 
 
+/**
+ * hasParentNode
+ * @param  {DOM}  element
+ * @param  {DOM}  parent
+ * @return {Boolean}
+ */
+
+module.exports = function hasParentNode(element, parent) {
+  while (element) {
+    if (element === parent) {
+      return true;
+    }
+    element = element.parentNode;
+  }
+  return false;
+};
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -128,6 +152,10 @@ exports.init = init;
 var _extend = __webpack_require__(0);
 
 var _extend2 = _interopRequireDefault(_extend);
+
+var _hasParentNode = __webpack_require__(1);
+
+var _hasParentNode2 = _interopRequireDefault(_hasParentNode);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -187,12 +215,14 @@ function generateMokuji(element, options) {
     } else if (number > currentNumber) {
       // number of heading is small (large as heading)
       for (var i = 0; i < number - currentNumber; i++) {
-        ol = ol.parentNode.parentNode;
+        if ((0, _hasParentNode2.default)(ol, ol.parentNode)) {
+          ol = ol.parentNode.parentNode;
+        }
       }
     }
 
     // add to wrapper
-    node.id = setAnchor(node.id, node.textContent, options.anchorType); //node.id || replaceSpace2Underscore(node.textContent);
+    node.id = setAnchor(node.id, node.textContent, options.anchorType);
     ol.appendChild(buildList(node, a.cloneNode(false), li.cloneNode(false)));
 
     // upadte current number
@@ -205,12 +235,12 @@ function generateMokuji(element, options) {
 }
 
 function setAnchor(id, text, type) {
+  // convert spaces to _
   var anchor = id || replaceSpace2Underscore(text);
 
   if (type === 'wikipedia') {
     anchor = encodeURIComponent(anchor);
     anchor = anchor.replace(/\%+/g, '.');
-    console.log(anchor);
   }
 
   return anchor;

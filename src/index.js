@@ -1,4 +1,5 @@
 import extend from './extend';
+import hasParentNode from './hasParentNode';
 
 'use strict';
 
@@ -60,7 +61,9 @@ function generateMokuji(element, options) {
     } else if (number > currentNumber) {
       // number of heading is small (large as heading)
       for (var i = 0; i < number-currentNumber; i++) {
-        ol = ol.parentNode.parentNode;
+        if (hasParentNode(ol, ol.parentNode)) {
+          ol = ol.parentNode.parentNode;
+        }
       }
     }
 
@@ -78,6 +81,7 @@ function generateMokuji(element, options) {
 }
 
 function setAnchor(id, text, type) {
+  // convert spaces to _
   var anchor = id || replaceSpace2Underscore(text);
 
   if (type === 'wikipedia') {
