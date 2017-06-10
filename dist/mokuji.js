@@ -242,11 +242,6 @@ function setAnchor(id, text, type) {
   anchor = anchor.replace(/\&+/g, '');
   anchor = anchor.replace(/\&amp;+/g, '');
 
-  // add '_' if first string is number
-  if (isNumber(anchor.substring(0, 1))) {
-    anchor = '_' + anchor;
-  }
-
   if (type === 'wikipedia') {
     anchor = encodeURIComponent(anchor);
     anchor = anchor.replace(/\%+/g, '.');
@@ -257,10 +252,6 @@ function setAnchor(id, text, type) {
 
 function replaceSpace2Underscore(text) {
   return String(text).replace(/\s+/g, '_');
-}
-
-function isNumber(text) {
-  return !isNaN(parseInt(text, 10)) ? true : false;
 }
 
 function buildList(node, a, li) {
@@ -283,8 +274,9 @@ function removeDuplicateIds(mokuji) {
   var lists = mokuji.getElementsByTagName('a');
 
   for (var i = 0; i < lists.length; i++) {
+    var id = lists[i].innerText;
     var hash = lists[i].hash;
-    var headings = document.querySelectorAll(hash);
+    var headings = document.querySelectorAll('[id="' + id + '"]');
 
     if (headings.length === 1) {
       continue;
