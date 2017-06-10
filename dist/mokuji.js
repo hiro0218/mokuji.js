@@ -238,6 +238,15 @@ function setAnchor(id, text, type) {
   // convert spaces to _
   var anchor = id || replaceSpace2Underscore(text);
 
+  // remove &
+  anchor = anchor.replace(/\&+/g, '');
+  anchor = anchor.replace(/\&amp;+/g, '');
+
+  // add '_' if first string is number
+  if (isNumber(anchor.substring(0, 1))) {
+    anchor = '_' + anchor;
+  }
+
   if (type === 'wikipedia') {
     anchor = encodeURIComponent(anchor);
     anchor = anchor.replace(/\%+/g, '.');
@@ -248,6 +257,10 @@ function setAnchor(id, text, type) {
 
 function replaceSpace2Underscore(text) {
   return String(text).replace(/\s+/g, '_');
+}
+
+function isNumber(str) {
+  return parseInt(str, 10) !== NaN ? true : false;
 }
 
 function buildList(node, a, li) {
