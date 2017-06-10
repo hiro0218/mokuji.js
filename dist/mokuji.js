@@ -79,7 +79,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -89,17 +89,64 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
+/**
+ * Merge defaults with user options
+ * @private
+ * @param {Object} defaults Default settings
+ * @param {Object} options User options
+ * @returns {Object} Merged values of defaults and options
+ */
+
+module.exports = function (defaults, options) {
+  var extended = {};
+  var prop;
+  for (prop in defaults) {
+    if (Object.prototype.hasOwnProperty.call(defaults, prop)) {
+      extended[prop] = defaults[prop];
+    }
+  }
+  for (prop in options) {
+    if (Object.prototype.hasOwnProperty.call(options, prop)) {
+      extended[prop] = options[prop];
+    }
+  }
+  return extended;
+};
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.init = init;
-function init(element) {
+
+var _extend = __webpack_require__(0);
+
+var _extend2 = _interopRequireDefault(_extend);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+'use strict';
+
+var defaults = {
+  anchorType: ''
+};
+
+function init(element, options) {
   if (!element) {
     return;
   }
 
+  // set options
+  options = (0, _extend2.default)(defaults, options);
+
   // generate mokuji list
-  var mokuji = generateMokuji(element);
+  var mokuji = generateMokuji(element, options);
 
   if (!mokuji) {
     return;
@@ -118,7 +165,7 @@ function createHeadingWalker(element) {
   }, false);
 }
 
-function generateMokuji(element) {
+function generateMokuji(element, options) {
   // get heading tags
   var walker = createHeadingWalker(element);
   var node = null;
@@ -145,7 +192,7 @@ function generateMokuji(element) {
     }
 
     // add to wrapper
-    node.id = node.id || replaceSpace2Underscore(node.textContent);
+    node.id = setAnchor(node.id, node.textContent, options.anchorType); //node.id || replaceSpace2Underscore(node.textContent);
     ol.appendChild(buildList(node, a.cloneNode(false), li.cloneNode(false)));
 
     // upadte current number
@@ -155,6 +202,18 @@ function generateMokuji(element) {
   ol = reverseMokuji(ol);
 
   return ol;
+}
+
+function setAnchor(id, text, type) {
+  var anchor = id || replaceSpace2Underscore(text);
+
+  if (type === 'wikipedia') {
+    anchor = encodeURIComponent(anchor);
+    anchor = anchor.replace(/\%+/g, '.');
+    console.log(anchor);
+  }
+
+  return anchor;
 }
 
 function replaceSpace2Underscore(text) {

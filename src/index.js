@@ -1,12 +1,21 @@
+import extend from './extend';
+
 'use strict';
 
-export function init(element) {
+const defaults = {
+  anchorType: ''
+};
+
+export function init(element, options) {
   if (!element) {
     return;
   }
 
+  // set options
+  options = extend(defaults, options);
+
   // generate mokuji list
-  var mokuji = generateMokuji(element);
+  var mokuji = generateMokuji(element, options);
 
   if (!mokuji) {
     return;
@@ -29,7 +38,7 @@ function createHeadingWalker(element) {
   );
 }
 
-function generateMokuji(element) {
+function generateMokuji(element, options) {
   // get heading tags
   var walker = createHeadingWalker(element);
   var node = null;
@@ -56,7 +65,7 @@ function generateMokuji(element) {
     }
 
     // add to wrapper
-    node.id = node.id || replaceSpace2Underscore(node.textContent);
+    node.id = setAnchor(node.id, node.textContent, options.anchorType);
     ol.appendChild(buildList(node, a.cloneNode(false), li.cloneNode(false)));
 
     // upadte current number
@@ -66,6 +75,17 @@ function generateMokuji(element) {
   ol = reverseMokuji(ol);
 
   return ol;
+}
+
+function setAnchor(id, text, type) {
+  var anchor = id || replaceSpace2Underscore(text);
+
+  if (type === 'wikipedia') {
+    anchor = encodeURIComponent(anchor);
+    anchor = anchor.replace(/\%+/g, '.');
+  }
+
+  return anchor;
 }
 
 function replaceSpace2Underscore(text) {
