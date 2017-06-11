@@ -3,11 +3,16 @@
 <head>
   <meta charset="utf-8">
   <title>Mokuji.js - sandbox</title>
+  <style>
+  #target {
+    margin-bottom: 100vh;
+  }
+  </style>
 </head>
 <body>
   <div id="mokuji"></div>
   <hr>
-  <div id="result">
+  <div id="target">
     <h1>one</h1>
 
     <h2>two</h2>
@@ -40,16 +45,12 @@
   </div>
   <script src="../dist/mokuji.js"></script>
   <script>
-  var result = document.getElementById('result');
-  var hoge = document.getElementById('mokuji');
-  hoge.appendChild( Mokuji.init(result, {
-    anchorType: ''
-  }) );
+  var mokuji = Mokuji.init(document.getElementById('target'), {
+    anchorType: 'wikipedia'
+  });
+
+  var list = document.getElementById('mokuji');
+  list.appendChild(mokuji);
   </script>
-  <style>
-  #result {
-    margin-bottom: 100vh;
-  }
-  </style>
 </body>
 </html>
