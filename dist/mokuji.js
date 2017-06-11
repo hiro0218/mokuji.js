@@ -1,3 +1,9 @@
+/*!
+ * mokuji.js v1.0.0
+ * https://github.com/hiro0218/mokuji.js
+ * 
+ * Copyright (C) 2017 hiro
+ */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -73,7 +79,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -83,24 +89,99 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
+/**
+ * Merge defaults with user options
+ * @private
+ * @param {Object} defaults Default settings
+ * @param {Object} options User options
+ * @returns {Object} Merged values of defaults and options
+ */
+
+module.exports = function (defaults, options) {
+  var extended = {};
+  var prop;
+  for (prop in defaults) {
+    if (Object.prototype.hasOwnProperty.call(defaults, prop)) {
+      extended[prop] = defaults[prop];
+    }
+  }
+  for (prop in options) {
+    if (Object.prototype.hasOwnProperty.call(options, prop)) {
+      extended[prop] = options[prop];
+    }
+  }
+  return extended;
+};
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * hasParentNode
+ * @param  {DOM}  element
+ * @param  {DOM}  parent
+ * @return {Boolean}
+ */
+
+module.exports = function hasParentNode(element, parent) {
+  while (element) {
+    if (element === parent) {
+      return true;
+    }
+    element = element.parentNode;
+  }
+  return false;
+};
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.init = init;
-function init(element) {
+
+var _extend = __webpack_require__(0);
+
+var _extend2 = _interopRequireDefault(_extend);
+
+var _hasParentNode = __webpack_require__(1);
+
+var _hasParentNode2 = _interopRequireDefault(_hasParentNode);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+'use strict';
+
+var defaults = {
+  anchorType: ''
+};
+
+function init(element, options) {
   if (!element) {
     return;
   }
 
+  // set options
+  options = (0, _extend2.default)(defaults, options);
+
   // generate mokuji list
-  var mokuji = generateMokuji(element);
+  var mokuji = generateMokuji(element, options);
 
   if (!mokuji) {
     return;
   }
 
-  // remove duplicates by adding suffi
-  removeDuplicateIds(element, mokuji);
+  // remove duplicates by adding suffix
+  removeDuplicateIds(mokuji);
 
   return mokuji;
 }
@@ -112,7 +193,7 @@ function createHeadingWalker(element) {
   }, false);
 }
 
-function generateMokuji(element) {
+function generateMokuji(element, options) {
   // get heading tags
   var walker = createHeadingWalker(element);
   var node = null;
@@ -134,12 +215,14 @@ function generateMokuji(element) {
     } else if (number > currentNumber) {
       // number of heading is small (large as heading)
       for (var i = 0; i < number - currentNumber; i++) {
-        ol = ol.parentNode.parentNode;
+        if ((0, _hasParentNode2.default)(ol, ol.parentNode)) {
+          ol = ol.parentNode.parentNode;
+        }
       }
     }
 
     // add to wrapper
-    node.id = node.id || replaceSpace2Underscore(node.textContent);
+    node.id = setAnchor(node.id, node.textContent, options.anchorType);
     ol.appendChild(buildList(node, a.cloneNode(false), li.cloneNode(false)));
 
     // upadte current number
@@ -149,6 +232,22 @@ function generateMokuji(element) {
   ol = reverseMokuji(ol);
 
   return ol;
+}
+
+function setAnchor(id, text, type) {
+  // convert spaces to _
+  var anchor = id || replaceSpace2Underscore(text);
+
+  // remove &
+  anchor = anchor.replace(/\&+/g, '');
+  anchor = anchor.replace(/\&amp;+/g, '');
+
+  if (type === 'wikipedia') {
+    anchor = encodeURIComponent(anchor);
+    anchor = anchor.replace(/\%+/g, '.');
+  }
+
+  return anchor;
 }
 
 function replaceSpace2Underscore(text) {
@@ -175,8 +274,9 @@ function removeDuplicateIds(mokuji) {
   var lists = mokuji.getElementsByTagName('a');
 
   for (var i = 0; i < lists.length; i++) {
+    var id = lists[i].innerText;
     var hash = lists[i].hash;
-    var headings = document.querySelectorAll(hash);
+    var headings = document.querySelectorAll('[id="' + id + '"]');
 
     if (headings.length === 1) {
       continue;
@@ -210,6 +310,7 @@ function removeDuplicateIds(mokuji) {
               break;
             }
           }
+
           // update id
         } catch (err) {
           _didIteratorError2 = true;
