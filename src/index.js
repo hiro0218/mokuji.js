@@ -1,19 +1,29 @@
+import extend from './extend';
+import hasParentNode from './hasParentNode';
+
 'use strict';
 
-export function init(element) {
+const defaults = {
+  anchorType: ''
+};
+
+export function init(element, options) {
   if (!element) {
     return;
   }
 
+  // set options
+  options = extend(defaults, options);
+
   // generate mokuji list
-  var mokuji = generateMokuji(element);
+  var mokuji = generateMokuji(element, options);
 
   if (!mokuji) {
     return;
   }
 
-  // remove duplicates by adding suffi
-  removeDuplicateIds(element, mokuji);
+  // remove duplicates by adding suffix
+  removeDuplicateIds(mokuji);
 
   return mokuji;
 }
@@ -29,7 +39,7 @@ function createHeadingWalker(element) {
   );
 }
 
-function generateMokuji(element) {
+function generateMokuji(element, options) {
   // get heading tags
   var walker = createHeadingWalker(element);
   var node = null;
@@ -51,12 +61,14 @@ function generateMokuji(element) {
     } else if (number > currentNumber) {
       // number of heading is small (large as heading)
       for (var i = 0; i < number-currentNumber; i++) {
-        ol = ol.parentNode.parentNode;
+        if (hasParentNode(ol, ol.parentNode)) {
+          ol = ol.parentNode.parentNode;
+        }
       }
     }
 
     // add to wrapper
-    node.id = node.id || replaceSpace2Underscore(node.textContent);
+    node.id = setAnchor(node.id, node.textContent, options.anchorType);
     ol.appendChild(buildList(node, a.cloneNode(false), li.cloneNode(false)));
 
     // upadte current number
@@ -66,6 +78,22 @@ function generateMokuji(element) {
   ol = reverseMokuji(ol);
 
   return ol;
+}
+
+function setAnchor(id, text, type) {
+  // convert spaces to _
+  var anchor = id || replaceSpace2Underscore(text);
+
+  // remove &
+  anchor = anchor.replace(/\&+/g, '');
+  anchor = anchor.replace(/\&amp;+/g, '');
+
+  if (type === 'wikipedia') {
+    anchor = encodeURIComponent(anchor);
+    anchor = anchor.replace(/\%+/g, '.');
+  }
+
+  return anchor;
 }
 
 function replaceSpace2Underscore(text) {
@@ -92,8 +120,9 @@ function removeDuplicateIds(mokuji) {
   var lists = mokuji.getElementsByTagName('a');
 
   for (var i = 0; i < lists.length; i++) {
+    var id = lists[i].innerText;
     var hash = lists[i].hash;
-    var headings = document.querySelectorAll(hash);
+    var headings = document.querySelectorAll(`[id="${id}"]`);
 
     if (headings.length === 1) {
       continue;
@@ -113,6 +142,7 @@ function removeDuplicateIds(mokuji) {
           break;
         }
       }
+
       // update id
       heading.id = id;
       count++;

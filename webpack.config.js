@@ -1,4 +1,10 @@
 var webpack = require('webpack');
+var package = require('./package.json');
+
+var copyright = `${package.name} v${package.version}
+${package.homepage}
+
+Copyright (C) 2017 ${package.author}`;
 
 var config = {
   module: {
@@ -16,7 +22,8 @@ var config = {
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
-    })
+    }),
+    new webpack.BannerPlugin(copyright)
   ]
 };
 
