@@ -1,5 +1,8 @@
 mokuji.js
 ===
+
+[![npm version](https://badge.fury.io/js/mokuji.js.svg)](https://www.npmjs.com/package/mokuji.js)
+
 generate "table of contents".
 
 ## Usage
