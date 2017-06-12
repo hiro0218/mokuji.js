@@ -8,5 +8,8 @@
     "browser": true,
     "mocha": true,
     "node": true
+  },
+  "parserOptions": {
+    "sourceType": "module"
   }
 }
