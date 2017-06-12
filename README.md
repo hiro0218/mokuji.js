@@ -10,7 +10,7 @@ generate "table of contents".
 ```html
 <script src="../dist/mokuji.js"></script>
 <script>
-var mokuji = Mokuji.init(document.getElementById('target'));
+var mokuji = new Mokuji.init(document.getElementById('target'));
 
 var list = document.getElementById('list');
 list.appendChild(mokuji);
