@@ -27,7 +27,11 @@ list.appendChild(mokuji);
 
 ```
 {
-  anchorType: 'wikipedia'
+  anchorType: '',
+  anchorLink: false,
+  anchorLinkSymbol: '#',
+  anchorLinkBefore: true,
+  anchorLinkClassName: '',
 }
 ```
 
