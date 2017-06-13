@@ -3,7 +3,13 @@ mokuji.js
 
 [![npm version](https://badge.fury.io/js/mokuji.js.svg)](https://www.npmjs.com/package/mokuji.js)
 
-generate "table of contents".
+A table of content JavaScript Library.
+
+## Installation
+
+```bash
+npm install --save mokuji.js
+```
 
 ## Usage
 
@@ -17,7 +23,7 @@ list.appendChild(mokuji);
 </script>
 ```
 
-### options
+## Options
 
 ```
 {
@@ -25,9 +31,10 @@ list.appendChild(mokuji);
 }
 ```
 
+### `anchorType`
 
-## Installation
+default: `''`
 
-```bash
-npm install --save mokuji.js
-```
+`wikipedia`: Like Wikipedia's anchor, multibyte characters are replaced by escape sequences.
+
+`こんにちは` → `.E3.81.93.E3.82.93.E3.81.AB.E3.81.A1.E3.81.AF`
