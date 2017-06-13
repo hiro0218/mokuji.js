@@ -4,7 +4,11 @@ import hasParentNode from './hasParentNode';
 'use strict';
 
 const defaults = {
-  anchorType: ''
+  anchorType: '',
+  anchorLink: false,
+  anchorLinkSymbol: '#',
+  anchorLinkBefore: true,
+  anchorLinkClassName: '',
 };
 
 export class init {
@@ -18,12 +22,12 @@ export class init {
     options = extend(defaults, options);
 
     // mokuji start
-    var mokuji = this.start(element, options);
+    var mokuji = this.render(element, options);
 
     return mokuji;
   }
 
-  start(element, options) {
+  render(element, options) {
     // generate mokuji list
     var mokuji = this.generateMokuji(element, options);
 
@@ -31,8 +35,10 @@ export class init {
       return;
     }
 
-    // remove duplicates by adding suffix
-    this.removeDuplicateIds(mokuji);
+    // setup anchor link
+    if (options.anchorLink) {
+      this.renderAnchorLink(mokuji, options);
+    }
 
     return mokuji;
   }
@@ -75,6 +81,9 @@ export class init {
 
     ol = this.reverseMokuji(ol);
 
+    // remove duplicates by adding suffix
+    this.removeDuplicateIds(ol);
+
     return ol;
   }
 
@@ -103,6 +112,36 @@ export class init {
     }
 
     return anchor;
+  }
+
+  renderAnchorLink(mokuji, options) {
+    if (!mokuji) {
+      return;
+    }
+
+    var lists = mokuji.getElementsByTagName('a');
+    var a = document.createElement('a');
+    a.classList.add(options.anchorLinkClassName);
+
+    for (var i = 0; i < lists.length; i++) {
+      var hash = lists[i].hash;
+      var headings = document.querySelector(`[id="${hash.replace('#', '')}"]`);
+
+      // create anchor
+      var anchor = a.cloneNode(false);
+      anchor.setAttribute('href', hash);
+      anchor.textContent = options.anchorLinkSymbol;
+
+      // insert anchor into headings
+      if (options.anchorLinkBefore) {
+        // before
+        headings.insertBefore(anchor, headings.firstChild);
+      } else {
+        // after
+        headings.appendChild(anchor);
+      }
+    }
+
   }
 
   replaceSpace2Underscore(text) {
@@ -141,19 +180,19 @@ export class init {
       var count = 0;
 
       for (var heading of headings) {
-        var id = `${heading.id}-${count}`;
+        var heading_id = `${heading.id}-${count}`;
 
         // search duplicate list
         for (var list of lists) {
           if (list.hash === hash) {
             // update hash
-            list.href = `#${id}`;
+            list.href = `#${heading_id}`;
             break;
           }
         }
 
         // update id
-        heading.id = id;
+        heading.id = heading_id;
         count++;
       }
     }
