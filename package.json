@@ -15,7 +15,12 @@
     "type": "git",
     "url": "https://github.com/hiro0218/mokuji.js.git"
   },
-  "keywords": [],
+  "keywords": [
+    "table of content",
+    "toc",
+    "contents",
+    "index"
+  ],
   "author": "hiro",
   "license": "MIT",
   "bugs": {
