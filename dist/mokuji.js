@@ -79,42 +79,11 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Merge defaults with user options
- * @private
- * @param {Object} defaults Default settings
- * @param {Object} options User options
- * @returns {Object} Merged values of defaults and options
- */
-
-module.exports = function (defaults, options) {
-  var extended = {};
-  var prop;
-  for (prop in defaults) {
-    if (Object.prototype.hasOwnProperty.call(defaults, prop)) {
-      extended[prop] = defaults[prop];
-    }
-  }
-  for (prop in options) {
-    if (Object.prototype.hasOwnProperty.call(options, prop)) {
-      extended[prop] = options[prop];
-    }
-  }
-  return extended;
-};
-
-/***/ }),
-/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -138,7 +107,7 @@ module.exports = function hasParentNode(element, parent) {
 };
 
 /***/ }),
-/* 2 */
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -151,11 +120,7 @@ exports.init = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _extend = __webpack_require__(0);
-
-var _extend2 = _interopRequireDefault(_extend);
-
-var _hasParentNode = __webpack_require__(1);
+var _hasParentNode = __webpack_require__(0);
 
 var _hasParentNode2 = _interopRequireDefault(_hasParentNode);
 
@@ -182,7 +147,7 @@ var init = exports.init = function () {
     }
 
     // set options
-    options = (0, _extend2.default)(defaults, options);
+    options = Object.assign(defaults, options);
 
     // mokuji start
     var mokuji = this.render(element, options);
