@@ -108,25 +108,18 @@ module.exports = function hasParentNode(element, parent) {
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.init = undefined;
-
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "init", function() { return init; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__hasParentNode__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__hasParentNode___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__hasParentNode__);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _hasParentNode = __webpack_require__(0);
-
-var _hasParentNode2 = _interopRequireDefault(_hasParentNode);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+
 
 'use strict';
 
@@ -138,7 +131,7 @@ var defaults = {
   anchorLinkClassName: ''
 };
 
-var init = exports.init = function () {
+var init = function () {
   function init(element, options) {
     _classCallCheck(this, init);
 
@@ -196,7 +189,7 @@ var init = exports.init = function () {
         } else if (number > currentNumber) {
           // number of heading is small (large as heading)
           for (var i = 0; i < number - currentNumber; i++) {
-            if ((0, _hasParentNode2.default)(ol, ol.parentNode)) {
+            if (__WEBPACK_IMPORTED_MODULE_0__hasParentNode___default()(ol, ol.parentNode)) {
               ol = ol.parentNode.parentNode;
             }
           }
