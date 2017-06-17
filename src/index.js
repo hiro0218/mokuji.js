@@ -1,4 +1,3 @@
-import extend from './extend';
 import hasParentNode from './hasParentNode';
 
 'use strict';
@@ -19,7 +18,7 @@ export class init {
     }
 
     // set options
-    options = extend(defaults, options);
+    options = Object.assign(defaults, options);
 
     // mokuji start
     var mokuji = this.render(element, options);
