@@ -8,9 +8,9 @@ Copyright (C) 2017 ${package.author}`;
 
 var config = {
   module: {
-    loaders: [{
+    rules: [{
       test: /\.js$/,
-      loaders: ['babel-loader'],
+      use: ['babel-loader'],
       exclude: /node_modules/
     }]
   },
@@ -19,7 +19,6 @@ var config = {
     libraryTarget: 'umd'
   },
   plugins: [
-    new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
     }),
