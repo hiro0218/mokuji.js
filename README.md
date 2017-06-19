@@ -32,6 +32,7 @@ list.appendChild(mokuji);
   anchorLinkSymbol: '#',
   anchorLinkBefore: true,
   anchorLinkClassName: '',
+  smoothScroll: true
 }
 ```
 
