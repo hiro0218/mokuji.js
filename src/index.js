@@ -1,7 +1,7 @@
-import extend from './extend';
-import hasParentNode from './hasParentNode';
-
 'use strict';
+
+require('smoothscroll-polyfill').polyfill();
+import hasParentNode from './hasParentNode';
 
 const defaults = {
   anchorType: '',
@@ -9,6 +9,7 @@ const defaults = {
   anchorLinkSymbol: '#',
   anchorLinkBefore: true,
   anchorLinkClassName: '',
+  smoothScroll: true,
 };
 
 export class init {
@@ -19,7 +20,7 @@ export class init {
     }
 
     // set options
-    options = extend(defaults, options);
+    options = Object.assign(defaults, options);
 
     // mokuji start
     var mokuji = this.render(element, options);
@@ -38,6 +39,11 @@ export class init {
     // setup anchor link
     if (options.anchorLink) {
       this.renderAnchorLink(mokuji, options);
+    }
+
+    // setup smooth scroll
+    if (options.smoothScroll) {
+      this.setSmoothScroll(mokuji);
     }
 
     return mokuji;
@@ -64,7 +70,7 @@ export class init {
         ol = next;
       } else if (number > currentNumber) {
         // number of heading is small (large as heading)
-        for (var i = 0; i < number-currentNumber; i++) {
+        for (let i = 0; i < number-currentNumber; i++) {
           if (hasParentNode(ol, ol.parentNode)) {
             ol = ol.parentNode.parentNode;
           }
@@ -123,7 +129,7 @@ export class init {
     var a = document.createElement('a');
     a.classList.add(options.anchorLinkClassName);
 
-    for (var i = 0; i < lists.length; i++) {
+    for (let i = 0; i < lists.length; i++) {
       var hash = lists[i].hash;
       var headings = document.querySelector(`[id="${hash.replace('#', '')}"]`);
 
@@ -142,6 +148,22 @@ export class init {
       }
     }
 
+  }
+
+  setSmoothScroll(mokuji) {
+    if (!mokuji) {
+      return;
+    }
+
+    var lists = mokuji.getElementsByTagName('a');
+    for (let i = 0; i < lists.length; i++) {
+      lists[i].addEventListener('click', function(e) {
+        var hash = this.hash;
+        e.preventDefault();
+        document.querySelector(`[id="${hash.replace('#', '')}"]`).scrollIntoView({ behavior: 'smooth' });
+        history.pushState(null, null, hash);
+      });
+    }
   }
 
   replaceSpace2Underscore(text) {
@@ -167,7 +189,7 @@ export class init {
   removeDuplicateIds(mokuji) {
     var lists = mokuji.getElementsByTagName('a');
 
-    for (var i = 0; i < lists.length; i++) {
+    for (let i = 0; i < lists.length; i++) {
       var id = lists[i].innerText;
       var hash = lists[i].hash;
       var headings = document.querySelectorAll(`[id="${id}"]`);
@@ -179,11 +201,11 @@ export class init {
       // duplicated id
       var count = 0;
 
-      for (var heading of headings) {
+      for (let heading of headings) {
         var heading_id = `${heading.id}-${count}`;
 
         // search duplicate list
-        for (var list of lists) {
+        for (let list of lists) {
           if (list.hash === hash) {
             // update hash
             list.href = `#${heading_id}`;

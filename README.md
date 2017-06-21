@@ -25,13 +25,14 @@ list.appendChild(mokuji);
 
 ## Options
 
-```
+```javascript
 {
   anchorType: '',
   anchorLink: false,
   anchorLinkSymbol: '#',
   anchorLinkBefore: true,
   anchorLinkClassName: '',
+  smoothScroll: true
 }
 ```
 
@@ -68,3 +69,10 @@ set position (before/after) the anchor link in headings.
 (default: `''`)
 
 set anchor link class name.
+
+
+### `smoothScroll`
+
+(default: `true`)
+
+enable/disable native smooth scrolling.
