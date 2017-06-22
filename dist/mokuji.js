@@ -303,6 +303,13 @@ var init = function () {
         // duplicated id
         var count = 0;
 
+        // Array.from polyfill
+        if (!Array.from) {
+          Array.from = function (arrayLikeObject) {
+            return Array.prototype.slice.call(arrayLikeObject);
+          };
+        }
+
         for (var _iterator = Array.from(headings), _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
           var _ref;
 
