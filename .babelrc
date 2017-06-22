@@ -1,5 +1,10 @@
 {
   "presets": [
     ["es2015", { "modules": false }]
+  ],
+  "plugins": [
+    ["transform-es2015-for-of", {
+      "loose": true
+    }]
   ]
 }
