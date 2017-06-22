@@ -202,6 +202,13 @@ export class init {
       // duplicated id
       var count = 0;
 
+      // Array.from polyfill
+      if (!Array.from) {
+        Array.from = function(arrayLikeObject) {
+          return Array.prototype.slice.call(arrayLikeObject);
+        };
+      }
+
       for (let heading of Array.from(headings)) {
         var heading_id = `${heading.id}-${count}`;
 
