@@ -202,11 +202,11 @@ export class init {
       // duplicated id
       var count = 0;
 
-      for (let heading of headings) {
+      for (let heading of Array.from(headings)) {
         var heading_id = `${heading.id}-${count}`;
 
         // search duplicate list
-        for (let list of lists) {
+        for (let list of Array.from(lists)) {
           if (list.hash === hash) {
             // update hash
             list.href = `#${heading_id}`;

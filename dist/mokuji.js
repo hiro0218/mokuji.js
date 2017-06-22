@@ -303,64 +303,47 @@ var init = function () {
         // duplicated id
         var count = 0;
 
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
+        for (var _iterator = Array.from(headings), _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+          var _ref;
 
-        try {
-          for (var _iterator = headings[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var heading = _step.value;
-
-            var heading_id = heading.id + '-' + count;
-
-            // search duplicate list
-            var _iteratorNormalCompletion2 = true;
-            var _didIteratorError2 = false;
-            var _iteratorError2 = undefined;
-
-            try {
-              for (var _iterator2 = lists[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                var list = _step2.value;
-
-                if (list.hash === hash) {
-                  // update hash
-                  list.href = '#' + heading_id;
-                  break;
-                }
-              }
-
-              // update id
-            } catch (err) {
-              _didIteratorError2 = true;
-              _iteratorError2 = err;
-            } finally {
-              try {
-                if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                  _iterator2.return();
-                }
-              } finally {
-                if (_didIteratorError2) {
-                  throw _iteratorError2;
-                }
-              }
-            }
-
-            heading.id = heading_id;
-            count++;
+          if (_isArray) {
+            if (_i >= _iterator.length) break;
+            _ref = _iterator[_i++];
+          } else {
+            _i = _iterator.next();
+            if (_i.done) break;
+            _ref = _i.value;
           }
-        } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
+
+          var heading = _ref;
+
+          var heading_id = heading.id + '-' + count;
+
+          // search duplicate list
+          for (var _iterator2 = Array.from(lists), _isArray2 = Array.isArray(_iterator2), _i2 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
+            var _ref2;
+
+            if (_isArray2) {
+              if (_i2 >= _iterator2.length) break;
+              _ref2 = _iterator2[_i2++];
+            } else {
+              _i2 = _iterator2.next();
+              if (_i2.done) break;
+              _ref2 = _i2.value;
             }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
+
+            var list = _ref2;
+
+            if (list.hash === hash) {
+              // update hash
+              list.href = '#' + heading_id;
+              break;
             }
           }
+
+          // update id
+          heading.id = heading_id;
+          count++;
         }
       }
     }
