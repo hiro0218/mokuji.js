@@ -1,5 +1,6 @@
 'use strict';
 
+require('es6-object-assign').polyfill();
 require('smoothscroll-polyfill').polyfill();
 import hasParentNode from './hasParentNode';
 
@@ -201,11 +202,18 @@ export class init {
       // duplicated id
       var count = 0;
 
-      for (let heading of headings) {
+      // Array.from polyfill
+      if (!Array.from) {
+        Array.from = function(arrayLikeObject) {
+          return Array.prototype.slice.call(arrayLikeObject);
+        };
+      }
+
+      for (let heading of Array.from(headings)) {
         var heading_id = `${heading.id}-${count}`;
 
         // search duplicate list
-        for (let list of lists) {
+        for (let list of Array.from(lists)) {
           if (list.hash === hash) {
             // update hash
             list.href = `#${heading_id}`;
