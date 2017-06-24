@@ -1,5 +1,5 @@
 /*!
- * mokuji.js v1.3.2
+ * mokuji.js v1.3.3
  * https://github.com/hiro0218/mokuji.js
  * 
  * Copyright (C) 2017 hiro
