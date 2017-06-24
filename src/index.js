@@ -54,7 +54,7 @@ export class init {
     // get heading tags
     var walker = this.createHeadingWalker(element);
     var node = null;
-    var number = 1;
+    var number = 0;
 
     var ol = document.createElement('ol');
     var li = document.createElement('li');
@@ -62,14 +62,15 @@ export class init {
 
     while (node = walker.nextNode()) {
       var currentNumber = node.tagName.match(/\d/g).join('');  // heading number
+      currentNumber = Number(currentNumber);
 
       // check list hierarchy
-      if (number < currentNumber) {
+      if (number !== 0 && number < currentNumber) {
         // number of the heading is large (small as heading)
         var next = document.createElement('ol');
         ol.lastChild.appendChild(next);
         ol = next;
-      } else if (number > currentNumber) {
+      } else if (number !== 0 && number > currentNumber) {
         // number of heading is small (large as heading)
         for (let i = 0; i < number-currentNumber; i++) {
           if (hasParentNode(ol, ol.parentNode)) {
