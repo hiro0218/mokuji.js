@@ -185,6 +185,11 @@ var init = function () {
         number = currentNumber;
       }
 
+      // not have Iterator
+      if (number === 0) {
+        return null;
+      }
+
       ol = this.reverseMokuji(ol);
 
       // remove duplicates by adding suffix

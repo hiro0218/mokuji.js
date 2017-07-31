@@ -34,7 +34,8 @@ if (process.env.NODE_ENV === 'production') {
         screw_ie8: false,
         warnings: false
       }
-    })
+    }),
+    new webpack.optimize.AggressiveMergingPlugin(),
   );
 }
 
