@@ -1,5 +1,5 @@
 /*!
- * mokuji.js v1.3.3
+ * mokuji.js v1.3.4
  * https://github.com/hiro0218/mokuji.js
  * 
  * Copyright (C) 2017 hiro
@@ -171,7 +171,7 @@ var init = function () {
         } else if (number !== 0 && number > currentNumber) {
           // number of heading is small (large as heading)
           for (var i = 0; i < number - currentNumber; i++) {
-            if (__WEBPACK_IMPORTED_MODULE_0__hasParentNode___default.a(ol, ol.parentNode)) {
+            if (__WEBPACK_IMPORTED_MODULE_0__hasParentNode___default()(ol, ol.parentNode)) {
               ol = ol.parentNode.parentNode;
             }
           }
