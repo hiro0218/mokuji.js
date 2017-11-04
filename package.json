@@ -4,7 +4,7 @@
   "description": "A table of content JavaScript Library",
   "main": "lib/index.js",
   "scripts": {
-    "build": "babel src --out-dir lib",
+    "build": "babel src --out-dir lib && npm run build:umd && npm run build:umd:min",
     "build:umd": "webpack src/index.js dist/mokuji.js",
     "build:umd:min": "cross-env NODE_ENV=production webpack src/index.js dist/mokuji.min.js",
     "clean": "rimraf lib dist coverage",
