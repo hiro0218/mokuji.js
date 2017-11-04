@@ -85,9 +85,28 @@ return /******/ (function(modules) { // webpackBootstrap
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "init", function() { return init; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__hasParentNode__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__hasParentNode___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__hasParentNode__);
+
+// CONCATENATED MODULE: ./src/hasParentNode.js
+
+
+/**
+ * hasParentNode
+ * @param  {DOM}  element
+ * @param  {DOM}  parent
+ * @return {Boolean}
+ */
+
+function hasParentNode(element, parent) {
+  while (element) {
+    if (element === parent) {
+      return true;
+    }
+    element = element.parentNode;
+  }
+  return false;
+};
+// CONCATENATED MODULE: ./src/index.js
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "init", function() { return src_init; });
 
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -107,7 +126,7 @@ var defaults = {
   smoothScroll: true
 };
 
-var init = function () {
+var src_init = function () {
   function init(element, options) {
     _classCallCheck(this, init);
 
@@ -171,7 +190,7 @@ var init = function () {
         } else if (number !== 0 && number > currentNumber) {
           // number of heading is small (large as heading)
           for (var i = 0; i < number - currentNumber; i++) {
-            if (__WEBPACK_IMPORTED_MODULE_0__hasParentNode___default()(ol, ol.parentNode)) {
+            if (hasParentNode(ol, ol.parentNode)) {
               ol = ol.parentNode.parentNode;
             }
           }
@@ -871,30 +890,6 @@ module.exports = {
 
 }());
 
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * hasParentNode
- * @param  {DOM}  element
- * @param  {DOM}  parent
- * @return {Boolean}
- */
-
-module.exports = function hasParentNode(element, parent) {
-  while (element) {
-    if (element === parent) {
-      return true;
-    }
-    element = element.parentNode;
-  }
-  return false;
-};
 
 /***/ })
 /******/ ]);
