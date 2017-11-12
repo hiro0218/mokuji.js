@@ -5,7 +5,7 @@ require('smoothscroll-polyfill').polyfill();
 import hasParentNode from './hasParentNode';
 
 const defaults = {
-  anchorType: '',
+  anchorType: true,
   anchorLink: false,
   anchorLinkSymbol: '#',
   anchorLinkBefore: true,
@@ -144,7 +144,7 @@ export class init {
     anchor = anchor.replace(/\&+/g, '');
     anchor = anchor.replace(/\&amp;+/g, '');
 
-    if (type === 'wikipedia') {
+    if (type === true) {
       anchor = encodeURIComponent(anchor);
       anchor = anchor.replace(/\%+/g, '.');
     }
