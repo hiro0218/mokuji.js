@@ -118,7 +118,7 @@ __webpack_require__(2).polyfill();
 
 
 var defaults = {
-  anchorType: '',
+  anchorType: true,
   anchorLink: false,
   anchorLinkSymbol: '#',
   anchorLinkBefore: true,
@@ -206,7 +206,6 @@ var src_init = function () {
 
         // upadte current number
         number = currentNumber;
-        console.log(number);
       }
 
       // not have Iterator
@@ -261,7 +260,7 @@ var src_init = function () {
       anchor = anchor.replace(/\&+/g, '');
       anchor = anchor.replace(/\&amp;+/g, '');
 
-      if (type === 'wikipedia') {
+      if (type === true) {
         anchor = encodeURIComponent(anchor);
         anchor = anchor.replace(/\%+/g, '.');
       }
