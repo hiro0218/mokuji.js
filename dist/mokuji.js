@@ -126,6 +126,8 @@ var defaults = {
   smoothScroll: true
 };
 
+var storeIds = [];
+
 var src_init = function () {
   function init(element, options) {
     _classCallCheck(this, init);
@@ -196,12 +198,15 @@ var src_init = function () {
           }
         }
 
+        var textContent = this.censorshipId(node.textContent);
+
         // add to wrapper
-        node.id = this.setAnchor(node.id, node.textContent, options.anchorType);
+        node.id = this.setAnchor(node.id, textContent, options.anchorType);
         ol.appendChild(this.buildList(node, a.cloneNode(false), li.cloneNode(false)));
 
         // upadte current number
         number = currentNumber;
+        console.log(number);
       }
 
       // not have Iterator
@@ -215,6 +220,28 @@ var src_init = function () {
       this.removeDuplicateIds(ol);
 
       return ol;
+    }
+  }, {
+    key: 'censorshipId',
+    value: function censorshipId(textContent) {
+      var id = textContent;
+      var count = 1;
+
+      if (storeIds.indexOf(id) !== -1) {
+        while (count < 10) {
+          var tmp_id = id + '_' + count;
+          if (storeIds.indexOf(tmp_id) === -1) {
+            id = tmp_id;
+            storeIds.push(id);
+            break;
+          }
+          count++;
+        }
+      } else {
+        storeIds.push(id);
+      }
+
+      return id;
     }
   }, {
     key: 'createHeadingWalker',
