@@ -142,6 +142,9 @@ var src_init = function () {
     // mokuji start
     var mokuji = this.render(element, options);
 
+    // unset storeIds
+    storeIds = null;
+
     return mokuji;
   }
 
