@@ -85,9 +85,28 @@ return /******/ (function(modules) { // webpackBootstrap
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "init", function() { return init; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__hasParentNode__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__hasParentNode___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__hasParentNode__);
+
+// CONCATENATED MODULE: ./src/hasParentNode.js
+
+
+/**
+ * hasParentNode
+ * @param  {DOM}  element
+ * @param  {DOM}  parent
+ * @return {Boolean}
+ */
+
+function hasParentNode(element, parent) {
+  while (element) {
+    if (element === parent) {
+      return true;
+    }
+    element = element.parentNode;
+  }
+  return false;
+};
+// CONCATENATED MODULE: ./src/index.js
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "init", function() { return src_init; });
 
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -99,7 +118,7 @@ __webpack_require__(2).polyfill();
 
 
 var defaults = {
-  anchorType: '',
+  anchorType: true,
   anchorLink: false,
   anchorLinkSymbol: '#',
   anchorLinkBefore: true,
@@ -107,7 +126,9 @@ var defaults = {
   smoothScroll: true
 };
 
-var init = function () {
+var storeIds = [];
+
+var src_init = function () {
   function init(element, options) {
     _classCallCheck(this, init);
 
@@ -171,14 +192,16 @@ var init = function () {
         } else if (number !== 0 && number > currentNumber) {
           // number of heading is small (large as heading)
           for (var i = 0; i < number - currentNumber; i++) {
-            if (__WEBPACK_IMPORTED_MODULE_0__hasParentNode___default()(ol, ol.parentNode)) {
+            if (hasParentNode(ol, ol.parentNode)) {
               ol = ol.parentNode.parentNode;
             }
           }
         }
 
+        var textContent = this.censorshipId(node.textContent);
+
         // add to wrapper
-        node.id = this.setAnchor(node.id, node.textContent, options.anchorType);
+        node.id = this.setAnchor(node.id, textContent, options.anchorType);
         ol.appendChild(this.buildList(node, a.cloneNode(false), li.cloneNode(false)));
 
         // upadte current number
@@ -198,6 +221,28 @@ var init = function () {
       return ol;
     }
   }, {
+    key: 'censorshipId',
+    value: function censorshipId(textContent) {
+      var id = textContent;
+      var count = 1;
+
+      if (storeIds.indexOf(id) !== -1) {
+        while (count < 10) {
+          var tmp_id = id + '_' + count;
+          if (storeIds.indexOf(tmp_id) === -1) {
+            id = tmp_id;
+            storeIds.push(id);
+            break;
+          }
+          count++;
+        }
+      } else {
+        storeIds.push(id);
+      }
+
+      return id;
+    }
+  }, {
     key: 'createHeadingWalker',
     value: function createHeadingWalker(element) {
       return document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT, function (node) {
@@ -215,7 +260,7 @@ var init = function () {
       anchor = anchor.replace(/\&+/g, '');
       anchor = anchor.replace(/\&amp;+/g, '');
 
-      if (type === 'wikipedia') {
+      if (type === true) {
         anchor = encodeURIComponent(anchor);
         anchor = anchor.replace(/\%+/g, '.');
       }
@@ -422,56 +467,68 @@ module.exports = {
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/*
- * smoothscroll polyfill - v0.3.5
- * https://iamdustan.github.io/smoothscroll
- * 2016 (c) Dustan Kasten, Jeremias Menichelli - MIT License
- */
-
-(function(w, d, undefined) {
+/* smoothscroll v0.4.0 - 2017 - Dustan Kasten, Jeremias Menichelli - MIT License */
+(function () {
   'use strict';
 
   /*
    * aliases
    * w: window global object
    * d: document
-   * undefined: undefined
    */
+  var w = window;
+  var d = document;
 
-  // polyfill
+  /**
+   * indicates if a the current browser is made by Microsoft
+   * @method isMicrosoftBrowser
+   * @param {String} userAgent
+   * @returns {Boolean}
+   */
+  function isMicrosoftBrowser(userAgent) {
+    var userAgentPatterns = ['MSIE ', 'Trident/', 'Edge/'];
+
+    return new RegExp(userAgentPatterns.join('|')).test(userAgent);
+  }
+
+   // polyfill
   function polyfill() {
-    // return when scrollBehavior interface is supported
-    if ('scrollBehavior' in d.documentElement.style) {
+    // return if scroll behavior is supported and polyfill is not forced
+    if ('scrollBehavior' in d.documentElement.style
+      && w.__forceSmoothScrollPolyfill__ !== true) {
       return;
     }
 
-    /*
-     * globals
-     */
+    // globals
     var Element = w.HTMLElement || w.Element;
     var SCROLL_TIME = 468;
 
     /*
-     * object gathering original scroll methods
+     * IE has rounding bug rounding down clientHeight and clientWidth and
+     * rounding up scrollHeight and scrollWidth causing false positives
+     * on hasScrollableSpace
      */
+    var ROUNDING_TOLERANCE = isMicrosoftBrowser(w.navigator.userAgent) ? 1 : 0;
+
+    // object gathering original scroll methods
     var original = {
       scroll: w.scroll || w.scrollTo,
       scrollBy: w.scrollBy,
-      elScroll: Element.prototype.scroll || scrollElement,
+      elementScroll: Element.prototype.scroll || scrollElement,
       scrollIntoView: Element.prototype.scrollIntoView
     };
 
-    /*
-     * define timing method
-     */
+    // define timing method
     var now = w.performance && w.performance.now
-      ? w.performance.now.bind(w.performance) : Date.now;
+      ? w.performance.now.bind(w.performance)
+      : Date.now;
 
     /**
      * changes scroll position inside an element
      * @method scrollElement
      * @param {Number} x
      * @param {Number} y
+     * @returns {undefined}
      */
     function scrollElement(x, y) {
       this.scrollLeft = x;
@@ -491,28 +548,75 @@ module.exports = {
     /**
      * indicates if a smooth behavior should be applied
      * @method shouldBailOut
-     * @param {Number|Object} x
+     * @param {Number|Object} firstArg
      * @returns {Boolean}
      */
-    function shouldBailOut(x) {
-      if (typeof x !== 'object'
-            || x === null
-            || x.behavior === undefined
-            || x.behavior === 'auto'
-            || x.behavior === 'instant') {
-        // first arg not an object/null
+    function shouldBailOut(firstArg) {
+      if (firstArg === null
+        || typeof firstArg !== 'object'
+        || firstArg.behavior === undefined
+        || firstArg.behavior === 'auto'
+        || firstArg.behavior === 'instant') {
+        // first argument is not an object/null
         // or behavior is auto, instant or undefined
         return true;
       }
 
-      if (typeof x === 'object'
-            && x.behavior === 'smooth') {
+      if (typeof firstArg === 'object' && firstArg.behavior === 'smooth') {
         // first argument is an object and behavior is smooth
         return false;
       }
 
       // throw error when behavior is not supported
-      throw new TypeError('behavior not valid');
+      throw new TypeError(
+        'behavior member of ScrollOptions '
+        + firstArg.behavior
+        + ' is not a valid value for enumeration ScrollBehavior.'
+      );
+    }
+
+    /**
+     * indicates if an element has scrollable space in the provided axis
+     * @method hasScrollableSpace
+     * @param {Node} el
+     * @param {String} axis
+     * @returns {Boolean}
+     */
+    function hasScrollableSpace(el, axis) {
+      if (axis === 'Y') {
+        return (el.clientHeight + ROUNDING_TOLERANCE) < el.scrollHeight;
+      }
+
+      if (axis === 'X') {
+        return (el.clientWidth + ROUNDING_TOLERANCE) < el.scrollWidth;
+      }
+    }
+
+    /**
+     * indicates if an element has a scrollable overflow property in the axis
+     * @method canOverflow
+     * @param {Node} el
+     * @param {String} axis
+     * @returns {Boolean}
+     */
+    function canOverflow(el, axis) {
+      var overflowValue = w.getComputedStyle(el, null)['overflow' + axis];
+
+      return overflowValue === 'auto' || overflowValue === 'scroll';
+    }
+
+    /**
+     * indicates if an element can be scrolled in either axis
+     * @method isScrollable
+     * @param {Node} el
+     * @param {String} axis
+     * @returns {Boolean}
+     */
+    function isScrollable(el) {
+      var isScrollableY = hasScrollableSpace(el, 'Y') && canOverflow(el, 'Y');
+      var isScrollableX = hasScrollableSpace(el, 'X') && canOverflow(el, 'X');
+
+      return isScrollableY || isScrollableX;
     }
 
     /**
@@ -523,22 +627,14 @@ module.exports = {
      */
     function findScrollableParent(el) {
       var isBody;
-      var hasScrollableSpace;
-      var hasVisibleOverflow;
 
       do {
         el = el.parentNode;
 
-        // set condition variables
         isBody = el === d.body;
-        hasScrollableSpace =
-          el.clientHeight < el.scrollHeight ||
-          el.clientWidth < el.scrollWidth;
-        hasVisibleOverflow =
-          w.getComputedStyle(el, null).overflow === 'visible';
-      } while (!isBody && !(hasScrollableSpace && !hasVisibleOverflow));
+      } while (isBody === false && isScrollable(el) === false);
 
-      isBody = hasScrollableSpace = hasVisibleOverflow = null;
+      isBody = null;
 
       return el;
     }
@@ -547,6 +643,7 @@ module.exports = {
      * self invoked function that, given a context, steps through scrolling
      * @method step
      * @param {Object} context
+     * @returns {undefined}
      */
     function step(context) {
       var time = now();
@@ -573,11 +670,12 @@ module.exports = {
     }
 
     /**
-     * scrolls window with a smooth behavior
+     * scrolls window or element with a smooth behavior
      * @method smoothScroll
      * @param {Object|Node} el
      * @param {Number} x
      * @param {Number} y
+     * @returns {undefined}
      */
     function smoothScroll(el, x, y) {
       var scrollable;
@@ -611,19 +709,31 @@ module.exports = {
       });
     }
 
-    /*
-     * ORIGINAL METHODS OVERRIDES
-     */
-
+    // ORIGINAL METHODS OVERRIDES
     // w.scroll and w.scrollTo
     w.scroll = w.scrollTo = function() {
+      // avoid action when no arguments are passed
+      if (arguments[0] === undefined) {
+        return;
+      }
+
       // avoid smooth behavior if not required
-      if (shouldBailOut(arguments[0])) {
+      if (shouldBailOut(arguments[0]) === true) {
         original.scroll.call(
           w,
-          arguments[0].left || arguments[0],
-          arguments[0].top || arguments[1]
+          arguments[0].left !== undefined
+            ? arguments[0].left
+            : typeof arguments[0] !== 'object'
+              ? arguments[0]
+              : (w.scrollX || w.pageXOffset),
+          // use top prop, second argument if present or fallback to scrollY
+          arguments[0].top !== undefined
+            ? arguments[0].top
+            : arguments[1] !== undefined
+              ? arguments[1]
+              : (w.scrollY || w.pageYOffset)
         );
+
         return;
       }
 
@@ -631,20 +741,38 @@ module.exports = {
       smoothScroll.call(
         w,
         d.body,
-        ~~arguments[0].left,
-        ~~arguments[0].top
+        arguments[0].left !== undefined
+          ? ~~arguments[0].left
+          : (w.scrollX || w.pageXOffset),
+        arguments[0].top !== undefined
+          ? ~~arguments[0].top
+          : (w.scrollY || w.pageYOffset)
       );
     };
 
     // w.scrollBy
     w.scrollBy = function() {
+      // avoid action when no arguments are passed
+      if (arguments[0] === undefined) {
+        return;
+      }
+
       // avoid smooth behavior if not required
       if (shouldBailOut(arguments[0])) {
         original.scrollBy.call(
           w,
-          arguments[0].left || arguments[0],
-          arguments[0].top || arguments[1]
+          arguments[0].left !== undefined
+            ? arguments[0].left
+            : typeof arguments[0] !== 'object'
+              ? arguments[0]
+              : 0,
+          arguments[0].top !== undefined
+            ? arguments[0].top
+            : arguments[1] !== undefined
+             ? arguments[1]
+             : 0
         );
+
         return;
       }
 
@@ -659,48 +787,89 @@ module.exports = {
 
     // Element.prototype.scroll and Element.prototype.scrollTo
     Element.prototype.scroll = Element.prototype.scrollTo = function() {
-      // avoid smooth behavior if not required
-      if (shouldBailOut(arguments[0])) {
-        original.elScroll.call(
-            this,
-            arguments[0].left || arguments[0],
-            arguments[0].top || arguments[1]
-        );
+      // avoid action when no arguments are passed
+      if (arguments[0] === undefined) {
         return;
       }
 
+      // avoid smooth behavior if not required
+      if (shouldBailOut(arguments[0]) === true) {
+        // if one number is passed, throw error to match Firefox implementation
+        if (typeof arguments[0] === 'number' && arguments[1] === undefined) {
+          throw new SyntaxError('Value couldn\'t be converted');
+        }
+
+        original.elementScroll.call(
+          this,
+          // use left prop, first number argument or fallback to scrollLeft
+          arguments[0].left !== undefined
+            ? ~~arguments[0].left
+            : typeof arguments[0] !== 'object'
+              ? ~~arguments[0]
+              : this.scrollLeft,
+          // use top prop, second argument or fallback to scrollTop
+          arguments[0].top !== undefined
+            ? ~~arguments[0].top
+            : arguments[1] !== undefined
+              ? ~~arguments[1]
+              : this.scrollTop
+        );
+
+        return;
+      }
+
+      var left = arguments[0].left;
+      var top = arguments[0].top;
+
       // LET THE SMOOTHNESS BEGIN!
       smoothScroll.call(
-          this,
-          this,
-          arguments[0].left,
-          arguments[0].top
+        this,
+        this,
+        typeof left === 'undefined' ? this.scrollLeft : ~~left,
+        typeof top === 'undefined' ? this.scrollTop : ~~top
       );
     };
 
     // Element.prototype.scrollBy
     Element.prototype.scrollBy = function() {
-      var arg0 = arguments[0];
-
-      if (typeof arg0 === 'object') {
-        this.scroll({
-          left: arg0.left + this.scrollLeft,
-          top: arg0.top + this.scrollTop,
-          behavior: arg0.behavior
-        });
-      } else {
-        this.scroll(
-          this.scrollLeft + arg0,
-          this.scrollTop + arguments[1]
-        );
+      // avoid action when no arguments are passed
+      if (arguments[0] === undefined) {
+        return;
       }
+
+      // avoid smooth behavior if not required
+      if (shouldBailOut(arguments[0]) === true) {
+        original.elementScroll.call(
+          this,
+          arguments[0].left !== undefined
+            ? ~~arguments[0].left + this.scrollLeft
+            : ~~arguments[0] + this.scrollLeft,
+          arguments[0].top !== undefined
+            ? ~~arguments[0].top + this.scrollTop
+            : ~~arguments[1] + this.scrollTop
+        );
+
+        return;
+      }
+
+      this.scroll({
+        left: ~~arguments[0].left + this.scrollLeft,
+        top: ~~arguments[0].top + this.scrollTop,
+        behavior: arguments[0].behavior
+      });
     };
 
     // Element.prototype.scrollIntoView
     Element.prototype.scrollIntoView = function() {
       // avoid smooth behavior if not required
-      if (shouldBailOut(arguments[0])) {
-        original.scrollIntoView.call(this, arguments[0] || true);
+      if (shouldBailOut(arguments[0]) === true) {
+        original.scrollIntoView.call(
+          this,
+          arguments[0] === undefined
+            ? true
+            : arguments[0]
+        );
+
         return;
       }
 
@@ -717,12 +886,15 @@ module.exports = {
           scrollableParent.scrollLeft + clientRects.left - parentRects.left,
           scrollableParent.scrollTop + clientRects.top - parentRects.top
         );
-        // reveal parent in viewport
-        w.scrollBy({
-          left: parentRects.left,
-          top: parentRects.top,
-          behavior: 'smooth'
-        });
+
+        // reveal parent in viewport unless is fixed
+        if (w.getComputedStyle(scrollableParent).position !== 'fixed') {
+          w.scrollBy({
+            left: parentRects.left,
+            top: parentRects.top,
+            behavior: 'smooth'
+          });
+        }
       } else {
         // reveal element in viewport
         w.scrollBy({
@@ -741,32 +913,9 @@ module.exports = {
     // global
     polyfill();
   }
-})(window, document);
 
+}());
 
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * hasParentNode
- * @param  {DOM}  element
- * @param  {DOM}  parent
- * @return {Boolean}
- */
-
-module.exports = function hasParentNode(element, parent) {
-  while (element) {
-    if (element === parent) {
-      return true;
-    }
-    element = element.parentNode;
-  }
-  return false;
-};
 
 /***/ })
 /******/ ]);

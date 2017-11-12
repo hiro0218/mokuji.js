@@ -5,13 +5,15 @@ require('smoothscroll-polyfill').polyfill();
 import hasParentNode from './hasParentNode';
 
 const defaults = {
-  anchorType: '',
+  anchorType: true,
   anchorLink: false,
   anchorLinkSymbol: '#',
   anchorLinkBefore: true,
   anchorLinkClassName: '',
   smoothScroll: true,
 };
+
+var storeIds = [];
 
 export class init {
 
@@ -79,8 +81,10 @@ export class init {
         }
       }
 
+      let textContent = this.censorshipId(node.textContent);
+
       // add to wrapper
-      node.id = this.setAnchor(node.id, node.textContent, options.anchorType);
+      node.id = this.setAnchor(node.id, textContent, options.anchorType);
       ol.appendChild(this.buildList(node, a.cloneNode(false), li.cloneNode(false)));
 
       // upadte current number
@@ -98,6 +102,27 @@ export class init {
     this.removeDuplicateIds(ol);
 
     return ol;
+  }
+
+  censorshipId(textContent) {
+    let id = textContent;
+    let count = 1;
+
+    if (storeIds.indexOf(id) !== -1) {
+      while (count < 10) {
+        let tmp_id = `${id}_${count}`;
+        if (storeIds.indexOf(tmp_id) === -1) {
+          id = tmp_id;
+          storeIds.push(id);
+          break;
+        }
+        count++;
+      }
+    } else {
+      storeIds.push(id);
+    }
+
+    return id;
   }
 
   createHeadingWalker(element) {
@@ -119,7 +144,7 @@ export class init {
     anchor = anchor.replace(/\&+/g, '');
     anchor = anchor.replace(/\&amp;+/g, '');
 
-    if (type === 'wikipedia') {
+    if (type === true) {
       anchor = encodeURIComponent(anchor);
       anchor = anchor.replace(/\%+/g, '.');
     }
