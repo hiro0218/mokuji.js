@@ -164,6 +164,9 @@ export class init {
     for (let i = 0; i < lists.length; i++) {
       var hash = lists[i].hash;
       var headings = document.querySelector(`[id="${hash.replace('#', '')}"]`);
+      if (!headings) {
+        continue;
+      }
 
       // create anchor
       var anchor = a.cloneNode(false);

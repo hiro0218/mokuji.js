@@ -1,5 +1,5 @@
 /*!
- * mokuji.js v1.3.4
+ * mokuji.js v1.3.5
  * https://github.com/hiro0218/mokuji.js
  * 
  * Copyright (C) 2017 hiro
@@ -281,6 +281,9 @@ var src_init = function () {
       for (var i = 0; i < lists.length; i++) {
         var hash = lists[i].hash;
         var headings = document.querySelector('[id="' + hash.replace('#', '') + '"]');
+        if (!headings) {
+          continue;
+        }
 
         // create anchor
         var anchor = a.cloneNode(false);
