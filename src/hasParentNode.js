@@ -6,7 +6,8 @@
  * @param  {DOM}  parent
  * @return {Boolean}
  */
-module.exports = function hasParentNode(element, parent){
+
+export default function hasParentNode(element, parent) {
   while (element) {
     if (element === parent) {
       return true;
