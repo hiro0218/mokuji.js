@@ -11,8 +11,7 @@
     }]
   ],
   "plugins": [
-    ["transform-es2015-for-of", {
-      "loose": true
-    }]
+    ["transform-es2015-for-of", { "loose": true }],
+    ["transform-object-assign", { "loose": true }]
   ]
 }

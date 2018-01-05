@@ -1,6 +1,5 @@
 'use strict';
 
-require('es6-object-assign').polyfill();
 require('smoothscroll-polyfill').polyfill();
 import hasParentNode from './hasParentNode';
 
