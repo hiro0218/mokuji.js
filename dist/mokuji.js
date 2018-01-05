@@ -2,7 +2,7 @@
  * mokuji.js v1.3.4
  * https://github.com/hiro0218/mokuji.js
  * 
- * Copyright (C) 2017 hiro
+ * Copyright (C) 2017-2018 hiro
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
