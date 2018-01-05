@@ -81,21 +81,28 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "init", function() { return init; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__hasParentNode__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__hasParentNode___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__hasParentNode__);
 
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.init = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _hasParentNode = __webpack_require__(1);
+
+var _hasParentNode2 = _interopRequireDefault(_hasParentNode);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-__webpack_require__(1).polyfill();
 __webpack_require__(2).polyfill();
+__webpack_require__(3).polyfill();
 
 
 var defaults = {
@@ -107,7 +114,7 @@ var defaults = {
   smoothScroll: true
 };
 
-var init = function () {
+var init = exports.init = function () {
   function init(element, options) {
     _classCallCheck(this, init);
 
@@ -171,7 +178,7 @@ var init = function () {
         } else if (number !== 0 && number > currentNumber) {
           // number of heading is small (large as heading)
           for (var i = 0; i < number - currentNumber; i++) {
-            if (__WEBPACK_IMPORTED_MODULE_0__hasParentNode___default()(ol, ol.parentNode)) {
+            if ((0, _hasParentNode2.default)(ol, ol.parentNode)) {
               ol = ol.parentNode.parentNode;
             }
           }
@@ -370,6 +377,30 @@ var init = function () {
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
+
+/**
+ * hasParentNode
+ * @param  {DOM}  element
+ * @param  {DOM}  parent
+ * @return {Boolean}
+ */
+
+module.exports = function hasParentNode(element, parent) {
+  while (element) {
+    if (element === parent) {
+      return true;
+    }
+    element = element.parentNode;
+  }
+  return false;
+};
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 /**
  * Code refactored from Mozilla Developer Network:
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
@@ -419,7 +450,7 @@ module.exports = {
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* smoothscroll v0.4.0 - 2017 - Dustan Kasten, Jeremias Menichelli - MIT License */
@@ -871,30 +902,6 @@ module.exports = {
 
 }());
 
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * hasParentNode
- * @param  {DOM}  element
- * @param  {DOM}  parent
- * @return {Boolean}
- */
-
-module.exports = function hasParentNode(element, parent) {
-  while (element) {
-    if (element === parent) {
-      return true;
-    }
-    element = element.parentNode;
-  }
-  return false;
-};
 
 /***/ })
 /******/ ]);
