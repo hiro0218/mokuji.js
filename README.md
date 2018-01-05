@@ -27,7 +27,7 @@ list.appendChild(mokuji);
 
 ```javascript
 {
-  anchorType: '',
+  anchorType: true,
   anchorLink: false,
   anchorLinkSymbol: '#',
   anchorLinkBefore: true,
@@ -38,9 +38,9 @@ list.appendChild(mokuji);
 
 ### `anchorType`
 
-(default: `''`)
+(default: `true`)
 
-`wikipedia`: Like Wikipedia's anchor, multibyte characters are replaced by escape sequences.
+Like Wikipedia's anchor, multibyte characters are replaced by escape sequences.
 
 `こんにちは` → `.E3.81.93.E3.82.93.E3.81.AB.E3.81.A1.E3.81.AF`
 

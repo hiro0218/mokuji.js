@@ -1,5 +1,5 @@
 /*!
- * mokuji.js v1.3.4
+ * mokuji.js v1.3.7
  * https://github.com/hiro0218/mokuji.js
  * 
  * Copyright (C) 2017-2018 hiro
@@ -13,7 +13,7 @@
 		exports["Mokuji"] = factory();
 	else
 		root["Mokuji"] = factory();
-})(typeof self !== 'undefined' ? self : this, function() {
+})(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -107,13 +107,15 @@ __webpack_require__(2).polyfill();
 
 
 var defaults = {
-  anchorType: '',
+  anchorType: true,
   anchorLink: false,
   anchorLinkSymbol: '#',
   anchorLinkBefore: true,
   anchorLinkClassName: '',
   smoothScroll: true
 };
+
+var storeIds = [];
 
 var init = exports.init = function () {
   function init(element, options) {
@@ -128,6 +130,9 @@ var init = exports.init = function () {
 
     // mokuji start
     var mokuji = this.render(element, options);
+
+    // unset storeIds
+    storeIds = null;
 
     return mokuji;
   }
@@ -185,8 +190,10 @@ var init = exports.init = function () {
           }
         }
 
+        var textContent = this.censorshipId(node.textContent);
+
         // add to wrapper
-        node.id = this.setAnchor(node.id, node.textContent, options.anchorType);
+        node.id = this.setAnchor(node.id, textContent, options.anchorType);
         ol.appendChild(this.buildList(node, a.cloneNode(false), li.cloneNode(false)));
 
         // upadte current number
@@ -206,6 +213,28 @@ var init = exports.init = function () {
       return ol;
     }
   }, {
+    key: 'censorshipId',
+    value: function censorshipId(textContent) {
+      var id = textContent;
+      var count = 1;
+
+      if (storeIds.indexOf(id) !== -1) {
+        while (count < 10) {
+          var tmp_id = id + '_' + count;
+          if (storeIds.indexOf(tmp_id) === -1) {
+            id = tmp_id;
+            storeIds.push(id);
+            break;
+          }
+          count++;
+        }
+      } else {
+        storeIds.push(id);
+      }
+
+      return id;
+    }
+  }, {
     key: 'createHeadingWalker',
     value: function createHeadingWalker(element) {
       return document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT, function (node) {
@@ -223,7 +252,7 @@ var init = exports.init = function () {
       anchor = anchor.replace(/\&+/g, '');
       anchor = anchor.replace(/\&amp;+/g, '');
 
-      if (type === 'wikipedia') {
+      if (type === true) {
         anchor = encodeURIComponent(anchor);
         anchor = anchor.replace(/\%+/g, '.');
       }
@@ -244,6 +273,9 @@ var init = exports.init = function () {
       for (var i = 0; i < lists.length; i++) {
         var hash = lists[i].hash;
         var headings = document.querySelector('[id="' + hash.replace('#', '') + '"]');
+        if (!headings) {
+          continue;
+        }
 
         // create anchor
         var anchor = a.cloneNode(false);
@@ -387,7 +419,11 @@ var init = exports.init = function () {
  * @return {Boolean}
  */
 
-module.exports = function hasParentNode(element, parent) {
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = hasParentNode;
+function hasParentNode(element, parent) {
   while (element) {
     if (element === parent) {
       return true;
