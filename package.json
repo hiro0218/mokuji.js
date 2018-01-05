@@ -29,7 +29,7 @@
   "homepage": "https://github.com/hiro0218/mokuji.js",
   "dependencies": {
     "es6-object-assign": "^1.1.0",
-    "smoothscroll-polyfill": "^0.3.5"
+    "smoothscroll-polyfill": "^0.4.0"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
