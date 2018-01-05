@@ -5,7 +5,8 @@
         "browsers": [
           "ie 11",
           "safari >= 10"
-        ]
+        ],
+        "modules": false
       }
     }]
   ],
