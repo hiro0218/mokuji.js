@@ -91,6 +91,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.init = undefined;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _hasParentNode = __webpack_require__(1);
@@ -102,7 +104,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 __webpack_require__(2).polyfill();
-__webpack_require__(3).polyfill();
 
 
 var defaults = {
@@ -123,7 +124,7 @@ var init = exports.init = function () {
     }
 
     // set options
-    options = Object.assign(defaults, options);
+    options = _extends(defaults, options);
 
     // mokuji start
     var mokuji = this.render(element, options);
@@ -398,59 +399,6 @@ module.exports = function hasParentNode(element, parent) {
 
 /***/ }),
 /* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * Code refactored from Mozilla Developer Network:
- * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
- */
-
-
-
-function assign(target, firstSource) {
-  if (target === undefined || target === null) {
-    throw new TypeError('Cannot convert first argument to object');
-  }
-
-  var to = Object(target);
-  for (var i = 1; i < arguments.length; i++) {
-    var nextSource = arguments[i];
-    if (nextSource === undefined || nextSource === null) {
-      continue;
-    }
-
-    var keysArray = Object.keys(Object(nextSource));
-    for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
-      var nextKey = keysArray[nextIndex];
-      var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
-      if (desc !== undefined && desc.enumerable) {
-        to[nextKey] = nextSource[nextKey];
-      }
-    }
-  }
-  return to;
-}
-
-function polyfill() {
-  if (!Object.assign) {
-    Object.defineProperty(Object, 'assign', {
-      enumerable: false,
-      configurable: true,
-      writable: true,
-      value: assign
-    });
-  }
-}
-
-module.exports = {
-  assign: assign,
-  polyfill: polyfill
-};
-
-
-/***/ }),
-/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* smoothscroll v0.4.0 - 2017 - Dustan Kasten, Jeremias Menichelli - MIT License */
