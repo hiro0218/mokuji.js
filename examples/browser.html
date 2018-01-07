@@ -46,12 +46,11 @@
   <script src="../dist/mokuji.js"></script>
   <script>
   var mokuji = new Mokuji.init(document.getElementById('target'), {
-    anchorType: 'wikipedia',
+    anchorType: true,
     anchorLink: true,
     anchorLinkSymbol: '#',
     anchorLinkBefore: true,
     anchorLinkClassName: 'anchor',
-    smoothScroll: true,
   });
 
   var list = document.getElementById('mokuji');

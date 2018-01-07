@@ -1,7 +1,5 @@
 'use strict';
 
-require('es6-object-assign').polyfill();
-require('smoothscroll-polyfill').polyfill();
 import hasParentNode from './hasParentNode';
 
 const defaults = {
@@ -10,13 +8,11 @@ const defaults = {
   anchorLinkSymbol: '#',
   anchorLinkBefore: true,
   anchorLinkClassName: '',
-  smoothScroll: true,
 };
 
 var storeIds = [];
 
 export class init {
-
   constructor(element, options) {
     if (!element) {
       return;
@@ -38,18 +34,9 @@ export class init {
     // generate mokuji list
     var mokuji = this.generateMokuji(element, options);
 
-    if (!mokuji) {
-      return;
-    }
-
     // setup anchor link
     if (options.anchorLink) {
       this.renderAnchorLink(mokuji, options);
-    }
-
-    // setup smooth scroll
-    if (options.smoothScroll) {
-      this.setSmoothScroll(mokuji);
     }
 
     return mokuji;
@@ -65,8 +52,8 @@ export class init {
     var li = document.createElement('li');
     var a = document.createElement('a');
 
-    while (node = walker.nextNode()) {
-      var currentNumber = node.tagName.match(/\d/g).join('');  // heading number
+    while ((node = walker.nextNode())) {
+      var currentNumber = node.tagName.match(/\d/g).join(''); // heading number
       currentNumber = Number(currentNumber);
 
       // check list hierarchy
@@ -77,7 +64,7 @@ export class init {
         ol = next;
       } else if (number !== 0 && number > currentNumber) {
         // number of heading is small (large as heading)
-        for (let i = 0; i < number-currentNumber; i++) {
+        for (let i = 0; i < number - currentNumber; i++) {
           if (hasParentNode(ol, ol.parentNode)) {
             ol = ol.parentNode.parentNode;
           }
@@ -88,7 +75,9 @@ export class init {
 
       // add to wrapper
       node.id = this.setAnchor(node.id, textContent, options.anchorType);
-      ol.appendChild(this.buildList(node, a.cloneNode(false), li.cloneNode(false)));
+      ol.appendChild(
+        this.buildList(node, a.cloneNode(false), li.cloneNode(false)),
+      );
 
       // upadte current number
       number = currentNumber;
@@ -133,9 +122,11 @@ export class init {
       element,
       NodeFilter.SHOW_ELEMENT,
       function(node) {
-        return (/^H[1-6]$/.test(node.tagName)) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+        return /^H[1-6]$/.test(node.tagName)
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_SKIP;
       },
-      false
+      false,
     );
   }
 
@@ -184,23 +175,6 @@ export class init {
         // after
         headings.appendChild(anchor);
       }
-    }
-
-  }
-
-  setSmoothScroll(mokuji) {
-    if (!mokuji) {
-      return;
-    }
-
-    var lists = mokuji.getElementsByTagName('a');
-    for (let i = 0; i < lists.length; i++) {
-      lists[i].addEventListener('click', function(e) {
-        var hash = this.hash;
-        e.preventDefault();
-        document.querySelector(`[id="${hash.replace('#', '')}"]`).scrollIntoView({ behavior: 'smooth' });
-        history.pushState(null, null, hash);
-      });
     }
   }
 
@@ -264,5 +238,4 @@ export class init {
       }
     }
   }
-
 }

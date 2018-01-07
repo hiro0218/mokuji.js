@@ -4,7 +4,7 @@ var package = require('./package.json');
 var copyright = `${package.name} v${package.version}
 ${package.homepage}
 
-Copyright (C) 2017 ${package.author}`;
+Copyright (C) 2017-2018 ${package.author}`;
 
 var config = {
   module: {
@@ -35,6 +35,7 @@ if (process.env.NODE_ENV === 'production') {
         warnings: false
       }
     }),
+    new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.optimize.AggressiveMergingPlugin(),
   );
 }
