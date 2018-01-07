@@ -13,7 +13,6 @@ const defaults = {
 var storeIds = [];
 
 export class init {
-
   constructor(element, options) {
     if (!element) {
       return;
@@ -53,8 +52,8 @@ export class init {
     var li = document.createElement('li');
     var a = document.createElement('a');
 
-    while (node = walker.nextNode()) {
-      var currentNumber = node.tagName.match(/\d/g).join('');  // heading number
+    while ((node = walker.nextNode())) {
+      var currentNumber = node.tagName.match(/\d/g).join(''); // heading number
       currentNumber = Number(currentNumber);
 
       // check list hierarchy
@@ -65,7 +64,7 @@ export class init {
         ol = next;
       } else if (number !== 0 && number > currentNumber) {
         // number of heading is small (large as heading)
-        for (let i = 0; i < number-currentNumber; i++) {
+        for (let i = 0; i < number - currentNumber; i++) {
           if (hasParentNode(ol, ol.parentNode)) {
             ol = ol.parentNode.parentNode;
           }
@@ -76,7 +75,9 @@ export class init {
 
       // add to wrapper
       node.id = this.setAnchor(node.id, textContent, options.anchorType);
-      ol.appendChild(this.buildList(node, a.cloneNode(false), li.cloneNode(false)));
+      ol.appendChild(
+        this.buildList(node, a.cloneNode(false), li.cloneNode(false)),
+      );
 
       // upadte current number
       number = currentNumber;
@@ -121,9 +122,11 @@ export class init {
       element,
       NodeFilter.SHOW_ELEMENT,
       function(node) {
-        return (/^H[1-6]$/.test(node.tagName)) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+        return /^H[1-6]$/.test(node.tagName)
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_SKIP;
       },
-      false
+      false,
     );
   }
 
@@ -173,7 +176,6 @@ export class init {
         headings.appendChild(anchor);
       }
     }
-
   }
 
   replaceSpace2Underscore(text) {
@@ -236,5 +238,4 @@ export class init {
       }
     }
   }
-
 }

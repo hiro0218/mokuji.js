@@ -401,7 +401,7 @@ function hasParentNode(element, parent) {
     element = element.parentNode;
   }
   return false;
-};
+}
 
 /***/ })
 /******/ ]);
