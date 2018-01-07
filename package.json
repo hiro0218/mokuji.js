@@ -27,9 +27,7 @@
     "url": "https://github.com/hiro0218/mokuji.js/issues"
   },
   "homepage": "https://github.com/hiro0218/mokuji.js",
-  "dependencies": {
-    "smoothscroll-polyfill": "^0.4.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",

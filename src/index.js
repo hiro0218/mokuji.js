@@ -1,6 +1,5 @@
 'use strict';
 
-require('smoothscroll-polyfill').polyfill();
 import hasParentNode from './hasParentNode';
 
 const defaults = {
@@ -9,7 +8,6 @@ const defaults = {
   anchorLinkSymbol: '#',
   anchorLinkBefore: true,
   anchorLinkClassName: '',
-  smoothScroll: true,
 };
 
 var storeIds = [];
@@ -37,18 +35,9 @@ export class init {
     // generate mokuji list
     var mokuji = this.generateMokuji(element, options);
 
-    if (!mokuji) {
-      return;
-    }
-
     // setup anchor link
     if (options.anchorLink) {
       this.renderAnchorLink(mokuji, options);
-    }
-
-    // setup smooth scroll
-    if (options.smoothScroll) {
-      this.setSmoothScroll(mokuji);
     }
 
     return mokuji;
@@ -185,22 +174,6 @@ export class init {
       }
     }
 
-  }
-
-  setSmoothScroll(mokuji) {
-    if (!mokuji) {
-      return;
-    }
-
-    var lists = mokuji.getElementsByTagName('a');
-    for (let i = 0; i < lists.length; i++) {
-      lists[i].addEventListener('click', function(e) {
-        var hash = this.hash;
-        e.preventDefault();
-        document.querySelector(`[id="${hash.replace('#', '')}"]`).scrollIntoView({ behavior: 'smooth' });
-        history.pushState(null, null, hash);
-      });
-    }
   }
 
   replaceSpace2Underscore(text) {
