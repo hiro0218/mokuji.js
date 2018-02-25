@@ -25,7 +25,7 @@ export class init {
     var mokuji = this.render(element, options);
 
     // unset storeIds
-    storeIds = null;
+    storeIds = [];
 
     return mokuji;
   }

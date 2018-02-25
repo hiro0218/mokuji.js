@@ -128,7 +128,7 @@ var init = exports.init = function () {
     var mokuji = this.render(element, options);
 
     // unset storeIds
-    storeIds = null;
+    storeIds = [];
 
     return mokuji;
   }
