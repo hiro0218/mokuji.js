@@ -10,7 +10,8 @@
     "clean": "rimraf lib dist coverage",
     "lint": "eslint src",
     "format": "eslint --fix src",
-    "test": "npm run lint"
+    "test": "npm run lint",
+    "prepublish": "npm run build"
   },
   "lint-staged": {
     "src/*.js": [
