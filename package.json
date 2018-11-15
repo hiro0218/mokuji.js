@@ -13,6 +13,10 @@
     "test": "npm run lint",
     "prepublish": "npm run build"
   },
+  "files": [
+    "dist/",
+    "lib/"
+  ],
   "lint-staged": {
     "src/*.js": [
       "eslint --fix",
