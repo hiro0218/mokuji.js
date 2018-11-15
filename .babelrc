@@ -1,17 +1,30 @@
 {
   "presets": [
-    ["env", {
-      "targets": {
-        "browsers": [
-          "ie 11",
-          "safari >= 10"
-        ],
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "browsers": [
+            "ie 11",
+            "safari >= 10"
+          ]
+        },
         "modules": false
       }
-    }]
+    ]
   ],
   "plugins": [
-    ["transform-es2015-for-of", { "loose": true }],
-    ["transform-object-assign", { "loose": true }]
+    [
+      "@babel/plugin-transform-for-of",
+      {
+        "loose": true
+      }
+    ],
+    [
+      "@babel/plugin-transform-object-assign",
+      {
+        "loose": true
+      }
+    ]
   ]
 }

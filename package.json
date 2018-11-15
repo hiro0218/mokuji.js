@@ -4,15 +4,18 @@
   "description": "A table of content JavaScript Library",
   "main": "lib/index.js",
   "scripts": {
-    "build": "babel src --out-dir lib && npm run build:umd && npm run build:umd:min",
-    "build:umd": "webpack src/index.js dist/mokuji.js",
-    "build:umd:min": "cross-env NODE_ENV=production webpack src/index.js dist/mokuji.min.js",
+    "build": "babel src --out-dir lib && npm run build:umd",
+    "build:umd": "cross-env NODE_ENV=production webpack -p --progress --mode production",
     "clean": "rimraf lib dist coverage",
     "lint": "eslint src",
     "format": "eslint --fix src",
-    "precommit": "lint-staged",
-    "test": "npm run lint"
+    "test": "npm run lint",
+    "prepublish": "npm run build"
   },
+  "files": [
+    "dist/",
+    "lib/"
+  ],
   "lint-staged": {
     "src/*.js": [
       "eslint --fix",
@@ -38,24 +41,30 @@
   "homepage": "https://github.com/hiro0218/mokuji.js",
   "dependencies": {},
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.2",
-    "babel-eslint": "^8.2.3",
-    "babel-loader": "^7.1.4",
-    "babel-plugin-transform-es2015-for-of": "^6.23.0",
-    "babel-plugin-transform-object-assign": "^6.22.0",
-    "babel-preset-env": "^1.6.1",
-    "cross-env": "^5.1.4",
+    "@babel/cli": "7.1.5",
+    "@babel/core": "7.1.6",
+    "@babel/plugin-transform-for-of": "7.0.0",
+    "@babel/plugin-transform-object-assign": "7.0.0",
+    "@babel/preset-env": "7.1.6",
+    "babel-eslint": "^10.0.1",
+    "babel-loader": "^8.0.4",
+    "cross-env": "^5.2.0",
     "eslint": "^4.19.1",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-import": "^2.11.0",
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-prettier": "^2.6.0",
     "eslint-plugin-promise": "^3.7.0",
-    "husky": "^0.14.3",
-    "lint-staged": "^7.0.5",
-    "prettier": "^1.12.1",
+    "husky": "^1.1.4",
+    "lint-staged": "^8.0.4",
+    "prettier": "^1.15.2",
     "rimraf": "^2.6.2",
-    "webpack": "^3.11.0"
+    "webpack": "^4.25.1",
+    "webpack-cli": "^3.1.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }
