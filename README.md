@@ -13,14 +13,12 @@ npm install --save mokuji.js
 
 ## Usage
 
-```html
-<script src="../dist/mokuji.js"></script>
-<script>
-var mokuji = new Mokuji.init(document.getElementById('target'));
+```javascript
+let textElement = document.querySelector('.text');
+let mokuji = new Mokuji(textElement);
 
-var list = document.getElementById('list');
-list.appendChild(mokuji);
-</script>
+let listElement = document.querySelector('.list');
+listElement.appendChild(mokuji);
 ```
 
 ## Options
