@@ -1,60 +1,128 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="ja">
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Mokuji.js - sandbox</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
   <style>
-  #target {
-    margin-bottom: 100vh;
-  }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    a {
+      color: #3273dc;
+      text-decoration: none;
+    }
+
+    body {
+      color: #4a4a4a;
+      font-size: 1rem;
+    }
+
+    .container {
+      padding: 1vw 3vw;
+      height: 300vh;
+    }
+
+    .columns {
+      display: flex;
+      margin-left: -0.75rem;
+      margin-right: -0.75rem;
+      margin-top: -0.75rem;
+    }
+
+    .columns:last-child {
+      margin-bottom: -0.75rem;
+    }
+
+    .column {
+      display: block;
+      flex-basis: 0;
+      flex-grow: 1;
+      flex-shrink: 1;
+      padding: 0.75rem;
+    }
+
+    hr {
+      background-color: whitesmoke;
+      border: none;
+      display: block;
+      height: 2px;
+      margin: 1.5rem 0;
+    }
+
   </style>
 </head>
+
 <body>
-  <div id="mokuji"></div>
-  <hr>
-  <div id="target">
-    <h1>one</h1>
+  <div class="container">
+    <div class="columns">
+      <div class="column">
+        <span>目次</span>
+        <div id="mokuji"></div>
+      </div>
+      <div id="target" class="column">
+        <span>本文</span>
 
-    <h2>two</h2>
-    <h3>three - one</h3>
-    <h3>three - two</h3>
+        <h1>one</h1>
 
-    <h2>two</h2>
-    <h3>three</h3>
+        <h2>two</h2>
+        <h3>three - one</h3>
+        <h3>three - two</h3>
 
-    <h2>two</h2>
-    <h4>four</h4>
+        <h2>two</h2>
+        <h3>three</h3>
 
-    <h3>A&amp;B</h3>
+        <h2>two</h2>
+        <h4>four</h4>
 
-    <h2>two</h2>
-    <h5>five</h5>
-    <h6>six</h6>
+        <h3>A&amp;B</h3>
 
-    <hr>
-    <h2>弐</h2>
-    <h2>2</h2>
-    <h3>参</h3>
-    <h3>3</h3>
-    <h4>肆</h4>
-    <h4>4</h4>
-    <h5>伍</h5>
-    <h5>5</h5>
-    <h6>陸</h6>
-    <h6>6</h6>
+        <h2>two</h2>
+        <h5>five</h5>
+        <h6>six</h6>
+
+        <hr>
+        
+        <h2>重複</h2>
+        <h3>重複</h3>
+        <h4>重複</h4>
+
+        <hr>
+
+        <h2>弐</h2>
+        <h2>2</h2>
+        <h3>参</h3>
+        <h3>3</h3>
+        <h4>肆</h4>
+        <h4>4</h4>
+        <h5>伍</h5>
+        <h5>5</h5>
+        <h6>陸</h6>
+        <h6>6</h6>
+      </div>
+    </div>
   </div>
+
   <script src="../dist/mokuji.min.js"></script>
   <script>
-  var mokuji = new Mokuji(document.getElementById('target'), {
-    anchorType: true,
-    anchorLink: true,
-    anchorLinkSymbol: '#',
-    anchorLinkBefore: true,
-    anchorLinkClassName: 'anchor',
-  });
+    var mokuji = new Mokuji(document.getElementById("target"), {
+      anchorType: true,
+      anchorLink: true,
+      anchorLinkSymbol: "#",
+      anchorLinkBefore: true,
+      anchorLinkClassName: "anchor"
+    });
 
-  var list = document.getElementById('mokuji');
-  list.appendChild(mokuji);
+    var list = document.getElementById("mokuji");
+    list.appendChild(mokuji);
+
   </script>
 </body>
+
 </html>
