@@ -12,7 +12,7 @@ const defaults = {
 
 var storeIds = [];
 
-export class init {
+export default class Mokuji {
   constructor(element, options) {
     if (!element) {
       return;
