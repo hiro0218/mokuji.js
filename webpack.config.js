@@ -24,6 +24,8 @@ var config = {
   output: {
     path: path.join(__dirname, 'dist/'),
     filename: 'mokuji.min.js',
+    library: 'Mokuji',
+    libraryExport: "default",
     libraryTarget: 'umd'
   },
   plugins: [
