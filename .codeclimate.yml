@@ -6,5 +6,5 @@ ratings:
   - src/**
 exclude_paths:
 - dist/**
-- examples/**
+- docs/**
 - lib/**
