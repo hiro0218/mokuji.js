@@ -1,6 +1,6 @@
 {
   "name": "mokuji.js",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "A table of content JavaScript Library",
   "main": "lib/index.js",
   "scripts": {
