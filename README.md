@@ -1,8 +1,6 @@
 mokuji.js
 ===
 
-[![npm version](https://badge.fury.io/js/mokuji.js.svg)](https://www.npmjs.com/package/mokuji.js) [![Code Climate](https://codeclimate.com/github/hiro0218/mokuji.js/badges/gpa.svg)](https://codeclimate.com/github/hiro0218/mokuji.js)
-
 A table of content JavaScript Library.
 
 ## Installation
