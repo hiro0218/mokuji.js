@@ -10,7 +10,7 @@ const defaults = {
   anchorLinkClassName: '',
 };
 
-var storeIds = [];
+let storeIds = [];
 
 export default class Mokuji {
   constructor(element, options) {
@@ -22,7 +22,7 @@ export default class Mokuji {
     options = Object.assign(defaults, options);
 
     // mokuji start
-    var mokuji = this.render(element, options);
+    const mokuji = this.render(element, options);
 
     // unset storeIds
     storeIds = [];
@@ -32,7 +32,7 @@ export default class Mokuji {
 
   render(element, options) {
     // generate mokuji list
-    var mokuji = this.generateMokuji(element, options);
+    const mokuji = this.generateMokuji(element, options);
 
     // setup anchor link
     if (options.anchorLink) {
@@ -44,22 +44,22 @@ export default class Mokuji {
 
   generateMokuji(element, options) {
     // get heading tags
-    var walker = this.createHeadingWalker(element);
-    var node = null;
-    var number = 0;
+    const walker = this.createHeadingWalker(element);
+    let node = null;
+    let number = 0;
 
-    var ol = document.createElement('ol');
-    var li = document.createElement('li');
-    var a = document.createElement('a');
+    let ol = document.createElement('ol');
+    const li = document.createElement('li');
+    const a = document.createElement('a');
 
     while ((node = walker.nextNode())) {
-      var currentNumber = node.tagName.match(/\d/g).join(''); // heading number
+      let currentNumber = node.tagName.match(/\d/g).join(''); // heading number
       currentNumber = Number(currentNumber);
 
       // check list hierarchy
       if (number !== 0 && number < currentNumber) {
         // number of the heading is large (small as heading)
-        var next = document.createElement('ol');
+        const next = document.createElement('ol');
         ol.lastChild.appendChild(next);
         ol = next;
       } else if (number !== 0 && number > currentNumber) {
@@ -71,7 +71,7 @@ export default class Mokuji {
         }
       }
 
-      let textContent = this.censorshipId(node.textContent);
+      const textContent = this.censorshipId(node.textContent);
 
       // add to wrapper
       node.id = this.setAnchor(node.id, textContent, options.anchorType);
@@ -102,7 +102,7 @@ export default class Mokuji {
 
     if (storeIds.indexOf(id) !== -1) {
       while (count < 10) {
-        let tmp_id = `${id}_${count}`;
+        const tmp_id = `${id}_${count}`;
         if (storeIds.indexOf(tmp_id) === -1) {
           id = tmp_id;
           storeIds.push(id);
@@ -132,7 +132,7 @@ export default class Mokuji {
 
   setAnchor(id, text, type) {
     // convert spaces to _
-    var anchor = id || this.replaceSpace2Underscore(text);
+    let anchor = id || this.replaceSpace2Underscore(text);
 
     // remove &
     anchor = anchor.replace(/\&+/g, '');
@@ -151,19 +151,19 @@ export default class Mokuji {
       return;
     }
 
-    var lists = mokuji.getElementsByTagName('a');
-    var a = document.createElement('a');
+    const lists = mokuji.getElementsByTagName('a');
+    const a = document.createElement('a');
     a.classList.add(options.anchorLinkClassName);
 
     for (let i = 0; i < lists.length; i++) {
-      var hash = lists[i].hash;
-      var headings = document.querySelector(`[id="${hash.replace('#', '')}"]`);
+      const hash = lists[i].hash;
+      const headings = document.querySelector(`[id="${hash.replace('#', '')}"]`);
       if (!headings) {
         continue;
       }
 
       // create anchor
-      var anchor = a.cloneNode(false);
+      const anchor = a.cloneNode(false);
       anchor.setAttribute('href', hash);
       anchor.textContent = options.anchorLinkSymbol;
 
@@ -199,19 +199,19 @@ export default class Mokuji {
   }
 
   removeDuplicateIds(mokuji) {
-    var lists = mokuji.getElementsByTagName('a');
+    const lists = mokuji.getElementsByTagName('a');
 
     for (let i = 0; i < lists.length; i++) {
-      var id = lists[i].innerText;
-      var hash = lists[i].hash;
-      var headings = document.querySelectorAll(`[id="${id}"]`);
+      const id = lists[i].innerText;
+      const hash = lists[i].hash;
+      const headings = document.querySelectorAll(`[id="${id}"]`);
 
       if (headings.length === 1) {
         continue;
       }
 
       // duplicated id
-      var count = 0;
+      let count = 0;
 
       // Array.from polyfill
       if (!Array.from) {
@@ -220,11 +220,11 @@ export default class Mokuji {
         };
       }
 
-      for (let heading of Array.from(headings)) {
-        var heading_id = `${heading.id}-${count}`;
+      for (const heading of Array.from(headings)) {
+        const heading_id = `${heading.id}-${count}`;
 
         // search duplicate list
-        for (let list of Array.from(lists)) {
+        for (const list of Array.from(lists)) {
           if (list.hash === hash) {
             // update hash
             list.href = `#${heading_id}`;
