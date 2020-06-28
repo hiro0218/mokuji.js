@@ -11,7 +11,7 @@
     "test": "npm run lint",
     "prepublish": "npm run build"
   },
-  "source": "src/index.js",
+  "source": "src/index.ts",
   "main": "dist/mokuji.js",
   "types": "dist/mokuji.d.ts",
   "module": "dist/mokuji.module.js",
