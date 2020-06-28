@@ -1,4 +1,4 @@
-import { hasParentNode, reverseElement } from "./dom";
+import { hasParentNode, getHeadingsTreeWalker, reverseElement } from "./dom";
 import { replaceSpace2Underscore } from "./utils";
 
 type MokujiOption = {
@@ -55,7 +55,7 @@ export default class Mokuji {
   // @ts-ignore
   generateMokuji(element, options) {
     // get heading tags
-    const walker = this.createHeadingWalker(element);
+    const walker = getHeadingsTreeWalker(element);
     let node = null;
     let number = 0;
 
@@ -130,19 +130,6 @@ export default class Mokuji {
     }
 
     return id;
-  }
-
-  // @ts-ignore
-  createHeadingWalker(element) {
-    return document.createTreeWalker(
-      element,
-      NodeFilter.SHOW_ELEMENT,
-      // @ts-ignore
-      function (node) {
-        return /^H[1-6]$/.test(node.tagName) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
-      },
-      false,
-    );
   }
 
   // @ts-ignore
