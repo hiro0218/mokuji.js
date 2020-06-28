@@ -1,4 +1,4 @@
-import { hasParentNode } from "./dom";
+import { hasParentNode, reverseElement } from "./dom";
 import { replaceSpace2Underscore } from "./utils";
 
 type MokujiOption = {
@@ -101,7 +101,8 @@ export default class Mokuji {
       return null;
     }
 
-    ol = this.reverseMokuji(ol);
+    // @ts-ignore
+    ol = reverseElement(ol);
 
     // remove duplicates by adding suffix
     this.removeDuplicateIds(ol);
@@ -202,15 +203,6 @@ export default class Mokuji {
     li.appendChild(a);
 
     return li;
-  }
-
-  // @ts-ignore
-  reverseMokuji(ol) {
-    while (ol.parentNode) {
-      ol = ol.parentNode;
-    }
-
-    return ol;
   }
 
   // @ts-ignore
