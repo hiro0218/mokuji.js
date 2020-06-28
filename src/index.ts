@@ -2,7 +2,15 @@
 
 import hasParentNode from './hasParentNode';
 
-const defaults = {
+type MokujiOption = {
+  anchorType: Boolean,
+  anchorLink: Boolean,
+  anchorLinkSymbol: string,
+  anchorLinkBefore: Boolean,
+  anchorLinkClassName: string,
+};
+
+const defaults: MokujiOption = {
   anchorType: true,
   anchorLink: false,
   anchorLinkSymbol: '#',
@@ -10,10 +18,11 @@ const defaults = {
   anchorLinkClassName: '',
 };
 
-let storeIds = [];
+let storeIds: string[] = [];
 
 export default class Mokuji {
-  constructor(element, options) {
+  // @ts-ignore
+  constructor(element, options: MokujiOption) {
     if (!element) {
       return;
     }
@@ -27,9 +36,11 @@ export default class Mokuji {
     // unset storeIds
     storeIds = [];
 
+    // @ts-ignore
     return mokuji;
   }
 
+  // @ts-ignore
   render(element, options) {
     // generate mokuji list
     const mokuji = this.generateMokuji(element, options);
@@ -42,6 +53,7 @@ export default class Mokuji {
     return mokuji;
   }
 
+  // @ts-ignore
   generateMokuji(element, options) {
     // get heading tags
     const walker = this.createHeadingWalker(element);
@@ -53,6 +65,7 @@ export default class Mokuji {
     const a = document.createElement('a');
 
     while ((node = walker.nextNode())) {
+      // @ts-ignore
       let currentNumber = node.tagName.match(/\d/g).join(''); // heading number
       currentNumber = Number(currentNumber);
 
@@ -60,12 +73,14 @@ export default class Mokuji {
       if (number !== 0 && number < currentNumber) {
         // number of the heading is large (small as heading)
         const next = document.createElement('ol');
+        // @ts-ignore
         ol.lastChild.appendChild(next);
         ol = next;
       } else if (number !== 0 && number > currentNumber) {
         // number of heading is small (large as heading)
         for (let i = 0; i < number - currentNumber; i++) {
           if (hasParentNode(ol, ol.parentNode)) {
+            // @ts-ignore
             ol = ol.parentNode.parentNode;
           }
         }
@@ -74,6 +89,7 @@ export default class Mokuji {
       const textContent = this.censorshipId(node.textContent);
 
       // add to wrapper
+      // @ts-ignore
       node.id = this.setAnchor(node.id, textContent, options.anchorType);
       ol.appendChild(
         this.buildList(node, a.cloneNode(false), li.cloneNode(false)),
@@ -96,6 +112,7 @@ export default class Mokuji {
     return ol;
   }
 
+  // @ts-ignore
   censorshipId(textContent) {
     let id = textContent;
     let count = 1;
@@ -117,10 +134,12 @@ export default class Mokuji {
     return id;
   }
 
+  // @ts-ignore
   createHeadingWalker(element) {
     return document.createTreeWalker(
       element,
       NodeFilter.SHOW_ELEMENT,
+      // @ts-ignore
       function(node) {
         return /^H[1-6]$/.test(node.tagName)
           ? NodeFilter.FILTER_ACCEPT
@@ -130,6 +149,7 @@ export default class Mokuji {
     );
   }
 
+  // @ts-ignore
   setAnchor(id, text, type) {
     // convert spaces to _
     let anchor = id || this.replaceSpace2Underscore(text);
@@ -146,6 +166,7 @@ export default class Mokuji {
     return anchor;
   }
 
+  // @ts-ignore
   renderAnchorLink(mokuji, options) {
     if (!mokuji) {
       return;
@@ -164,6 +185,7 @@ export default class Mokuji {
 
       // create anchor
       const anchor = a.cloneNode(false);
+      // @ts-ignore
       anchor.setAttribute('href', hash);
       anchor.textContent = options.anchorLinkSymbol;
 
@@ -178,10 +200,11 @@ export default class Mokuji {
     }
   }
 
-  replaceSpace2Underscore(text) {
-    return String(text).replace(/\s+/g, '_');
+  replaceSpace2Underscore(text: string) {
+    return text.replace(/\s+/g, '_');
   }
 
+  // @ts-ignore
   buildList(node, a, li) {
     a.href = '#' + node.id;
     a.textContent = node.textContent;
@@ -190,6 +213,7 @@ export default class Mokuji {
     return li;
   }
 
+  // @ts-ignore
   reverseMokuji(ol) {
     while (ol.parentNode) {
       ol = ol.parentNode;
@@ -198,6 +222,7 @@ export default class Mokuji {
     return ol;
   }
 
+  // @ts-ignore
   removeDuplicateIds(mokuji) {
     const lists = mokuji.getElementsByTagName('a');
 
@@ -215,6 +240,7 @@ export default class Mokuji {
 
       // Array.from polyfill
       if (!Array.from) {
+        // @ts-ignore
         Array.from = function(arrayLikeObject) {
           return Array.prototype.slice.call(arrayLikeObject);
         };
@@ -225,8 +251,10 @@ export default class Mokuji {
 
         // search duplicate list
         for (const list of Array.from(lists)) {
+          // @ts-ignore
           if (list.hash === hash) {
             // update hash
+            // @ts-ignore
             list.href = `#${heading_id}`;
             break;
           }
