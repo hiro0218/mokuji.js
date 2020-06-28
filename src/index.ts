@@ -1,21 +1,21 @@
-'use strict';
+"use strict";
 
-import hasParentNode from './hasParentNode';
+import hasParentNode from "./hasParentNode";
 
 type MokujiOption = {
-  anchorType: Boolean,
-  anchorLink: Boolean,
-  anchorLinkSymbol: string,
-  anchorLinkBefore: Boolean,
-  anchorLinkClassName: string,
+  anchorType: Boolean;
+  anchorLink: Boolean;
+  anchorLinkSymbol: string;
+  anchorLinkBefore: Boolean;
+  anchorLinkClassName: string;
 };
 
 const defaults: MokujiOption = {
   anchorType: true,
   anchorLink: false,
-  anchorLinkSymbol: '#',
+  anchorLinkSymbol: "#",
   anchorLinkBefore: true,
-  anchorLinkClassName: '',
+  anchorLinkClassName: "",
 };
 
 let storeIds: string[] = [];
@@ -60,19 +60,19 @@ export default class Mokuji {
     let node = null;
     let number = 0;
 
-    let ol = document.createElement('ol');
-    const li = document.createElement('li');
-    const a = document.createElement('a');
+    let ol = document.createElement("ol");
+    const li = document.createElement("li");
+    const a = document.createElement("a");
 
     while ((node = walker.nextNode())) {
       // @ts-ignore
-      let currentNumber = node.tagName.match(/\d/g).join(''); // heading number
+      let currentNumber = node.tagName.match(/\d/g).join(""); // heading number
       currentNumber = Number(currentNumber);
 
       // check list hierarchy
       if (number !== 0 && number < currentNumber) {
         // number of the heading is large (small as heading)
-        const next = document.createElement('ol');
+        const next = document.createElement("ol");
         // @ts-ignore
         ol.lastChild.appendChild(next);
         ol = next;
@@ -91,9 +91,7 @@ export default class Mokuji {
       // add to wrapper
       // @ts-ignore
       node.id = this.setAnchor(node.id, textContent, options.anchorType);
-      ol.appendChild(
-        this.buildList(node, a.cloneNode(false), li.cloneNode(false)),
-      );
+      ol.appendChild(this.buildList(node, a.cloneNode(false), li.cloneNode(false)));
 
       // upadte current number
       number = currentNumber;
@@ -140,10 +138,8 @@ export default class Mokuji {
       element,
       NodeFilter.SHOW_ELEMENT,
       // @ts-ignore
-      function(node) {
-        return /^H[1-6]$/.test(node.tagName)
-          ? NodeFilter.FILTER_ACCEPT
-          : NodeFilter.FILTER_SKIP;
+      function (node) {
+        return /^H[1-6]$/.test(node.tagName) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
       },
       false,
     );
@@ -155,12 +151,12 @@ export default class Mokuji {
     let anchor = id || this.replaceSpace2Underscore(text);
 
     // remove &
-    anchor = anchor.replace(/\&+/g, '');
-    anchor = anchor.replace(/\&amp;+/g, '');
+    anchor = anchor.replace(/\&+/g, "");
+    anchor = anchor.replace(/\&amp;+/g, "");
 
     if (type === true) {
       anchor = encodeURIComponent(anchor);
-      anchor = anchor.replace(/\%+/g, '.');
+      anchor = anchor.replace(/\%+/g, ".");
     }
 
     return anchor;
@@ -172,13 +168,13 @@ export default class Mokuji {
       return;
     }
 
-    const lists = mokuji.getElementsByTagName('a');
-    const a = document.createElement('a');
+    const lists = mokuji.getElementsByTagName("a");
+    const a = document.createElement("a");
     a.classList.add(options.anchorLinkClassName);
 
     for (let i = 0; i < lists.length; i++) {
       const hash = lists[i].hash;
-      const headings = document.querySelector(`[id="${hash.replace('#', '')}"]`);
+      const headings = document.querySelector(`[id="${hash.replace("#", "")}"]`);
       if (!headings) {
         continue;
       }
@@ -186,7 +182,7 @@ export default class Mokuji {
       // create anchor
       const anchor = a.cloneNode(false);
       // @ts-ignore
-      anchor.setAttribute('href', hash);
+      anchor.setAttribute("href", hash);
       anchor.textContent = options.anchorLinkSymbol;
 
       // insert anchor into headings
@@ -201,12 +197,12 @@ export default class Mokuji {
   }
 
   replaceSpace2Underscore(text: string) {
-    return text.replace(/\s+/g, '_');
+    return text.replace(/\s+/g, "_");
   }
 
   // @ts-ignore
   buildList(node, a, li) {
-    a.href = '#' + node.id;
+    a.href = "#" + node.id;
     a.textContent = node.textContent;
     li.appendChild(a);
 
@@ -224,7 +220,7 @@ export default class Mokuji {
 
   // @ts-ignore
   removeDuplicateIds(mokuji) {
-    const lists = mokuji.getElementsByTagName('a');
+    const lists = mokuji.getElementsByTagName("a");
 
     for (let i = 0; i < lists.length; i++) {
       const id = lists[i].innerText;
@@ -237,14 +233,6 @@ export default class Mokuji {
 
       // duplicated id
       let count = 0;
-
-      // Array.from polyfill
-      if (!Array.from) {
-        // @ts-ignore
-        Array.from = function(arrayLikeObject) {
-          return Array.prototype.slice.call(arrayLikeObject);
-        };
-      }
 
       for (const heading of Array.from(headings)) {
         const heading_id = `${heading.id}-${count}`;
