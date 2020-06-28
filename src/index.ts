@@ -1,6 +1,5 @@
-"use strict";
-
-import { hasParentNode, replaceSpace2Underscore } from "./utils";
+import { hasParentNode } from "./dom";
+import { replaceSpace2Underscore } from "./utils";
 
 type MokujiOption = {
   anchorType: Boolean;
