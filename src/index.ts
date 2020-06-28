@@ -1,6 +1,6 @@
 "use strict";
 
-import hasParentNode from "./hasParentNode";
+import { hasParentNode } from "./utils";
 
 type MokujiOption = {
   anchorType: Boolean;
