@@ -8,3 +8,11 @@ export const hasParentNode = (element, parent) => {
   }
   return false;
 };
+
+export const reverseElement = (element: Node) => {
+  while (element.parentNode) {
+    element = element.parentNode;
+  }
+
+  return element;
+};
