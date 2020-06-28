@@ -6,8 +6,6 @@
     "build": "microbundle",
     "clean": "rimraf lib/",
     "watch": "microbundle watch",
-    "lint": "eslint src",
-    "format": "eslint --fix src",
     "test": "npm run lint",
     "prepublish": "npm run build"
   },
@@ -26,9 +24,8 @@
     "src/"
   ],
   "lint-staged": {
-    "src/*.{js,ts}": [
-      "eslint --fix",
-      "eslint"
+    "*.{js,ts}": [
+      "prettier --write"
     ]
   },
   "repository": {
