@@ -1,6 +1,6 @@
 "use strict";
 
-import { hasParentNode } from "./utils";
+import { hasParentNode, replaceSpace2Underscore } from "./utils";
 
 type MokujiOption = {
   anchorType: Boolean;
@@ -148,7 +148,7 @@ export default class Mokuji {
   // @ts-ignore
   setAnchor(id, text, type) {
     // convert spaces to _
-    let anchor = id || this.replaceSpace2Underscore(text);
+    let anchor = id || replaceSpace2Underscore(text);
 
     // remove &
     anchor = anchor.replace(/\&+/g, "");
@@ -194,10 +194,6 @@ export default class Mokuji {
         headings.appendChild(anchor);
       }
     }
-  }
-
-  replaceSpace2Underscore(text: string) {
-    return text.replace(/\s+/g, "_");
   }
 
   // @ts-ignore

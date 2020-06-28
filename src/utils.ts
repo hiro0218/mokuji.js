@@ -8,3 +8,7 @@ export const hasParentNode = (element, parent) => {
   }
   return false;
 };
+
+export const replaceSpace2Underscore = (text: string) => {
+  return text.replace(/\s+/g, "_");
+};
