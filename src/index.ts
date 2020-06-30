@@ -9,7 +9,7 @@ type MokujiOption = {
   anchorLinkClassName: string;
 };
 
-const defaults: MokujiOption = {
+const defaultOptions: MokujiOption = {
   anchorType: true,
   anchorLink: false,
   anchorLinkSymbol: "#",
@@ -20,17 +20,12 @@ const defaults: MokujiOption = {
 let storeIds: string[] = [];
 
 export default class Mokuji {
-  // @ts-ignore
-  constructor(element, options: MokujiOption) {
-    if (!element) {
-      return;
-    }
-
+  constructor(element: HTMLElement, options: MokujiOption) {
     // set options
-    options = Object.assign(defaults, options);
+    const mergedOptions = Object.assign(defaultOptions, options);
 
     // mokuji start
-    const mokuji = this.render(element, options);
+    const mokuji = this.render(element, mergedOptions);
 
     // unset storeIds
     storeIds = [];
@@ -39,21 +34,19 @@ export default class Mokuji {
     return mokuji;
   }
 
-  // @ts-ignore
-  render(element, options) {
+  render(element: HTMLElement, options: MokujiOption) {
     // generate mokuji list
-    const mokuji = this.generateMokuji(element, options);
+    const list = this.generateMokuji(element, options);
 
     // setup anchor link
     if (options.anchorLink) {
-      this.renderAnchorLink(mokuji, options);
+      this.renderAnchorLink(list, options);
     }
 
-    return mokuji;
+    return list;
   }
 
-  // @ts-ignore
-  generateMokuji(element, options) {
+  generateMokuji(element: HTMLElement, options: MokujiOption) {
     // get heading tags
     const walker = getHeadingsTreeWalker(element);
     let node = null;
@@ -64,6 +57,8 @@ export default class Mokuji {
     const a = document.createElement("a");
 
     while ((node = walker.nextNode())) {
+      // @ts-ignore
+      console.log(node.tagName);
       // @ts-ignore
       let currentNumber = node.tagName.match(/\d/g).join(""); // heading number
       currentNumber = Number(currentNumber);
@@ -110,9 +105,8 @@ export default class Mokuji {
     return ol;
   }
 
-  // @ts-ignore
-  censorshipId(textContent) {
-    let id = textContent;
+  censorshipId(textContent: string | null) {
+    let id = textContent || "";
     let count = 1;
 
     if (storeIds.indexOf(id) !== -1) {
