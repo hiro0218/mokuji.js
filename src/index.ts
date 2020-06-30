@@ -40,7 +40,8 @@ export default class Mokuji {
 
     // setup anchor link
     if (options.anchorLink) {
-      this.renderAnchorLink(list, options);
+      const anchors = list?.querySelectorAll("a");
+      this.renderAnchorLink(anchors, options);
     }
 
     return list;
@@ -141,26 +142,22 @@ export default class Mokuji {
     return anchor;
   }
 
-  // @ts-ignore
-  renderAnchorLink(mokuji, options) {
-    if (!mokuji) {
-      return;
-    }
+  renderAnchorLink(anchors: NodeListOf<HTMLAnchorElement> | undefined, options: MokujiOption) {
+    if (!anchors) return;
 
-    const lists = mokuji.getElementsByTagName("a");
     const a = document.createElement("a");
     a.classList.add(options.anchorLinkClassName);
 
-    for (let i = 0; i < lists.length; i++) {
-      const hash = lists[i].hash;
+    for (let i = 0; i < anchors.length; i++) {
+      const hash = anchors[i].hash;
       const headings = document.querySelector(`[id="${hash.replace("#", "")}"]`);
+
       if (!headings) {
         continue;
       }
 
       // create anchor
-      const anchor = a.cloneNode(false);
-      // @ts-ignore
+      const anchor = a.cloneNode(false) as HTMLAnchorElement;
       anchor.setAttribute("href", hash);
       anchor.textContent = options.anchorLinkSymbol;
 
