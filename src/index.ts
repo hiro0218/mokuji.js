@@ -17,11 +17,10 @@ const defaultOptions: MokujiOption = {
   anchorLinkClassName: "",
 };
 
-let storeIds: string[] = [];
-
 export default class Mokuji {
   headings: NodeListOf<HTMLHeadingElement>;
   options: MokujiOption;
+  storeIds: string[] = [];
 
   constructor(element: HTMLElement, externalOptions: MokujiOption) {
     this.options = Object.assign(defaultOptions, externalOptions);
@@ -31,7 +30,7 @@ export default class Mokuji {
     const mokuji = this.render();
 
     // unset storeIds
-    storeIds = [];
+    this.storeIds = [];
 
     // @ts-ignore
     return mokuji;
@@ -59,8 +58,6 @@ export default class Mokuji {
 
     for (let i = 0; i < this.headings.length; i++) {
       const heading = this.headings[i];
-
-      // @ts-ignore
       const currentNumber = getHeadingTagName2Number(heading.tagName);
 
       // check list hierarchy
@@ -118,9 +115,9 @@ export default class Mokuji {
     while (suffix_count <= this.headings.length) {
       const tmp_id = suffix_count === 1 ? id : `${id}_${suffix_count}`;
 
-      if (storeIds.indexOf(tmp_id) === -1) {
+      if (this.storeIds.indexOf(tmp_id) === -1) {
         id = tmp_id;
-        storeIds.push(id);
+        this.storeIds.push(id);
         break;
       }
 
