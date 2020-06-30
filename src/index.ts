@@ -33,9 +33,6 @@ export default class Mokuji {
     // mokuji start
     const mokuji = this.render();
 
-    // unset storeIds
-    this.storeIds = [];
-
     // @ts-ignore
     return mokuji;
   }
