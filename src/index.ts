@@ -20,12 +20,15 @@ const defaultOptions: MokujiOption = {
 let storeIds: string[] = [];
 
 export default class Mokuji {
-  constructor(element: HTMLElement, options: MokujiOption) {
-    // set options
-    const mergedOptions = Object.assign(defaultOptions, options);
+  headings: NodeListOf<HTMLHeadingElement>;
+  options: MokujiOption;
+
+  constructor(element: HTMLElement, externalOptions: MokujiOption) {
+    this.options = Object.assign(defaultOptions, externalOptions);
+    this.headings = getHeadingsElement(element);
 
     // mokuji start
-    const mokuji = this.render(element, mergedOptions);
+    const mokuji = this.render();
 
     // unset storeIds
     storeIds = [];
@@ -34,30 +37,28 @@ export default class Mokuji {
     return mokuji;
   }
 
-  render(element: HTMLElement, options: MokujiOption) {
+  render() {
     // generate mokuji list
-    const list = this.generateMokuji(element, options);
+    const list = this.generateMokuji();
 
     // setup anchor link
-    if (options.anchorLink) {
+    if (this.options.anchorLink) {
       const anchors = list?.querySelectorAll("a");
-      this.renderAnchorLink(anchors, options);
+      this.renderAnchorLink(anchors);
     }
 
     return list;
   }
 
-  generateMokuji(element: HTMLElement, options: MokujiOption) {
-    // get heading tags
-    const headings = getHeadingsElement(element);
+  generateMokuji() {
     let number = 0;
 
     let ol = document.createElement("ol");
     const li = document.createElement("li");
     const a = document.createElement("a");
 
-    for (let i = 0; i < headings.length; i++) {
-      const heading = headings[i];
+    for (let i = 0; i < this.headings.length; i++) {
+      const heading = this.headings[i];
 
       // @ts-ignore
       const currentNumber = getHeadingTagName2Number(heading.tagName);
@@ -82,7 +83,7 @@ export default class Mokuji {
       const textContent = this.censorshipId(heading.textContent);
 
       // headingへidを付与
-      heading.id = this.setAnchor(textContent, options.anchorType);
+      heading.id = this.setAnchor(textContent, this.options.anchorType);
 
       // add to wrapper
       const anchorList = this.updateAnchorContent(heading, a.cloneNode(false) as HTMLAnchorElement);
@@ -114,7 +115,7 @@ export default class Mokuji {
     let suffix_count = 1;
 
     // IDが重複していた場合はsuffixを付ける
-    while (suffix_count <= 10) {
+    while (suffix_count <= this.headings.length) {
       const tmp_id = suffix_count === 1 ? id : `${id}_${suffix_count}`;
 
       if (storeIds.indexOf(tmp_id) === -1) {
@@ -143,11 +144,11 @@ export default class Mokuji {
     return anchor;
   }
 
-  renderAnchorLink(anchors: NodeListOf<HTMLAnchorElement> | undefined, options: MokujiOption) {
+  renderAnchorLink(anchors: NodeListOf<HTMLAnchorElement> | undefined) {
     if (!anchors) return;
 
     const a = document.createElement("a");
-    a.classList.add(options.anchorLinkClassName);
+    a.classList.add(this.options.anchorLinkClassName);
 
     for (let i = 0; i < anchors.length; i++) {
       const hash = anchors[i].hash;
@@ -160,10 +161,10 @@ export default class Mokuji {
       // create anchor
       const anchor = a.cloneNode(false) as HTMLAnchorElement;
       anchor.setAttribute("href", hash);
-      anchor.textContent = options.anchorLinkSymbol;
+      anchor.textContent = this.options.anchorLinkSymbol;
 
       // insert anchor into headings
-      if (options.anchorLinkBefore) {
+      if (this.options.anchorLinkBefore) {
         // before
         headings.insertBefore(anchor, headings.firstChild);
       } else {
