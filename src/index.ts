@@ -57,7 +57,7 @@ export default class Mokuji {
     const li = document.createElement("li");
     const a = document.createElement("a");
 
-    while ((node = walker.nextNode())) {
+    while ((node = walker.nextNode() as HTMLHeadingElement)) {
       // @ts-ignore
       const currentNumber = getHeadingTagName2Number(node.tagName);
 
@@ -80,10 +80,14 @@ export default class Mokuji {
 
       const textContent = this.censorshipId(node.textContent);
 
+      // headingへidを付与
+      node.id = this.setAnchor(textContent, options.anchorType);
+
       // add to wrapper
-      // @ts-ignore
-      node.id = this.setAnchor(node.id, textContent, options.anchorType);
-      ol.appendChild(this.buildList(node, a.cloneNode(false), li.cloneNode(false)));
+      const anchorList = this.updateAnchorContent(node, a.cloneNode(false) as HTMLAnchorElement);
+      const list = li.cloneNode(false);
+      list.appendChild(anchorList);
+      ol.appendChild(list);
 
       // upadte current number
       number = currentNumber;
@@ -126,9 +130,9 @@ export default class Mokuji {
   }
 
   // @ts-ignore
-  setAnchor(id, text, type) {
+  setAnchor(text, type) {
     // convert spaces to _
-    let anchor = id || replaceSpace2Underscore(text);
+    let anchor = replaceSpace2Underscore(text);
 
     // remove &
     anchor = anchor.replace(/\&+/g, "");
@@ -172,13 +176,11 @@ export default class Mokuji {
     }
   }
 
-  // @ts-ignore
-  buildList(node, a, li) {
-    a.href = "#" + node.id;
-    a.textContent = node.textContent;
-    li.appendChild(a);
+  updateAnchorContent({ id, textContent }: HTMLHeadingElement, elementAnchor: HTMLAnchorElement) {
+    elementAnchor.href = "#" + id;
+    elementAnchor.textContent = textContent;
 
-    return li;
+    return elementAnchor;
   }
 
   removeDuplicateIds(anchors: HTMLCollectionOf<HTMLAnchorElement>) {
