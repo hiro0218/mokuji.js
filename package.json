@@ -51,6 +51,7 @@
     "bracketSpacing": true
   },
   "devDependencies": {
+    "@babel/plugin-proposal-optional-chaining": "^7.10.4",
     "@hiro0218/prettier-config": "^1.0.2",
     "@types/node": "~14.0.14",
     "cross-env": "^5.2.0",
