@@ -1,5 +1,5 @@
 import { hasParentNode, getHeadingsTreeWalker, reverseElement } from "./dom";
-import { replaceSpace2Underscore, getHeadingTagName2Number } from "./utils";
+import { replaceSpace2Underscore, convert2WikipediaStyleAnchor, getHeadingTagName2Number } from "./utils";
 
 type MokujiOption = {
   anchorType: Boolean;
@@ -134,12 +134,10 @@ export default class Mokuji {
     let anchor = replaceSpace2Underscore(text);
 
     // remove &
-    anchor = anchor.replace(/\&+/g, "");
-    anchor = anchor.replace(/\&amp;+/g, "");
+    anchor = anchor.replace(/\&+/g, "").replace(/\&amp;+/g, "");
 
     if (type === true) {
-      anchor = encodeURIComponent(anchor);
-      anchor = anchor.replace(/\%+/g, ".");
+      anchor = convert2WikipediaStyleAnchor(anchor);
     }
 
     return anchor;
