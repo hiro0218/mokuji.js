@@ -17,15 +17,6 @@ export const reverseElement = (element: Node) => {
   return element;
 };
 
-export const getHeadingsTreeWalker = (root: Node) => {
-  return document.createTreeWalker(
-    root,
-    NodeFilter.SHOW_ELEMENT,
-    {
-      acceptNode: function (node: HTMLElement) {
-        return /^H[1-6]$/.test(node.tagName) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
-      },
-    },
-    false,
-  );
+export const getHeadingsElement = (element: Element): NodeListOf<HTMLHeadingElement> => {
+  return element.querySelectorAll("h1, h2, h3, h4, h5, h6");
 };

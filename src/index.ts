@@ -1,4 +1,4 @@
-import { hasParentNode, getHeadingsTreeWalker, reverseElement } from "./dom";
+import { hasParentNode, getHeadingsElement, reverseElement } from "./dom";
 import { replaceSpace2Underscore, convert2WikipediaStyleAnchor, getHeadingTagName2Number } from "./utils";
 
 type MokujiOption = {
@@ -49,17 +49,18 @@ export default class Mokuji {
 
   generateMokuji(element: HTMLElement, options: MokujiOption) {
     // get heading tags
-    const walker = getHeadingsTreeWalker(element);
-    let node = null;
+    const headings = getHeadingsElement(element);
     let number = 0;
 
     let ol = document.createElement("ol");
     const li = document.createElement("li");
     const a = document.createElement("a");
 
-    while ((node = walker.nextNode() as HTMLHeadingElement)) {
+    for (let i = 0; i < headings.length; i++) {
+      const heading = headings[i];
+
       // @ts-ignore
-      const currentNumber = getHeadingTagName2Number(node.tagName);
+      const currentNumber = getHeadingTagName2Number(heading.tagName);
 
       // check list hierarchy
       if (number !== 0 && number < currentNumber) {
@@ -78,13 +79,13 @@ export default class Mokuji {
         }
       }
 
-      const textContent = this.censorshipId(node.textContent);
+      const textContent = this.censorshipId(heading.textContent);
 
       // headingへidを付与
-      node.id = this.setAnchor(textContent, options.anchorType);
+      heading.id = this.setAnchor(textContent, options.anchorType);
 
       // add to wrapper
-      const anchorList = this.updateAnchorContent(node, a.cloneNode(false) as HTMLAnchorElement);
+      const anchorList = this.updateAnchorContent(heading, a.cloneNode(false) as HTMLAnchorElement);
       const list = li.cloneNode(false);
       list.appendChild(anchorList);
       ol.appendChild(list);
