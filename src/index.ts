@@ -110,20 +110,19 @@ export default class Mokuji {
 
   censorshipId(textContent: string | null) {
     let id = textContent || "";
-    let count = 1;
+    let suffix_count = 1;
 
-    if (storeIds.indexOf(id) !== -1) {
-      while (count < 10) {
-        const tmp_id = `${id}_${count}`;
-        if (storeIds.indexOf(tmp_id) === -1) {
-          id = tmp_id;
-          storeIds.push(id);
-          break;
-        }
-        count++;
+    // IDが重複していた場合はsuffixを付ける
+    while (suffix_count <= 10) {
+      const tmp_id = suffix_count === 1 ? id : `${id}_${suffix_count}`;
+
+      if (storeIds.indexOf(tmp_id) === -1) {
+        id = tmp_id;
+        storeIds.push(id);
+        break;
       }
-    } else {
-      storeIds.push(id);
+
+      suffix_count++;
     }
 
     return id;
