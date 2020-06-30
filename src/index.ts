@@ -1,5 +1,5 @@
 import { hasParentNode, getHeadingsTreeWalker, reverseElement } from "./dom";
-import { replaceSpace2Underscore } from "./utils";
+import { replaceSpace2Underscore, getHeadingTagName2Number } from "./utils";
 
 type MokujiOption = {
   anchorType: Boolean;
@@ -58,10 +58,7 @@ export default class Mokuji {
 
     while ((node = walker.nextNode())) {
       // @ts-ignore
-      console.log(node.tagName);
-      // @ts-ignore
-      let currentNumber = node.tagName.match(/\d/g).join(""); // heading number
-      currentNumber = Number(currentNumber);
+      const currentNumber = getHeadingTagName2Number(node.tagName);
 
       // check list hierarchy
       if (number !== 0 && number < currentNumber) {
@@ -100,7 +97,8 @@ export default class Mokuji {
     ol = reverseElement(ol);
 
     // remove duplicates by adding suffix
-    this.removeDuplicateIds(ol);
+    const anchors = ol.getElementsByTagName("a");
+    this.removeDuplicateIds(anchors);
 
     return ol;
   }
@@ -186,13 +184,10 @@ export default class Mokuji {
     return li;
   }
 
-  // @ts-ignore
-  removeDuplicateIds(mokuji) {
-    const lists = mokuji.getElementsByTagName("a");
-
-    for (let i = 0; i < lists.length; i++) {
-      const id = lists[i].innerText;
-      const hash = lists[i].hash;
+  removeDuplicateIds(anchors: HTMLCollectionOf<HTMLAnchorElement>) {
+    for (let i = 0; i < anchors.length; i++) {
+      const id = anchors[i].innerText;
+      const hash = anchors[i].hash;
       const headings = document.querySelectorAll(`[id="${id}"]`);
 
       if (headings.length === 1) {
@@ -206,12 +201,10 @@ export default class Mokuji {
         const heading_id = `${heading.id}-${count}`;
 
         // search duplicate list
-        for (const list of Array.from(lists)) {
-          // @ts-ignore
-          if (list.hash === hash) {
+        for (const anchor of Array.from(anchors)) {
+          if (anchor.hash === hash) {
             // update hash
-            // @ts-ignore
-            list.href = `#${heading_id}`;
+            anchor.href = `#${heading_id}`;
             break;
           }
         }
