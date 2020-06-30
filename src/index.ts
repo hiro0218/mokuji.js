@@ -9,21 +9,25 @@ type MokujiOption = {
   anchorLinkClassName: string;
 };
 
-const defaultOptions: MokujiOption = {
-  anchorType: true,
-  anchorLink: false,
-  anchorLinkSymbol: "#",
-  anchorLinkBefore: true,
-  anchorLinkClassName: "",
-};
-
 export default class Mokuji {
   headings: NodeListOf<HTMLHeadingElement>;
   options: MokujiOption;
   storeIds: string[] = [];
 
   constructor(element: HTMLElement, externalOptions: MokujiOption) {
-    this.options = Object.assign(defaultOptions, externalOptions);
+    // Merge the default options with the external options.
+    this.options = Object.assign(
+      // default options
+      {
+        anchorType: true,
+        anchorLink: false,
+        anchorLinkSymbol: "#",
+        anchorLinkBefore: true,
+        anchorLinkClassName: "",
+      },
+      externalOptions,
+    );
+
     this.headings = getHeadingsElement(element);
 
     // mokuji start
