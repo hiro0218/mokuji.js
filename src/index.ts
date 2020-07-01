@@ -32,6 +32,7 @@ export default class Mokuji {
 
     // mokuji start
     const mokuji = this.render();
+    console.log(mokuji.childNodes.length);
 
     // @ts-ignore
     return mokuji;
@@ -51,9 +52,22 @@ export default class Mokuji {
   }
 
   generateMokuji() {
-    let number = 0;
-
     let ol = document.createElement("ol");
+
+    ol = this.generateHierarchyList(ol);
+
+    // @ts-ignore
+    ol = reverseElement(ol);
+
+    // remove duplicates by adding suffix
+    const anchors = ol.getElementsByTagName("a");
+    this.removeDuplicateIds(anchors);
+
+    return ol;
+  }
+
+  generateHierarchyList(ol: HTMLOListElement) {
+    let number = 0;
     const li = document.createElement("li");
     const a = document.createElement("a");
 
@@ -92,18 +106,6 @@ export default class Mokuji {
       // upadte current number
       number = currentNumber;
     }
-
-    // not have Iterator
-    if (number === 0) {
-      return null;
-    }
-
-    // @ts-ignore
-    ol = reverseElement(ol);
-
-    // remove duplicates by adding suffix
-    const anchors = ol.getElementsByTagName("a");
-    this.removeDuplicateIds(anchors);
 
     return ol;
   }
