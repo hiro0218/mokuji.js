@@ -7,6 +7,7 @@ type MokujiOption = {
   anchorLinkSymbol: string;
   anchorLinkBefore: Boolean;
   anchorLinkClassName: string;
+  anchorContainerTagName: string;
 };
 
 export default class Mokuji {
@@ -24,6 +25,7 @@ export default class Mokuji {
         anchorLinkSymbol: "#",
         anchorLinkBefore: true,
         anchorLinkClassName: "",
+        anchorContainerTagName: "ol",
       },
       externalOptions,
     );
@@ -51,18 +53,18 @@ export default class Mokuji {
   }
 
   generateMokuji() {
-    let elementOList = document.createElement("ol");
+    let elementContainer = document.createElement(this.options.anchorContainerTagName);
 
-    this.generateHierarchyList(elementOList);
+    this.generateHierarchyList(elementContainer);
 
     // remove duplicates by adding suffix
-    const anchors = elementOList.getElementsByTagName("a");
+    const anchors = elementContainer.getElementsByTagName("a");
     this.removeDuplicateIds(anchors);
 
-    return elementOList;
+    return elementContainer;
   }
 
-  generateHierarchyList(elementOList: HTMLOListElement) {
+  generateHierarchyList(elementContainer: HTMLElement) {
     let number = 0;
     const elementListClone = document.createElement("li");
     const elementAnchorClone = document.createElement("a");
@@ -76,14 +78,14 @@ export default class Mokuji {
         // number of the heading is large (small as heading)
         const nextElementOListClone = document.createElement("ol");
         // @ts-ignore
-        elementOList.lastChild.appendChild(nextElementOListClone);
-        elementOList = nextElementOListClone;
+        elementContainer.lastChild.appendChild(nextElementOListClone);
+        elementContainer = nextElementOListClone;
       } else if (number !== 0 && number > currentNumber) {
         // number of heading is small (large as heading)
         for (let i = 0; i < number - currentNumber; i++) {
-          if (hasParentNode(elementOList, elementOList.parentNode)) {
+          if (hasParentNode(elementContainer, elementContainer.parentNode)) {
             // @ts-ignore
-            elementOList = elementOList.parentNode.parentNode;
+            elementContainer = elementContainer.parentNode.parentNode;
           }
         }
       }
@@ -99,13 +101,11 @@ export default class Mokuji {
       elementAnchor.textContent = heading.textContent;
       const elementList = elementListClone.cloneNode(false);
       elementList.appendChild(elementAnchor);
-      elementOList.appendChild(elementList);
+      elementContainer.appendChild(elementList);
 
       // upadte current number
       number = currentNumber;
     }
-
-    // return elementOList;
   }
 
   censorshipId(textContent: string | null) {
