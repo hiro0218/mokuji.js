@@ -1,5 +1,5 @@
 // @ts-ignore
-export const hasParentNode = (element, parent) => {
+export const hasParentNode = (element: Node | null, parent: Node | null) => {
   while (element) {
     if (element === parent) {
       return true;
