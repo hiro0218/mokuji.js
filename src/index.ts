@@ -1,4 +1,4 @@
-import { hasParentNode, getHeadingsElement, reverseElement } from "./dom";
+import { hasParentNode, getHeadingsElement } from "./dom";
 import { replaceSpace2Underscore, convert2WikipediaStyleAnchor, getHeadingTagName2Number } from "./utils";
 
 type MokujiOption = {
@@ -32,7 +32,6 @@ export default class Mokuji {
 
     // mokuji start
     const mokuji = this.render();
-    console.log(mokuji.childNodes.length);
 
     // @ts-ignore
     return mokuji;
@@ -52,24 +51,21 @@ export default class Mokuji {
   }
 
   generateMokuji() {
-    let ol = document.createElement("ol");
+    let elementOList = document.createElement("ol");
 
-    ol = this.generateHierarchyList(ol);
-
-    // @ts-ignore
-    ol = reverseElement(ol);
+    this.generateHierarchyList(elementOList);
 
     // remove duplicates by adding suffix
-    const anchors = ol.getElementsByTagName("a");
+    const anchors = elementOList.getElementsByTagName("a");
     this.removeDuplicateIds(anchors);
 
-    return ol;
+    return elementOList;
   }
 
-  generateHierarchyList(ol: HTMLOListElement) {
+  generateHierarchyList(elementOList: HTMLOListElement) {
     let number = 0;
-    const li = document.createElement("li");
-    const a = document.createElement("a");
+    const elementListClone = document.createElement("li");
+    const elementAnchorClone = document.createElement("a");
 
     for (let i = 0; i < this.headings.length; i++) {
       const heading = this.headings[i];
@@ -78,16 +74,16 @@ export default class Mokuji {
       // check list hierarchy
       if (number !== 0 && number < currentNumber) {
         // number of the heading is large (small as heading)
-        const next = document.createElement("ol");
+        const nextElementOListClone = document.createElement("ol");
         // @ts-ignore
-        ol.lastChild.appendChild(next);
-        ol = next;
+        elementOList.lastChild.appendChild(nextElementOListClone);
+        elementOList = nextElementOListClone;
       } else if (number !== 0 && number > currentNumber) {
         // number of heading is small (large as heading)
         for (let i = 0; i < number - currentNumber; i++) {
-          if (hasParentNode(ol, ol.parentNode)) {
+          if (hasParentNode(elementOList, elementOList.parentNode)) {
             // @ts-ignore
-            ol = ol.parentNode.parentNode;
+            elementOList = elementOList.parentNode.parentNode;
           }
         }
       }
@@ -98,16 +94,18 @@ export default class Mokuji {
       heading.id = this.setAnchor(textContent, this.options.anchorType);
 
       // add to wrapper
-      const anchorList = this.updateAnchorContent(heading, a.cloneNode(false) as HTMLAnchorElement);
-      const list = li.cloneNode(false);
-      list.appendChild(anchorList);
-      ol.appendChild(list);
+      const elementAnchor = elementAnchorClone.cloneNode(false) as HTMLAnchorElement;
+      elementAnchor.href = "#" + heading.id;
+      elementAnchor.textContent = heading.textContent;
+      const elementList = elementListClone.cloneNode(false);
+      elementList.appendChild(elementAnchor);
+      elementOList.appendChild(elementList);
 
       // upadte current number
       number = currentNumber;
     }
 
-    return ol;
+    // return elementOList;
   }
 
   censorshipId(textContent: string | null) {
@@ -172,13 +170,6 @@ export default class Mokuji {
         headings.appendChild(anchor);
       }
     }
-  }
-
-  updateAnchorContent({ id, textContent }: HTMLHeadingElement, elementAnchor: HTMLAnchorElement) {
-    elementAnchor.href = "#" + id;
-    elementAnchor.textContent = textContent;
-
-    return elementAnchor;
   }
 
   removeDuplicateIds(anchors: HTMLCollectionOf<HTMLAnchorElement>) {
