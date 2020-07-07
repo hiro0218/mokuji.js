@@ -53,14 +53,14 @@
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.10.4",
     "@hiro0218/prettier-config": "^1.0.2",
-    "@types/node": "~14.0.14",
+    "@types/node": "~14.0.18",
     "cross-env": "^5.2.0",
     "husky": "^4.2.5",
     "lint-staged": "^10.2.11",
     "microbundle": "^0.12.2",
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
-    "typescript": "~3.9.5"
+    "typescript": "~3.9.6"
   },
   "husky": {
     "hooks": {
