@@ -2,25 +2,30 @@
   "name": "mokuji.js",
   "version": "2.0.2",
   "description": "A table of content JavaScript Library",
-  "main": "lib/index.js",
   "scripts": {
-    "build": "babel src --out-dir lib && npm run build:umd",
-    "build:umd": "cross-env NODE_ENV=production webpack -p --progress --mode production",
-    "clean": "rimraf lib dist coverage",
-    "lint": "eslint src",
-    "format": "eslint --fix src",
+    "build": "microbundle",
+    "clean": "rimraf lib/",
+    "watch": "microbundle watch",
     "test": "npm run lint",
     "prepublish": "npm run build"
   },
+  "source": "src/index.ts",
+  "main": "dist/mokuji.js",
+  "types": "dist/mokuji.d.ts",
+  "module": "dist/mokuji.module.js",
+  "esmodule": "dist/mokuji.modern.js",
+  "unpkg": "dist/mokuji.umd.js",
+  "directories": {
+    "lib": "lib"
+  },
   "files": [
     "dist/",
-    "lib/"
+    "lib/",
+    "src/"
   ],
   "lint-staged": {
-    "src/*.js": [
-      "eslint --fix",
-      "eslint",
-      "git add"
+    "*.{js,ts}": [
+      "prettier --write"
     ]
   },
   "repository": {
@@ -39,28 +44,23 @@
     "url": "https://github.com/hiro0218/mokuji.js/issues"
   },
   "homepage": "https://github.com/hiro0218/mokuji.js",
-  "dependencies": {},
+  "prettier": {
+    "printWidth": 120,
+    "singleQuote": false,
+    "trailingComma": "all",
+    "bracketSpacing": true
+  },
   "devDependencies": {
-    "@babel/cli": "7.7.4",
-    "@babel/core": "7.7.4",
-    "@babel/plugin-transform-for-of": "7.7.4",
-    "@babel/plugin-transform-object-assign": "7.7.4",
-    "@babel/preset-env": "7.7.4",
-    "babel-eslint": "^10.0.3",
-    "babel-loader": "^8.0.6",
+    "@babel/plugin-proposal-optional-chaining": "^7.10.4",
+    "@hiro0218/prettier-config": "^1.0.2",
+    "@types/node": "~14.0.18",
     "cross-env": "^5.2.0",
-    "eslint": "^5.16.0",
-    "eslint-config-prettier": "^4.2.0",
-    "eslint-plugin-import": "^2.17.2",
-    "eslint-plugin-node": "^9.0.1",
-    "eslint-plugin-prettier": "^3.1.0",
-    "eslint-plugin-promise": "^4.1.1",
-    "husky": "^2.3.0",
-    "lint-staged": "^8.1.6",
-    "prettier": "^1.17.1",
-    "rimraf": "^2.6.3",
-    "webpack": "^4.31.0",
-    "webpack-cli": "^3.3.2"
+    "husky": "^4.2.5",
+    "lint-staged": "^10.2.11",
+    "microbundle": "^0.12.2",
+    "prettier": "^2.0.5",
+    "rimraf": "^3.0.2",
+    "typescript": "~3.9.6"
   },
   "husky": {
     "hooks": {
