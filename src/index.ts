@@ -128,7 +128,7 @@ export class Mokuji {
     return id;
   }
 
-  setAnchor(text: string, type: Boolean) {
+  setAnchor(text: string, type: boolean) {
     // convert spaces to _
     let anchor = replaceSpace2Underscore(text);
 
