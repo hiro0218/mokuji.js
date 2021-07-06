@@ -10,7 +10,7 @@ export type MokujiOption = {
   anchorContainerTagName: string;
 };
 
-export default class Mokuji {
+export class Mokuji {
   headings: NodeListOf<HTMLHeadingElement>;
   options: MokujiOption;
   storeIds: string[] = [];
