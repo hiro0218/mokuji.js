@@ -1,7 +1,7 @@
 import { hasParentNode, getHeadingsElement } from "./dom";
 import { replaceSpace2Underscore, convert2WikipediaStyleAnchor, getHeadingTagName2Number } from "./utils";
 
-type MokujiOption = {
+export type MokujiOption = {
   anchorType: Boolean;
   anchorLink: Boolean;
   anchorLinkSymbol: string;
