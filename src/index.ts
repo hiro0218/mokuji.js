@@ -2,12 +2,12 @@ import { hasParentNode, getHeadingsElement } from "./dom";
 import { replaceSpace2Underscore, convert2WikipediaStyleAnchor, getHeadingTagName2Number } from "./utils";
 
 export type MokujiOption = {
-  anchorType: Boolean;
-  anchorLink: Boolean;
+  anchorType: boolean;
+  anchorLink: boolean;
   anchorLinkSymbol: string;
-  anchorLinkBefore: Boolean;
+  anchorLinkBefore: boolean;
   anchorLinkClassName: string;
-  anchorContainerTagName: string;
+  anchorContainerTagName: "ul" | "ol";
 };
 
 export class Mokuji {
@@ -26,7 +26,7 @@ export class Mokuji {
         anchorLinkBefore: true,
         anchorLinkClassName: "",
         anchorContainerTagName: "ol",
-      },
+      } as MokujiOption,
       externalOptions,
     );
 
