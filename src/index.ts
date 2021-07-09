@@ -70,23 +70,17 @@ export class Mokuji {
     this.headings = getHeadingsElement(element);
 
     // mokuji start
-    const mokuji = this.render();
-
-    // @ts-ignore
-    return mokuji;
-  }
-
-  render() {
     // generate mokuji list
-    const list = this.generateMokuji();
+    const mokuji = this.generateMokuji();
 
     // setup anchor link
     if (this.options.anchorLink) {
-      const anchors = list?.querySelectorAll("a");
+      const anchors = mokuji.querySelectorAll("a");
       renderAnchorLink(this.headings, anchors, this.options);
     }
 
-    return list;
+    // @ts-ignore
+    return mokuji;
   }
 
   generateMokuji() {
