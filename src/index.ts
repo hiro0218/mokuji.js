@@ -10,6 +10,43 @@ export type MokujiOption = {
   anchorContainerTagName: "ul" | "ol";
 };
 
+export const renderAnchorLink = (
+  headings: NodeListOf<HTMLHeadingElement>,
+  anchors: NodeListOf<HTMLAnchorElement> | undefined,
+  options: MokujiOption,
+) => {
+  if (!anchors) return;
+
+  const a = document.createElement("a");
+  a.classList.add(options.anchorLinkClassName);
+
+  headings.forEach((heading) => {
+    const { id } = heading;
+
+    for (let i = 0; i < anchors.length; i++) {
+      const { hash } = anchors[i];
+
+      if (hash.replace("#", "") !== id) {
+        continue;
+      }
+
+      // create anchor
+      const anchor = a.cloneNode(false) as HTMLAnchorElement;
+      anchor.setAttribute("href", hash);
+      anchor.textContent = options.anchorLinkSymbol;
+
+      // insert anchor into headings
+      if (options.anchorLinkBefore) {
+        // before
+        heading.insertBefore(anchor, heading.firstChild);
+      } else {
+        // after
+        heading.appendChild(anchor);
+      }
+    }
+  });
+};
+
 export class Mokuji {
   headings: NodeListOf<HTMLHeadingElement>;
   options: MokujiOption;
@@ -46,7 +83,7 @@ export class Mokuji {
     // setup anchor link
     if (this.options.anchorLink) {
       const anchors = list?.querySelectorAll("a");
-      this.renderAnchorLink(anchors);
+      renderAnchorLink(this.headings, anchors, this.options);
     }
 
     return list;
@@ -140,36 +177,6 @@ export class Mokuji {
     }
 
     return anchor;
-  }
-
-  renderAnchorLink(anchors: NodeListOf<HTMLAnchorElement> | undefined) {
-    if (!anchors) return;
-
-    const a = document.createElement("a");
-    a.classList.add(this.options.anchorLinkClassName);
-
-    for (let i = 0; i < anchors.length; i++) {
-      const hash = anchors[i].hash;
-      const headings = document.querySelector(`[id="${hash.replace("#", "")}"]`);
-
-      if (!headings) {
-        continue;
-      }
-
-      // create anchor
-      const anchor = a.cloneNode(false) as HTMLAnchorElement;
-      anchor.setAttribute("href", hash);
-      anchor.textContent = this.options.anchorLinkSymbol;
-
-      // insert anchor into headings
-      if (this.options.anchorLinkBefore) {
-        // before
-        headings.insertBefore(anchor, headings.firstChild);
-      } else {
-        // after
-        headings.appendChild(anchor);
-      }
-    }
   }
 
   removeDuplicateIds(anchors: HTMLCollectionOf<HTMLAnchorElement>) {
