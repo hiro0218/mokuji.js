@@ -1,5 +1,5 @@
-import { hasParentNode, getHeadingsElement } from "./dom";
-import { replaceSpace2Underscore, convert2WikipediaStyleAnchor, getHeadingTagName2Number } from "./utils";
+import { hasParentNode, getHeadingsElement } from './dom';
+import { replaceSpace2Underscore, convert2WikipediaStyleAnchor, getHeadingTagName2Number } from './utils';
 
 export type MokujiOption = {
   anchorType: boolean;
@@ -7,7 +7,7 @@ export type MokujiOption = {
   anchorLinkSymbol: string;
   anchorLinkBefore: boolean;
   anchorLinkClassName: string;
-  anchorContainerTagName: "ul" | "ol";
+  anchorContainerTagName: 'ul' | 'ol';
 };
 
 export const renderAnchorLink = (
@@ -17,7 +17,7 @@ export const renderAnchorLink = (
 ) => {
   if (!anchors) return;
 
-  const a = document.createElement("a");
+  const a = document.createElement('a');
   a.classList.add(options.anchorLinkClassName);
 
   headings.forEach((heading) => {
@@ -26,13 +26,13 @@ export const renderAnchorLink = (
     for (let i = 0; i < anchors.length; i++) {
       const { hash } = anchors[i];
 
-      if (hash.replace("#", "") !== id) {
+      if (hash.replace('#', '') !== id) {
         continue;
       }
 
       // create anchor
       const anchor = a.cloneNode(false) as HTMLAnchorElement;
-      anchor.setAttribute("href", hash);
+      anchor.setAttribute('href', hash);
       anchor.textContent = options.anchorLinkSymbol;
 
       // insert anchor into headings
@@ -59,10 +59,10 @@ export class Mokuji {
       {
         anchorType: true,
         anchorLink: false,
-        anchorLinkSymbol: "#",
+        anchorLinkSymbol: '#',
         anchorLinkBefore: true,
-        anchorLinkClassName: "",
-        anchorContainerTagName: "ol",
+        anchorLinkClassName: '',
+        anchorContainerTagName: 'ol',
       } as MokujiOption,
       externalOptions,
     );
@@ -71,11 +71,11 @@ export class Mokuji {
 
     // mokuji start
     // generate mokuji list
-    const mokuji = this.generateMokuji();
+    const mokuji = this.generateMokuji(this.headings);
 
     // setup anchor link
     if (this.options.anchorLink) {
-      const anchors = mokuji.querySelectorAll("a");
+      const anchors = mokuji.querySelectorAll('a');
       renderAnchorLink(this.headings, anchors, this.options);
     }
 
@@ -83,31 +83,31 @@ export class Mokuji {
     return mokuji;
   }
 
-  generateMokuji() {
+  generateMokuji(headings: NodeListOf<HTMLHeadingElement>) {
     let elementContainer = document.createElement(this.options.anchorContainerTagName);
 
-    this.generateHierarchyList(elementContainer);
+    this.generateHierarchyList(headings, elementContainer);
 
     // remove duplicates by adding suffix
-    const anchors = elementContainer.getElementsByTagName("a");
+    const anchors = elementContainer.getElementsByTagName('a');
     this.removeDuplicateIds(anchors);
 
     return elementContainer;
   }
 
-  generateHierarchyList(elementContainer: HTMLElement) {
+  generateHierarchyList(headings: NodeListOf<HTMLHeadingElement>, elementContainer: HTMLElement) {
     let number = 0;
-    const elementListClone = document.createElement("li");
-    const elementAnchorClone = document.createElement("a");
+    const elementListClone = document.createElement('li');
+    const elementAnchorClone = document.createElement('a');
 
-    for (let i = 0; i < this.headings.length; i++) {
-      const heading = this.headings[i];
+    for (let i = 0; i < headings.length; i++) {
+      const heading = headings[i];
       const currentNumber = getHeadingTagName2Number(heading.tagName);
 
       // check list hierarchy
       if (number !== 0 && number < currentNumber) {
         // number of the heading is large (small as heading)
-        const nextElementOListClone = document.createElement("ol");
+        const nextElementOListClone = document.createElement('ol');
         // @ts-ignore
         elementContainer.lastChild.appendChild(nextElementOListClone);
         elementContainer = nextElementOListClone;
@@ -121,14 +121,14 @@ export class Mokuji {
         }
       }
 
-      const textContent = this.censorshipId(heading.textContent);
+      const textContent = this.censorshipId(headings, heading.textContent);
 
       // headingへidを付与
       heading.id = this.setAnchor(textContent, this.options.anchorType);
 
       // add to wrapper
       const elementAnchor = elementAnchorClone.cloneNode(false) as HTMLAnchorElement;
-      elementAnchor.href = "#" + heading.id;
+      elementAnchor.href = '#' + heading.id;
       elementAnchor.textContent = heading.textContent;
       const elementList = elementListClone.cloneNode(false);
       elementList.appendChild(elementAnchor);
@@ -139,12 +139,12 @@ export class Mokuji {
     }
   }
 
-  censorshipId(textContent: string | null) {
-    let id = textContent || "";
+  censorshipId(headings: NodeListOf<HTMLHeadingElement>, textContent: string | null) {
+    let id = textContent || '';
     let suffix_count = 1;
 
     // IDが重複していた場合はsuffixを付ける
-    while (suffix_count <= this.headings.length) {
+    while (suffix_count <= headings.length) {
       const tmp_id = suffix_count === 1 ? id : `${id}_${suffix_count}`;
 
       if (this.storeIds.indexOf(tmp_id) === -1) {
@@ -164,7 +164,7 @@ export class Mokuji {
     let anchor = replaceSpace2Underscore(text);
 
     // remove &
-    anchor = anchor.replace(/\&+/g, "").replace(/\&amp;+/g, "");
+    anchor = anchor.replace(/\&+/g, '').replace(/\&amp;+/g, '');
 
     if (type === true) {
       anchor = convert2WikipediaStyleAnchor(anchor);
