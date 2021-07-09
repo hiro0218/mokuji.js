@@ -90,7 +90,7 @@ export class Mokuji {
 
     // remove duplicates by adding suffix
     const anchors = elementContainer.getElementsByTagName('a');
-    this.removeDuplicateIds(anchors);
+    this.removeDuplicateIds(headings, anchors);
 
     return elementContainer;
   }
@@ -173,20 +173,20 @@ export class Mokuji {
     return anchor;
   }
 
-  removeDuplicateIds(anchors: HTMLCollectionOf<HTMLAnchorElement>) {
+  removeDuplicateIds(headings: NodeListOf<HTMLHeadingElement>, anchors: HTMLCollectionOf<HTMLAnchorElement>) {
     for (let i = 0; i < anchors.length; i++) {
       const id = anchors[i].innerText;
       const hash = anchors[i].hash;
-      const headings = document.querySelectorAll(`[id="${id}"]`);
+      const matchedHeadings = Array.from(headings).filter((heading) => heading.id === id);
 
-      if (headings.length === 1) {
+      if (matchedHeadings.length === 1) {
         continue;
       }
 
       // duplicated id
       let count = 0;
 
-      for (const heading of Array.from(headings)) {
+      matchedHeadings.forEach((heading) => {
         const heading_id = `${heading.id}-${count}`;
 
         // search duplicate list
@@ -201,7 +201,7 @@ export class Mokuji {
         // update id
         heading.id = heading_id;
         count++;
-      }
+      });
     }
   }
 }
