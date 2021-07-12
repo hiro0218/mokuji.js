@@ -124,11 +124,12 @@ export class Mokuji {
       const textContent = this.censorshipId(headings, heading.textContent);
 
       // headingへidを付与
-      heading.id = this.setAnchor(textContent, this.options.anchorType);
+      const anchorText = this.generateAnchorText(textContent, this.options.anchorType);
+      heading.id = anchorText;
 
       // add to wrapper
       const elementAnchor = elementAnchorClone.cloneNode(false) as HTMLAnchorElement;
-      elementAnchor.href = '#' + heading.id;
+      elementAnchor.href = `#${anchorText}`;
       elementAnchor.textContent = heading.textContent;
       const elementList = elementListClone.cloneNode(false);
       elementList.appendChild(elementAnchor);
@@ -159,7 +160,7 @@ export class Mokuji {
     return id;
   }
 
-  setAnchor(text: string, type: boolean) {
+  generateAnchorText(text: string, type: boolean) {
     // convert spaces to _
     let anchor = replaceSpace2Underscore(text);
 
