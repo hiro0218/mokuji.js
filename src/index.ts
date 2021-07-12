@@ -48,7 +48,6 @@ export const renderAnchorLink = (
 };
 
 export class Mokuji {
-  headings: NodeListOf<HTMLHeadingElement>;
   options: MokujiOption;
   storeIds: string[] = [];
 
@@ -67,16 +66,16 @@ export class Mokuji {
       externalOptions,
     );
 
-    this.headings = getHeadingsElement(element);
+    const headings = getHeadingsElement(element);
 
     // mokuji start
     // generate mokuji list
-    const mokuji = this.generateMokuji(this.headings);
+    const mokuji = this.generateMokuji(headings);
 
     // setup anchor link
     if (this.options.anchorLink) {
       const anchors = mokuji.querySelectorAll('a');
-      renderAnchorLink(this.headings, anchors, this.options);
+      renderAnchorLink(headings, anchors, this.options);
     }
 
     // @ts-ignore
