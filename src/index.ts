@@ -88,8 +88,7 @@ export class Mokuji {
     this.generateHierarchyList(headings, elementContainer);
 
     // remove duplicates by adding suffix
-    const anchors = elementContainer.getElementsByTagName('a');
-    this.removeDuplicateIds(headings, anchors);
+    this.removeDuplicateIds(headings, elementContainer);
 
     return elementContainer;
   }
@@ -173,7 +172,9 @@ export class Mokuji {
     return anchor;
   }
 
-  removeDuplicateIds(headings: NodeListOf<HTMLHeadingElement>, anchors: HTMLCollectionOf<HTMLAnchorElement>) {
+  removeDuplicateIds(headings: NodeListOf<HTMLHeadingElement>, elementContainer: HTMLElement) {
+    const anchors = elementContainer.getElementsByTagName('a');
+
     for (let i = 0; i < anchors.length; i++) {
       const id = anchors[i].innerText;
       const hash = anchors[i].hash;
