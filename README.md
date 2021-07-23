@@ -12,7 +12,7 @@ npm install --save mokuji.js
 ## Usage
 
 ```javascript
-import Mokuji from 'mokuji.js';
+import { Mokuji } from 'mokuji.js';
 
 let textElement = document.querySelector('.text');
 let mokuji = new Mokuji(textElement);
