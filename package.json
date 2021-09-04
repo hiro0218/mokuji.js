@@ -46,7 +46,7 @@
   "homepage": "https://github.com/hiro0218/mokuji.js",
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.13.12",
-    "@types/node": "~16.6.1",
+    "@types/node": "~16.7.6",
     "cross-env": "^5.2.0",
     "husky": "^4.2.5",
     "lint-staged": "^10.2.11",
