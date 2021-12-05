@@ -48,7 +48,7 @@
     "@babel/plugin-proposal-optional-chaining": "^7.13.12",
     "@types/node": "~16.11.10",
     "cross-env": "^5.2.0",
-    "husky": "^4.2.5",
+    "husky": "^7.0.4",
     "lint-staged": "^12.1.2",
     "microbundle": "^0.13.3",
     "prettier": "^2.3.2",
