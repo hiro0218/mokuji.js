@@ -1,6 +1,6 @@
 {
   "name": "mokuji.js",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "A table of content JavaScript Library",
   "scripts": {
     "build": "microbundle",
