@@ -12,7 +12,7 @@ function App() {
       anchorLinkSymbol: '#',
       anchorLinkBefore: true,
       anchorLinkClassName: 'anchor',
-    });
+    }) as unknown as HTMLOListElement | HTMLUListElement;
 
     const list = document.getElementById('mokuji');
     list?.appendChild(mokuji);
