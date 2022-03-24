@@ -2,12 +2,12 @@ import { hasParentNode, getHeadingsElement } from './dom';
 import { replaceSpace2Underscore, convert2WikipediaStyleAnchor, getHeadingTagName2Number } from './utils';
 
 export type MokujiOption = {
-  anchorType: boolean;
-  anchorLink: boolean;
-  anchorLinkSymbol: string;
-  anchorLinkBefore: boolean;
-  anchorLinkClassName: string;
-  anchorContainerTagName: 'ul' | 'ol';
+  anchorType?: boolean;
+  anchorLink?: boolean;
+  anchorLinkSymbol?: string;
+  anchorLinkBefore?: boolean;
+  anchorLinkClassName?: string;
+  anchorContainerTagName?: 'ul' | 'ol';
 };
 
 export const renderAnchorLink = (
@@ -18,7 +18,10 @@ export const renderAnchorLink = (
   if (!anchors) return;
 
   const a = document.createElement('a');
-  a.classList.add(options.anchorLinkClassName);
+
+  if (options.anchorLinkClassName) {
+    a.classList.add(options.anchorLinkClassName);
+  }
 
   headings.forEach((heading) => {
     const { id } = heading;
@@ -33,7 +36,10 @@ export const renderAnchorLink = (
       // create anchor
       const anchor = a.cloneNode(false) as HTMLAnchorElement;
       anchor.setAttribute('href', hash);
-      anchor.textContent = options.anchorLinkSymbol;
+
+      if (options.anchorLinkSymbol) {
+        anchor.textContent = options.anchorLinkSymbol;
+      }
 
       // insert anchor into headings
       if (options.anchorLinkBefore) {
@@ -48,21 +54,25 @@ export const renderAnchorLink = (
 };
 
 export class Mokuji {
-  options: MokujiOption;
+  options: MokujiOption = {
+    anchorType: true,
+    anchorLink: false,
+    anchorLinkSymbol: '#',
+    anchorLinkBefore: true,
+    anchorLinkClassName: '',
+    anchorContainerTagName: 'ol',
+  };
   storeIds: string[] = [];
 
-  constructor(element: HTMLElement, externalOptions: MokujiOption) {
+  constructor(element: HTMLElement | null, externalOptions: MokujiOption) {
+    if (!element) {
+      return;
+    }
+
     // Merge the default options with the external options.
     this.options = Object.assign(
       // default options
-      {
-        anchorType: true,
-        anchorLink: false,
-        anchorLinkSymbol: '#',
-        anchorLinkBefore: true,
-        anchorLinkClassName: '',
-        anchorContainerTagName: 'ol',
-      } as MokujiOption,
+      this.options,
       externalOptions,
     );
 
@@ -83,7 +93,7 @@ export class Mokuji {
   }
 
   generateMokuji(headings: NodeListOf<HTMLHeadingElement>) {
-    let elementContainer = document.createElement(this.options.anchorContainerTagName);
+    let elementContainer = document.createElement(this.options.anchorContainerTagName || 'ol');
 
     this.generateHierarchyList(headings, elementContainer);
 
@@ -122,7 +132,7 @@ export class Mokuji {
       const textContent = this.censorshipId(headings, heading.textContent);
 
       // headingへidを付与
-      const anchorText = this.generateAnchorText(textContent, this.options.anchorType);
+      const anchorText = this.generateAnchorText(textContent, !!this.options.anchorType);
       heading.id = anchorText;
 
       // add to wrapper
