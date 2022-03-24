@@ -1,0 +1,53 @@
+body {
+  margin: 0 auto;
+  color: #4a4a4a;
+  font-size: 1rem;
+}
+
+a {
+  color: #3273dc;
+  text-decoration: none;
+}
+
+ol, ul {
+  padding: revert;
+  list-style: revert;
+}
+
+.heading {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.container {
+  padding: 1vw 3vw;
+  height: 300vh;
+}
+
+.columns {
+  display: flex;
+  margin-left: -0.75rem;
+  margin-right: -0.75rem;
+  margin-top: -0.75rem;
+}
+
+.columns:last-child {
+  margin-bottom: -0.75rem;
+}
+
+.column {
+  display: block;
+  flex-basis: 0;
+  flex-grow: 1;
+  flex-shrink: 1;
+  padding: 0.75rem;
+}
+
+hr {
+  background-color: whitesmoke;
+  border: none;
+  display: block;
+  height: 2px;
+  margin: 1.5rem 0;
+}
