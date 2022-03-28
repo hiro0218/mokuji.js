@@ -1,16 +1,27 @@
 import { hasParentNode, getHeadingsElement } from './dom';
 import { replaceSpace2Underscore, convert2WikipediaStyleAnchor, getHeadingTagName2Number } from './utils';
 
+type AnchorContainerTagNameProps = 'ul' | 'ol';
+
 export type MokujiOption = {
   anchorType?: boolean;
   anchorLink?: boolean;
   anchorLinkSymbol?: string;
   anchorLinkBefore?: boolean;
   anchorLinkClassName?: string;
-  anchorContainerTagName?: 'ul' | 'ol';
+  anchorContainerTagName?: AnchorContainerTagNameProps;
 };
 
-export const renderAnchorLink = (
+const defaultOptions = {
+  anchorType: true,
+  anchorLink: false,
+  anchorLinkSymbol: '#',
+  anchorLinkBefore: true,
+  anchorLinkClassName: '',
+  anchorContainerTagName: 'ol',
+} as const;
+
+const renderAnchorLink = (
   headings: NodeListOf<HTMLHeadingElement>,
   anchors: NodeListOf<HTMLAnchorElement> | undefined,
   options: MokujiOption,
@@ -122,97 +133,88 @@ const generateAnchorText = (text: string, type: boolean) => {
   return anchor;
 };
 
-export class Mokuji {
-  options: MokujiOption = {
-    anchorType: true,
-    anchorLink: false,
-    anchorLinkSymbol: '#',
-    anchorLinkBefore: true,
-    anchorLinkClassName: '',
-    anchorContainerTagName: 'ol',
-  };
+const generateHierarchyList = (
+  headings: NodeListOf<HTMLHeadingElement>,
+  elementContainer: HTMLUListElement | HTMLOListElement,
+  anchorType: boolean,
+) => {
+  let number = 0;
+  const elementListClone = document.createElement('li');
+  const elementAnchorClone = document.createElement('a');
 
+  for (let i = 0; i < headings.length; i++) {
+    const heading = headings[i];
+    const currentNumber = getHeadingTagName2Number(heading.tagName);
+
+    // check list hierarchy
+    if (number !== 0 && number < currentNumber) {
+      // number of the heading is large (small as heading)
+      const nextElementOListClone = document.createElement('ol');
+      // @ts-ignore
+      elementContainer.lastChild.appendChild(nextElementOListClone);
+      elementContainer = nextElementOListClone;
+    } else if (number !== 0 && number > currentNumber) {
+      // number of heading is small (large as heading)
+      for (let i = 0; i < number - currentNumber; i++) {
+        if (hasParentNode(elementContainer, elementContainer.parentNode)) {
+          // @ts-ignore
+          elementContainer = elementContainer.parentNode.parentNode;
+        }
+      }
+    }
+
+    const textContent = censorshipId(headings, heading.textContent);
+
+    // headingへidを付与
+    const anchorText = generateAnchorText(textContent, anchorType);
+    heading.id = anchorText;
+
+    // add to wrapper
+    const elementAnchor = elementAnchorClone.cloneNode(false) as HTMLAnchorElement;
+    elementAnchor.href = `#${anchorText}`;
+    elementAnchor.textContent = heading.textContent;
+    const elementList = elementListClone.cloneNode(false);
+    elementList.appendChild(elementAnchor);
+    elementContainer.appendChild(elementList);
+
+    // upadte current number
+    number = currentNumber;
+  }
+};
+
+export class Mokuji {
   constructor(element: HTMLElement | null, externalOptions: MokujiOption) {
     if (!element) {
       return;
     }
 
     // Merge the default options with the external options.
-    this.options = Object.assign(
+    const options = Object.assign(
       // default options
-      this.options,
+      defaultOptions,
       externalOptions,
     );
 
     const headings = getHeadingsElement(element);
 
     // mokuji start
+    const elementContainer = document.createElement(
+      options.anchorContainerTagName || defaultOptions.anchorContainerTagName,
+    );
+
     // generate mokuji list
-    const mokuji = this.generateMokuji(headings);
-
-    // setup anchor link
-    if (this.options.anchorLink) {
-      const anchors = mokuji.querySelectorAll('a');
-      renderAnchorLink(headings, anchors, this.options);
-    }
-
-    // @ts-ignore
-    return mokuji;
-  }
-
-  generateMokuji(headings: NodeListOf<HTMLHeadingElement>) {
-    let elementContainer = document.createElement(this.options.anchorContainerTagName || 'ol');
-
-    this.generateHierarchyList(headings, elementContainer);
+    generateHierarchyList(headings, elementContainer, !!options.anchorType);
 
     // remove duplicates by adding suffix
     removeDuplicateIds(headings, elementContainer);
 
-    return elementContainer;
-  }
-
-  generateHierarchyList(headings: NodeListOf<HTMLHeadingElement>, elementContainer: HTMLElement) {
-    let number = 0;
-    const elementListClone = document.createElement('li');
-    const elementAnchorClone = document.createElement('a');
-
-    for (let i = 0; i < headings.length; i++) {
-      const heading = headings[i];
-      const currentNumber = getHeadingTagName2Number(heading.tagName);
-
-      // check list hierarchy
-      if (number !== 0 && number < currentNumber) {
-        // number of the heading is large (small as heading)
-        const nextElementOListClone = document.createElement('ol');
-        // @ts-ignore
-        elementContainer.lastChild.appendChild(nextElementOListClone);
-        elementContainer = nextElementOListClone;
-      } else if (number !== 0 && number > currentNumber) {
-        // number of heading is small (large as heading)
-        for (let i = 0; i < number - currentNumber; i++) {
-          if (hasParentNode(elementContainer, elementContainer.parentNode)) {
-            // @ts-ignore
-            elementContainer = elementContainer.parentNode.parentNode;
-          }
-        }
-      }
-
-      const textContent = censorshipId(headings, heading.textContent);
-
-      // headingへidを付与
-      const anchorText = generateAnchorText(textContent, !!this.options.anchorType);
-      heading.id = anchorText;
-
-      // add to wrapper
-      const elementAnchor = elementAnchorClone.cloneNode(false) as HTMLAnchorElement;
-      elementAnchor.href = `#${anchorText}`;
-      elementAnchor.textContent = heading.textContent;
-      const elementList = elementListClone.cloneNode(false);
-      elementList.appendChild(elementAnchor);
-      elementContainer.appendChild(elementList);
-
-      // upadte current number
-      number = currentNumber;
+    // setup anchor link
+    if (options.anchorLink) {
+      const anchors = elementContainer.querySelectorAll('a');
+      renderAnchorLink(headings, anchors, options);
     }
+
+    // @ts-ignore
+    return elementContainer;
   }
 }
