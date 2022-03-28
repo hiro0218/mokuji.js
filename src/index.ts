@@ -53,6 +53,75 @@ export const renderAnchorLink = (
   });
 };
 
+const removeDuplicateIds = (headings: NodeListOf<HTMLHeadingElement>, elementContainer: HTMLElement) => {
+  const anchors = elementContainer.getElementsByTagName('a');
+
+  for (let i = 0; i < anchors.length; i++) {
+    const id = anchors[i].innerText;
+    const hash = anchors[i].hash;
+    const matchedHeadings = Array.from(headings).filter((heading) => heading.id === id);
+
+    if (matchedHeadings.length === 1) {
+      continue;
+    }
+
+    // duplicated id
+    let count = 0;
+
+    matchedHeadings.forEach((heading) => {
+      const heading_id = `${heading.id}-${count}`;
+
+      // search duplicate list
+      for (const anchor of Array.from(anchors)) {
+        if (anchor.hash === hash) {
+          // update hash
+          anchor.href = `#${heading_id}`;
+          break;
+        }
+      }
+
+      // update id
+      heading.id = heading_id;
+      count++;
+    });
+  }
+};
+
+const censorshipId = (headings: NodeListOf<HTMLHeadingElement>, textContent: string | null) => {
+  const storeIds: string[] = [];
+  let id = textContent || '';
+  let suffix_count = 1;
+
+  // IDが重複していた場合はsuffixを付ける
+  while (suffix_count <= headings.length) {
+    const tmp_id = suffix_count === 1 ? id : `${id}_${suffix_count}`;
+
+    if (storeIds.indexOf(tmp_id) === -1) {
+      id = tmp_id;
+      storeIds.push(id);
+      break;
+    }
+
+    suffix_count++;
+  }
+
+  return id;
+};
+
+const generateAnchorText = (text: string, type: boolean) => {
+  // convert spaces to _
+  let anchor = replaceSpace2Underscore(text);
+
+  // remove &
+  anchor = anchor.replace(/\&+/g, '').replace(/\&amp;+/g, '');
+
+  if (type === true) {
+    anchor = convert2WikipediaStyleAnchor(anchor);
+  }
+
+  return anchor;
+};
+
 export class Mokuji {
   options: MokujiOption = {
     anchorType: true,
@@ -62,7 +131,6 @@ export class Mokuji {
     anchorLinkClassName: '',
     anchorContainerTagName: 'ol',
   };
-  storeIds: string[] = [];
 
   constructor(element: HTMLElement | null, externalOptions: MokujiOption) {
     if (!element) {
@@ -98,7 +166,7 @@ export class Mokuji {
     this.generateHierarchyList(headings, elementContainer);
 
     // remove duplicates by adding suffix
-    this.removeDuplicateIds(headings, elementContainer);
+    removeDuplicateIds(headings, elementContainer);
 
     return elementContainer;
   }
@@ -129,10 +197,10 @@ export class Mokuji {
         }
       }
 
-      const textContent = this.censorshipId(headings, heading.textContent);
+      const textContent = censorshipId(headings, heading.textContent);
 
       // headingへidを付与
-      const anchorText = this.generateAnchorText(textContent, !!this.options.anchorType);
+      const anchorText = generateAnchorText(textContent, !!this.options.anchorType);
       heading.id = anchorText;
 
       // add to wrapper
@@ -145,74 +213,6 @@ export class Mokuji {
 
       // upadte current number
       number = currentNumber;
-    }
-  }
-
-  censorshipId(headings: NodeListOf<HTMLHeadingElement>, textContent: string | null) {
-    let id = textContent || '';
-    let suffix_count = 1;
-
-    // IDが重複していた場合はsuffixを付ける
-    while (suffix_count <= headings.length) {
-      const tmp_id = suffix_count === 1 ? id : `${id}_${suffix_count}`;
-
-      if (this.storeIds.indexOf(tmp_id) === -1) {
-        id = tmp_id;
-        this.storeIds.push(id);
-        break;
-      }
-
-      suffix_count++;
-    }
-
-    return id;
-  }
-
-  generateAnchorText(text: string, type: boolean) {
-    // convert spaces to _
-    let anchor = replaceSpace2Underscore(text);
-
-    // remove &
-    anchor = anchor.replace(/\&+/g, '').replace(/\&amp;+/g, '');
-
-    if (type === true) {
-      anchor = convert2WikipediaStyleAnchor(anchor);
-    }
-
-    return anchor;
-  }
-
-  removeDuplicateIds(headings: NodeListOf<HTMLHeadingElement>, elementContainer: HTMLElement) {
-    const anchors = elementContainer.getElementsByTagName('a');
-
-    for (let i = 0; i < anchors.length; i++) {
-      const id = anchors[i].innerText;
-      const hash = anchors[i].hash;
-      const matchedHeadings = Array.from(headings).filter((heading) => heading.id === id);
-
-      if (matchedHeadings.length === 1) {
-        continue;
-      }
-
-      // duplicated id
-      let count = 0;
-
-      matchedHeadings.forEach((heading) => {
-        const heading_id = `${heading.id}-${count}`;
-
-        // search duplicate list
-        for (const anchor of Array.from(anchors)) {
-          if (anchor.hash === hash) {
-            // update hash
-            anchor.href = `#${heading_id}`;
-            break;
-          }
-        }
-
-        // update id
-        heading.id = heading_id;
-        count++;
-      });
     }
   }
 }
