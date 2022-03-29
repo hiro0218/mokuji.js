@@ -174,8 +174,9 @@ const generateHierarchyList = (
     const elementAnchor = elementAnchorClone.cloneNode(false) as HTMLAnchorElement;
     elementAnchor.href = `#${anchorText}`;
     elementAnchor.textContent = heading.textContent;
-    const elementList = elementListClone.cloneNode(false);
+    const elementList = elementListClone.cloneNode(false) as HTMLLIElement;
     elementList.appendChild(elementAnchor);
+
     elementContainer.appendChild(elementList);
 
     // upadte current number
