@@ -184,7 +184,7 @@ const generateHierarchyList = (
   }
 };
 
-export const Mokuji = (element: HTMLElement | null, externalOptions: MokujiOption): HTMLOListElement | undefined => {
+export const Mokuji = (element: HTMLElement | null, externalOptions?: MokujiOption): HTMLOListElement | undefined => {
   if (!element) {
     return;
   }
