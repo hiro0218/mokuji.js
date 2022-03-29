@@ -14,11 +14,13 @@ npm install --save mokuji.js
 ```javascript
 import { Mokuji } from 'mokuji.js';
 
-let textElement = document.querySelector('.text');
-let mokuji = new Mokuji(textElement);
+const textElement = document.querySelector('.text');
+const mokujiList = Mokuji(textElement);
 
-let listElement = document.querySelector('.list');
-listElement.appendChild(mokuji);
+if (!mokujiList) return;
+
+const listElement = document.querySelector('.list');
+listElement?.appendChild(mokujiList);
 ```
 
 ## Options
