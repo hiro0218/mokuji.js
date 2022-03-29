@@ -21,6 +21,8 @@ const defaultOptions = {
   anchorContainerTagName: 'ol',
 } as const;
 
+const storeIds: string[] = [];
+
 const renderAnchorLink = (
   headings: NodeListOf<HTMLHeadingElement>,
   anchors: NodeListOf<HTMLAnchorElement> | undefined,
@@ -99,7 +101,6 @@ const removeDuplicateIds = (headings: NodeListOf<HTMLHeadingElement>, elementCon
 };
 
 const censorshipId = (headings: NodeListOf<HTMLHeadingElement>, textContent: string | null) => {
-  const storeIds: string[] = [];
   let id = textContent || '';
   let suffix_count = 1;
 
