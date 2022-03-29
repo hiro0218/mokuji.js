@@ -6,16 +6,19 @@ import './App.css';
 
 function App() {
   useEffect(() => {
-    const mokuji = new Mokuji(document.getElementById('target'), {
+    const mokuji = Mokuji(document.getElementById('target'), {
       anchorType: true,
       anchorLink: true,
       anchorLinkSymbol: '#',
       anchorLinkBefore: true,
       anchorLinkClassName: 'anchor',
-    }) as unknown as HTMLOListElement | HTMLUListElement;
+      anchorContainerTagName: 'ol'
+    });
 
-    const list = document.getElementById('mokuji');
-    list?.appendChild(mokuji);
+    if (mokuji) {
+      const list = document.getElementById('mokuji');
+      list?.appendChild(mokuji);
+    }
   }, []);
 
   return (

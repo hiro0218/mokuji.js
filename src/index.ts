@@ -183,39 +183,36 @@ const generateHierarchyList = (
   }
 };
 
-export class Mokuji {
-  constructor(element: HTMLElement | null, externalOptions: MokujiOption) {
-    if (!element) {
-      return;
-    }
-
-    // Merge the default options with the external options.
-    const options = Object.assign(
-      // default options
-      defaultOptions,
-      externalOptions,
-    );
-
-    const headings = getHeadingsElement(element);
-
-    // mokuji start
-    const elementContainer = document.createElement(
-      options.anchorContainerTagName || defaultOptions.anchorContainerTagName,
-    );
-
-    // generate mokuji list
-    generateHierarchyList(headings, elementContainer, !!options.anchorType);
-
-    // remove duplicates by adding suffix
-    removeDuplicateIds(headings, elementContainer);
-
-    // setup anchor link
-    if (options.anchorLink) {
-      const anchors = elementContainer.querySelectorAll('a');
-      renderAnchorLink(headings, anchors, options);
-    }
-
-    // @ts-ignore
-    return elementContainer;
+export const Mokuji = (element: HTMLElement | null, externalOptions: MokujiOption): HTMLOListElement | undefined => {
+  if (!element) {
+    return;
   }
-}
+
+  // Merge the default options with the external options.
+  const options = Object.assign(
+    // default options
+    defaultOptions,
+    externalOptions,
+  );
+
+  const headings = getHeadingsElement(element);
+
+  // mokuji start
+  const elementContainer = document.createElement(
+    options.anchorContainerTagName || defaultOptions.anchorContainerTagName,
+  );
+
+  // generate mokuji list
+  generateHierarchyList(headings, elementContainer, !!options.anchorType);
+
+  // remove duplicates by adding suffix
+  removeDuplicateIds(headings, elementContainer);
+
+  // setup anchor link
+  if (options.anchorLink) {
+    const anchors = elementContainer.querySelectorAll('a');
+    renderAnchorLink(headings, anchors, options);
+  }
+
+  return elementContainer;
+};
