@@ -31,6 +31,7 @@ const renderAnchorLink = (
   if (!anchors) return;
 
   const a = document.createElement('a');
+  a.setAttribute('aria-hidden', 'true');
 
   if (options.anchorLinkClassName) {
     a.classList.add(options.anchorLinkClassName);
