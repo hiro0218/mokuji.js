@@ -48,7 +48,7 @@
   "homepage": "https://github.com/hiro0218/mokuji.js",
   "devDependencies": {
     "@types/node": "~17.0.23",
-    "husky": "^7.0.4",
+    "husky": "^8.0.1",
     "lint-staged": "^12.3.7",
     "microbundle": "^0.14.2",
     "prettier": "^2.6.1",
