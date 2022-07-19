@@ -22,16 +22,15 @@ function App() {
   }, []);
 
   return (
-    <>
-      <div className="container">
-        <div className="columns">
-          <div className="column">
-            <div className="heading">目次</div>
-            <div id="mokuji"></div>
-          </div>
-          <div id="target" className="column">
-            <div className="heading">本文</div>
-
+    <main className="container">
+      <div className="grid">
+        <div>
+          <h2 className="heading">目次</h2>
+          <div id="mokuji"></div>
+        </div>
+        <div>
+          <h2 className="heading">本文</h2>
+          <div id="target">
             <h1>one</h1>
 
             <h2>two</h2>
@@ -75,7 +74,7 @@ function App() {
           </div>
         </div>
       </div>
-    </>
+    </main>
   );
 }
 

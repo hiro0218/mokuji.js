@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "shokika.css";
+import "@picocss/pico";
 import "./index.css";
 import App from "./App";
 
