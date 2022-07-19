@@ -2,8 +2,6 @@ import React, { useEffect } from 'react';
 
 import { Mokuji } from 'mokuji.js';
 
-import './App.css';
-
 function App() {
   useEffect(() => {
     const mokuji = Mokuji(document.getElementById('target'), {
