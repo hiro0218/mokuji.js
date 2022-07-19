@@ -36,11 +36,12 @@ const renderAnchorLink = (
     a.classList.add(options.anchorLinkClassName);
   }
 
-  headings.forEach((heading) => {
+  for (let i = 0; i < headings.length; i++) {
+    const heading = headings[i];
     const { id } = heading;
 
-    for (let i = 0; i < anchors.length; i++) {
-      const { hash } = anchors[i];
+    for (let j = 0; j < anchors.length; j++) {
+      const { hash } = anchors[j];
 
       if (hash.replace('#', '') !== id) {
         continue;
@@ -63,7 +64,7 @@ const renderAnchorLink = (
         heading.appendChild(anchor);
       }
     }
-  });
+  }
 };
 
 const removeDuplicateIds = (headings: NodeListOf<HTMLHeadingElement>, elementContainer: HTMLElement) => {
@@ -81,7 +82,8 @@ const removeDuplicateIds = (headings: NodeListOf<HTMLHeadingElement>, elementCon
     // duplicated id
     let count = 0;
 
-    matchedHeadings.forEach((heading) => {
+    for (let j = 0; j < matchedHeadings.length; j++) {
+      const heading = matchedHeadings[j];
       const heading_id = `${heading.id}-${count}`;
 
       // search duplicate list
@@ -96,7 +98,7 @@ const removeDuplicateIds = (headings: NodeListOf<HTMLHeadingElement>, elementCon
       // update id
       heading.id = heading_id;
       count++;
-    });
+    }
   }
 };
 
