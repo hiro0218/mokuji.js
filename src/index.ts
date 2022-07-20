@@ -24,8 +24,8 @@ const defaultOptions = {
 const storeIds: string[] = [];
 
 const renderAnchorLink = (
-  headings: NodeListOf<HTMLHeadingElement>,
-  anchors: NodeListOf<HTMLAnchorElement> | undefined,
+  headings: HTMLHeadingElement[],
+  anchors: HTMLAnchorElement[] | undefined,
   options: MokujiOption,
 ) => {
   if (!anchors) return;
@@ -67,13 +67,13 @@ const renderAnchorLink = (
   }
 };
 
-const removeDuplicateIds = (headings: NodeListOf<HTMLHeadingElement>, elementContainer: HTMLElement) => {
+const removeDuplicateIds = (headings: HTMLHeadingElement[], elementContainer: HTMLElement) => {
   const anchors = Array.from(elementContainer.getElementsByTagName('a'));
 
   for (let i = 0; i < anchors.length; i++) {
     const id = anchors[i].innerText;
     const hash = anchors[i].hash;
-    const matchedHeadings = Array.from(headings).filter((heading) => heading.id === id);
+    const matchedHeadings = headings.filter((heading) => heading.id === id);
 
     if (matchedHeadings.length === 1) {
       continue;
@@ -103,7 +103,7 @@ const removeDuplicateIds = (headings: NodeListOf<HTMLHeadingElement>, elementCon
   }
 };
 
-const censorshipId = (headings: NodeListOf<HTMLHeadingElement>, textContent: string | null) => {
+const censorshipId = (headings: HTMLHeadingElement[], textContent: string | null) => {
   let id = textContent || '';
   let suffix_count = 1;
 
@@ -138,7 +138,7 @@ const generateAnchorText = (text: string, type: boolean) => {
 };
 
 const generateHierarchyList = (
-  headings: NodeListOf<HTMLHeadingElement>,
+  headings: HTMLHeadingElement[],
   elementContainer: HTMLUListElement | HTMLOListElement,
   anchorType: boolean,
 ) => {
@@ -187,7 +187,10 @@ const generateHierarchyList = (
   }
 };
 
-export const Mokuji = (element: HTMLElement | null, externalOptions?: MokujiOption): HTMLOListElement | undefined => {
+export const Mokuji = (
+  element: HTMLElement | null,
+  externalOptions?: MokujiOption,
+): HTMLUListElement | HTMLOListElement | undefined => {
   if (!element) {
     return;
   }
@@ -204,7 +207,7 @@ export const Mokuji = (element: HTMLElement | null, externalOptions?: MokujiOpti
   // mokuji start
   const elementContainer = document.createElement(
     options.anchorContainerTagName || defaultOptions.anchorContainerTagName,
-  );
+  ) as HTMLUListElement | HTMLOListElement;
 
   // generate mokuji list
   generateHierarchyList(headings, elementContainer, !!options.anchorType);
@@ -214,7 +217,7 @@ export const Mokuji = (element: HTMLElement | null, externalOptions?: MokujiOpti
 
   // setup anchor link
   if (options.anchorLink) {
-    const anchors = elementContainer.querySelectorAll('a');
+    const anchors = Array.from(elementContainer.querySelectorAll('a'));
     renderAnchorLink(headings, anchors, options);
   }
 
