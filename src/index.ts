@@ -68,7 +68,7 @@ const renderAnchorLink = (
 };
 
 const removeDuplicateIds = (headings: NodeListOf<HTMLHeadingElement>, elementContainer: HTMLElement) => {
-  const anchors = elementContainer.getElementsByTagName('a');
+  const anchors = Array.from(elementContainer.getElementsByTagName('a'));
 
   for (let i = 0; i < anchors.length; i++) {
     const id = anchors[i].innerText;
@@ -87,7 +87,8 @@ const removeDuplicateIds = (headings: NodeListOf<HTMLHeadingElement>, elementCon
       const heading_id = `${heading.id}-${count}`;
 
       // search duplicate list
-      for (const anchor of Array.from(anchors)) {
+      for (let k = 0; k < anchors.length; k++) {
+        const anchor = anchors[k];
         if (anchor.hash === hash) {
           // update hash
           anchor.href = `#${heading_id}`;
