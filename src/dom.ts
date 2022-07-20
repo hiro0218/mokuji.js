@@ -16,6 +16,6 @@ export const reverseElement = (element: Node) => {
   return element;
 };
 
-export const getHeadingsElement = (element: Element): NodeListOf<HTMLHeadingElement> => {
-  return element.querySelectorAll("h1, h2, h3, h4, h5, h6");
+export const getHeadingsElement = (element: Element): HTMLHeadingElement[] => {
+  return Array.from(element.querySelectorAll('h1, h2, h3, h4, h5, h6'));
 };
