@@ -40,8 +40,14 @@ function App() {
 
             <h2>two</h2>
             <h4>four</h4>
-
             <h3>A&amp;B</h3>
+
+            <h2 id="dup">duplicate id</h2>
+            <h2 id="dup">duplicate id</h2>
+
+            <h2>aaa</h2>
+            <h2>aaa</h2>
+            <h2>aaa_2</h2>
 
             <h2>two</h2>
             <h5>five</h5>
