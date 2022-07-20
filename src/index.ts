@@ -111,7 +111,7 @@ const censorshipId = (headings: NodeListOf<HTMLHeadingElement>, textContent: str
   while (suffix_count <= headings.length) {
     const tmp_id = suffix_count === 1 ? id : `${id}_${suffix_count}`;
 
-    if (storeIds.indexOf(tmp_id) === -1) {
+    if (!storeIds.includes(tmp_id)) {
       id = tmp_id;
       storeIds.push(id);
       break;
