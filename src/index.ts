@@ -71,7 +71,7 @@ const removeDuplicateIds = (headings: HTMLHeadingElement[], elementContainer: HT
   const anchors = Array.from(elementContainer.getElementsByTagName('a'));
 
   for (let i = 0; i < anchors.length; i++) {
-    const id = anchors[i].innerText;
+    const id = anchors[i].textContent;
     const hash = anchors[i].hash;
     const matchedHeadings = headings.filter((heading) => heading.id === id);
 
