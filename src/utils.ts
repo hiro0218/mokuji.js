@@ -3,10 +3,7 @@ export const replaceSpace2Underscore = (text: string) => {
 };
 
 export const convert2WikipediaStyleAnchor = (anchor: string) => {
-  anchor = encodeURIComponent(anchor);
-  anchor = anchor.replace(/\%+/g, '.');
-
-  return anchor;
+  return encodeURIComponent(anchor).replace(/\%+/g, '.');
 };
 
 export const getHeadingTagName2Number = (tagName: string) => {
