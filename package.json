@@ -47,12 +47,13 @@
   },
   "homepage": "https://github.com/hiro0218/mokuji.js",
   "devDependencies": {
-    "@types/node": "~18.11.9",
-    "husky": "^8.0.2",
-    "lint-staged": "^13.0.4",
+    "@types/node": "~18.13.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.1.1",
     "microbundle": "^0.15.1",
-    "prettier": "^2.8.0",
-    "rimraf": "^3.0.2",
-    "typescript": "~4.9.3"
-  }
+    "prettier": "^2.8.4",
+    "rimraf": "^4.1.2",
+    "typescript": "~4.9.5"
+  },
+  "dependencies": {}
 }
