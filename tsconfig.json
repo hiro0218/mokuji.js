@@ -12,7 +12,8 @@
     "jsx": "preserve",
     "lib": [
       "esnext",
-      "dom"
+      "dom",
+      "dom.iterable"
     ],
     /* Strict Type-Checking Options */
     "strict": true,
