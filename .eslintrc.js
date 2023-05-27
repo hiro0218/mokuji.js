@@ -12,5 +12,9 @@ module.exports = {
   },
   plugins: ['unicorn', '@typescript-eslint'],
   ignorePatterns: ['node_modules', 'dist', '.eslintrc.js'],
-  rules: {},
+  rules: {
+    'unicorn/consistent-destructuring': 'off',
+    'unicorn/no-for-loop': 'off',
+    'unicorn/prevent-abbreviations': 'off',
+  },
 };
