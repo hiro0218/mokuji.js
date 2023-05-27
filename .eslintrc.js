@@ -14,7 +14,9 @@ module.exports = {
   ignorePatterns: ['node_modules', 'dist', '.eslintrc.js'],
   rules: {
     'unicorn/consistent-destructuring': 'off',
+    'unicorn/filename-case': 'off',
     'unicorn/no-for-loop': 'off',
+    'unicorn/prefer-export-from': 'off',
     'unicorn/prevent-abbreviations': 'off',
   },
 };
