@@ -197,7 +197,7 @@ export const Mokuji = (
     externalOptions,
   );
 
-  const headings = getHeadingsElement(element);
+  const headings = [...getHeadingsElement(element)];
 
   // mokuji start
   const elementContainer = document.createElement(
