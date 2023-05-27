@@ -1,4 +1,4 @@
-export const replaceSpace2Underscore = (text: string) => {
+export const replaceSpacesWithUnderscores = (text: string) => {
   return text.replaceAll(/\s+/g, '_');
 };
 
@@ -7,5 +7,5 @@ export const convert2WikipediaStyleAnchor = (anchor: string) => {
 };
 
 export const getHeadingTagName2Number = (tagName: string) => {
-  return Number(tagName.slice(1));
+  return Number(tagName[1]);
 };

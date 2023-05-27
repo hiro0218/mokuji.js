@@ -1,5 +1,5 @@
 import { hasParentNode, getHeadingsElement } from './dom';
-import { replaceSpace2Underscore, convert2WikipediaStyleAnchor, getHeadingTagName2Number } from './utils';
+import { replaceSpacesWithUnderscores, convert2WikipediaStyleAnchor, getHeadingTagName2Number } from './utils';
 import type { MokujiOption } from './types';
 
 export { MokujiOption };
@@ -120,7 +120,7 @@ const censorshipId = (headings: HTMLHeadingElement[], textContent = '') => {
 
 const generateAnchorText = (text: string, isConvertToWikipediaStyleAnchor: boolean) => {
   // convert spaces to _
-  let anchor = replaceSpace2Underscore(text);
+  let anchor = replaceSpacesWithUnderscores(text);
 
   // remove &
   anchor = anchor.replaceAll(/&+/g, '').replaceAll(/&amp;+/g, '');
