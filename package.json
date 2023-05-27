@@ -34,7 +34,7 @@
       "eslint --cache",
       "prettier --write --cache"
     ],
-    "*.{ts}": [
+    "*.ts": [
       "bash -c 'tsc --noEmit --skipLibCheck'"
     ]
   },
