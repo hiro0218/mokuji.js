@@ -3,26 +3,28 @@
   "version": "4.3.0",
   "description": "A table of content JavaScript Library",
   "scripts": {
-    "build": "microbundle",
-    "clean": "rimraf lib/",
-    "watch": "microbundle watch",
-    "test": "npm run lint",
-    "prepare": "npm run clean && npm run build && husky install"
+    "build": "tsup ./src",
+    "watch": "tsup ./src --watch",
+    "prepare": "npm run build && husky install"
   },
   "source": "src/index.ts",
-  "main": "dist/mokuji.js",
-  "types": "dist/index.d.ts",
-  "module": "dist/mokuji.module.js",
-  "esmodule": "dist/mokuji.modern.js",
-  "unpkg": "dist/mokuji.umd.js",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "directories": {
     "lib": "lib"
   },
   "files": [
-    "dist/",
-    "lib/",
-    "src/",
+    "dist",
     "LICENSE",
+    "package.json",
     "READNME.md"
   ],
   "lint-staged": {
@@ -50,10 +52,9 @@
     "@types/node": "~20.2.3",
     "husky": "^8.0.3",
     "lint-staged": "^13.1.2",
-    "microbundle": "^0.15.1",
     "prettier": "^2.8.4",
     "rimraf": "^4.1.2",
+    "tsup": "^6.7.0",
     "typescript": "~4.9.5"
-  },
-  "dependencies": {}
+  }
 }
