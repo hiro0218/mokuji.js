@@ -153,9 +153,7 @@ const generateHierarchyList = (
       // number of heading is small (large as heading)
       for (let i = 0; i < number - currentNumber; i++) {
         if (hasParentNode(elementContainer, elementContainer.parentNode)) {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          elementContainer = elementContainer.parentNode.parentNode;
+          elementContainer = elementContainer?.parentNode?.parentNode as HTMLUListElement | HTMLOListElement;
         }
       }
     }
@@ -181,7 +179,7 @@ const generateHierarchyList = (
 };
 
 export const Mokuji = (
-  element: HTMLElement | null,
+  element: HTMLElement,
   externalOptions?: MokujiOption,
 ): HTMLUListElement | HTMLOListElement | undefined => {
   if (!element) {
