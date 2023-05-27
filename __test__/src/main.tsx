@@ -1,14 +1,16 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
+
 import 'shokika.css';
 import '@picocss/pico';
 import './App.css';
 import App from './App';
 
-ReactDOM.render(
+const container = document.querySelector('#root');
+const root = createRoot(container!);
+
+root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
-  // eslint-disable-next-line unicorn/prefer-query-selector
-  document.getElementById('root'),
 );
