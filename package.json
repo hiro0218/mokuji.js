@@ -3,21 +3,21 @@
   "version": "4.3.0",
   "description": "A table of content JavaScript Library",
   "scripts": {
-    "build": "tsup ./src",
-    "dev": "tsup ./src --watch",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "lint": "eslint ./src/**/*.ts",
     "prepare": "npm run build && husky install"
   },
   "source": "src/index.ts",
   "exports": {
     ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
     }
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "directories": {
     "lib": "lib"
