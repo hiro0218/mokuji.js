@@ -17,7 +17,7 @@ export const hasParentNode = (element: Node | null, parent: Node | null) => {
 };
 
 /**
- * 要素を逆順にする
+ * 最上位の要素を取得する
  */
 export const reverseElement = (element: Node) => {
   while (element.parentNode) {
