@@ -114,14 +114,14 @@ const censorshipId = (headings: HTMLHeadingElement[], textContent = '') => {
   return id;
 };
 
-const generateAnchorText = (text: string, type: boolean) => {
+const generateAnchorText = (text: string, isConvertToWikipediaStyleAnchor: boolean) => {
   // convert spaces to _
   let anchor = replaceSpace2Underscore(text);
 
   // remove &
   anchor = anchor.replaceAll(/&+/g, '').replaceAll(/&amp;+/g, '');
 
-  if (type === true) {
+  if (isConvertToWikipediaStyleAnchor === true) {
     anchor = convert2WikipediaStyleAnchor(anchor);
   }
 
@@ -131,7 +131,7 @@ const generateAnchorText = (text: string, type: boolean) => {
 const generateHierarchyList = (
   headings: HTMLHeadingElement[],
   elementContainer: HTMLUListElement | HTMLOListElement,
-  anchorType: boolean,
+  isConvertToWikipediaStyleAnchor: boolean,
 ) => {
   let number = 0;
   const elementListClone = document.createElement('li');
@@ -161,7 +161,7 @@ const generateHierarchyList = (
     const textContent = censorshipId(headings, heading.textContent || '');
 
     // headingへidを付与
-    const anchorText = generateAnchorText(textContent, anchorType);
+    const anchorText = generateAnchorText(textContent, isConvertToWikipediaStyleAnchor);
     heading.id = anchorText;
 
     // add to wrapper
@@ -201,7 +201,7 @@ export const Mokuji = (
   ) as HTMLUListElement | HTMLOListElement;
 
   // generate mokuji list
-  generateHierarchyList(headings, elementContainer, !!options.anchorType);
+  generateHierarchyList(headings, elementContainer, options.anchorType);
 
   // remove duplicates by adding suffix
   removeDuplicateIds(headings, elementContainer);
