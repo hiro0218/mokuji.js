@@ -8,6 +8,7 @@
     "lint": "eslint --cache ./src/**/*.ts",
     "prepare": "npm run build && husky install"
   },
+  "type": "module",
   "source": "src/index.ts",
   "exports": {
     ".": {
