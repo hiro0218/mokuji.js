@@ -15,7 +15,7 @@ const defaultOptions = {
   anchorContainerTagName: 'ol',
 } as const;
 
-const storeIds: string[] = [];
+const storeIds = new Set<string>();
 
 const renderAnchorLink = (
   headings: HTMLHeadingElement[],
@@ -106,9 +106,9 @@ const censorshipId = (headings: HTMLHeadingElement[], textContent = '') => {
   while (suffix_count <= headings.length) {
     const tmp_id = suffix_count === 1 ? id : `${id}_${suffix_count}`;
 
-    if (!storeIds.includes(tmp_id)) {
+    if (!storeIds.has(tmp_id)) {
       id = tmp_id;
-      storeIds.push(id);
+      storeIds.add(id);
       break;
     }
 
