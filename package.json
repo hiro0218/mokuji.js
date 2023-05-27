@@ -4,7 +4,7 @@
   "description": "A table of content JavaScript Library",
   "scripts": {
     "build": "tsup ./src",
-    "watch": "tsup ./src --watch",
+    "dev": "tsup ./src --watch",
     "lint": "eslint ./src/**/*.ts",
     "prepare": "npm run build && husky install"
   },
