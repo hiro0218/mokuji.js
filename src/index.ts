@@ -1,16 +1,6 @@
 import { hasParentNode, getHeadingsElement } from './dom';
 import { replaceSpace2Underscore, convert2WikipediaStyleAnchor, getHeadingTagName2Number } from './utils';
-
-type AnchorContainerTagNameProps = 'ul' | 'ol';
-
-export type MokujiOption = {
-  anchorType?: boolean;
-  anchorLink?: boolean;
-  anchorLinkSymbol?: string;
-  anchorLinkBefore?: boolean;
-  anchorLinkClassName?: string;
-  anchorContainerTagName?: AnchorContainerTagNameProps;
-};
+import type { MokujiOption } from './types';
 
 const defaultOptions = {
   anchorType: true,
