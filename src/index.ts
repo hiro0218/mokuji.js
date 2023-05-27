@@ -191,11 +191,10 @@ export const Mokuji = (
   }
 
   // Merge the default options with the external options.
-  const options = Object.assign(
-    // default options
-    defaultOptions,
-    externalOptions,
-  );
+  const options = {
+    ...defaultOptions,
+    ...externalOptions,
+  };
 
   const headings = [...getHeadingsElement(element)];
 
