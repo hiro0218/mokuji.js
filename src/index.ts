@@ -2,6 +2,10 @@ import { hasParentNode, getHeadingsElement } from './dom';
 import { replaceSpace2Underscore, convert2WikipediaStyleAnchor, getHeadingTagName2Number } from './utils';
 import type { MokujiOption } from './types';
 
+export { MokujiOption };
+
+const ANCHOR_DATASET_ATTRIBUTE = 'data-mokuji-anchor';
+
 const defaultOptions = {
   anchorType: true,
   anchorLink: false,
@@ -21,7 +25,7 @@ const renderAnchorLink = (
   if (!anchors) return;
 
   const a = document.createElement('a');
-  a.dataset.mokujiAnchor = '';
+  a.setAttribute(ANCHOR_DATASET_ATTRIBUTE, '');
 
   if (options.anchorLinkClassName) {
     a.classList.add(options.anchorLinkClassName);
@@ -179,7 +183,7 @@ const generateHierarchyList = (
 };
 
 export const Mokuji = (
-  element: HTMLElement,
+  element: HTMLElement | null,
   externalOptions?: MokujiOption,
 ): HTMLUListElement | HTMLOListElement | undefined => {
   if (!element) {
@@ -213,4 +217,13 @@ export const Mokuji = (
   }
 
   return elementContainer;
+};
+
+// [data-mokuji-anchor]要素をすべて破棄する
+export const destory = () => {
+  const mokujiAnchor = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
+  for (let i = 0; i < mokujiAnchor.length; i++) {
+    const element = mokujiAnchor[i];
+    element.remove();
+  }
 };
