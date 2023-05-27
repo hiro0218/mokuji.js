@@ -31,7 +31,7 @@ const renderAnchorLink = (
   if (!anchors) return;
 
   const a = document.createElement('a');
-  a.setAttribute('data-mokuji-anchor', '');
+  a.dataset.mokujiAnchor = '';
 
   if (options.anchorLinkClassName) {
     a.classList.add(options.anchorLinkClassName);
@@ -62,14 +62,14 @@ const renderAnchorLink = (
         heading.insertBefore(anchor, heading.firstChild);
       } else {
         // after
-        heading.appendChild(anchor);
+        heading.append(anchor);
       }
     }
   }
 };
 
 const removeDuplicateIds = (headings: HTMLHeadingElement[], elementContainer: HTMLElement) => {
-  const anchors = Array.from(elementContainer.getElementsByTagName('a'));
+  const anchors = [...elementContainer.querySelectorAll('a')];
 
   for (let i = 0; i < anchors.length; i++) {
     const id = anchors[i].textContent;
@@ -104,8 +104,8 @@ const removeDuplicateIds = (headings: HTMLHeadingElement[], elementContainer: HT
   }
 };
 
-const censorshipId = (headings: HTMLHeadingElement[], textContent: string | null) => {
-  let id = textContent || '';
+const censorshipId = (headings: HTMLHeadingElement[], textContent = '') => {
+  let id = textContent;
   let suffix_count = 1;
 
   // IDが重複していた場合はsuffixを付ける
@@ -129,7 +129,7 @@ const generateAnchorText = (text: string, type: boolean) => {
   let anchor = replaceSpace2Underscore(text);
 
   // remove &
-  anchor = anchor.replace(/\&+/g, '').replace(/\&amp;+/g, '');
+  anchor = anchor.replaceAll(/&+/g, '').replaceAll(/&amp;+/g, '');
 
   if (type === true) {
     anchor = convert2WikipediaStyleAnchor(anchor);
@@ -155,20 +155,22 @@ const generateHierarchyList = (
     if (number !== 0 && number < currentNumber) {
       // number of the heading is large (small as heading)
       const nextElementOListClone = document.createElement('ol');
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      elementContainer.lastChild.appendChild(nextElementOListClone);
+      elementContainer.lastChild.append(nextElementOListClone);
       elementContainer = nextElementOListClone;
     } else if (number !== 0 && number > currentNumber) {
       // number of heading is small (large as heading)
       for (let i = 0; i < number - currentNumber; i++) {
         if (hasParentNode(elementContainer, elementContainer.parentNode)) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           elementContainer = elementContainer.parentNode.parentNode;
         }
       }
     }
 
-    const textContent = censorshipId(headings, heading.textContent);
+    const textContent = censorshipId(headings, heading.textContent || '');
 
     // headingへidを付与
     const anchorText = generateAnchorText(textContent, anchorType);
@@ -179,9 +181,9 @@ const generateHierarchyList = (
     elementAnchor.href = `#${anchorText}`;
     elementAnchor.textContent = heading.textContent;
     const elementList = elementListClone.cloneNode(false) as HTMLLIElement;
-    elementList.appendChild(elementAnchor);
+    elementList.append(elementAnchor);
 
-    elementContainer.appendChild(elementList);
+    elementContainer.append(elementList);
 
     // upadte current number
     number = currentNumber;
@@ -218,7 +220,7 @@ export const Mokuji = (
 
   // setup anchor link
   if (options.anchorLink) {
-    const anchors = Array.from(elementContainer.querySelectorAll('a'));
+    const anchors = [...elementContainer.querySelectorAll('a')];
     renderAnchorLink(headings, anchors, options);
   }
 
