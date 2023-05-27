@@ -1,21 +1,23 @@
+// eslint-disable-next-line unicorn/filename-case
 import React, { useEffect } from 'react';
 
 import { Mokuji } from 'mokuji.js';
 
 function App() {
   useEffect(() => {
+    // eslint-disable-next-line unicorn/prefer-query-selector
     const mokuji = Mokuji(document.getElementById('target'), {
       anchorType: true,
       anchorLink: true,
       anchorLinkSymbol: '#',
       anchorLinkBefore: true,
       anchorLinkClassName: 'anchor',
-      anchorContainerTagName: 'ol'
+      anchorContainerTagName: 'ol',
     });
 
     if (mokuji) {
-      const list = document.getElementById('mokuji');
-      list?.appendChild(mokuji);
+      const list = document.querySelector('#mokuji');
+      list?.append(mokuji);
     }
   }, []);
 
