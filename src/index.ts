@@ -31,33 +31,36 @@ const renderAnchorLink = (
     a.classList.add(options.anchorLinkClassName);
   }
 
+  // Create a map for faster lookup
+  const anchorMap = new Map<string, HTMLAnchorElement>();
+  for (let i = 0; i < anchors.length; i++) {
+    const anchorId = anchors[i].hash.replace('#', '');
+    anchorMap.set(anchorId, anchors[i]);
+  }
+
   for (let i = 0; i < headings.length; i++) {
     const heading = headings[i];
-    const { id } = heading;
+    const matchedAnchor = anchorMap.get(heading.id);
 
-    for (let j = 0; j < anchors.length; j++) {
-      const { hash } = anchors[j];
+    if (!matchedAnchor) {
+      continue;
+    }
 
-      if (hash.replace('#', '') !== id) {
-        continue;
-      }
+    // create anchor
+    const anchor = a.cloneNode(false) as HTMLAnchorElement;
+    anchor.setAttribute('href', matchedAnchor.hash);
 
-      // create anchor
-      const anchor = a.cloneNode(false) as HTMLAnchorElement;
-      anchor.setAttribute('href', hash);
+    if (options.anchorLinkSymbol) {
+      anchor.textContent = options.anchorLinkSymbol;
+    }
 
-      if (options.anchorLinkSymbol) {
-        anchor.textContent = options.anchorLinkSymbol;
-      }
-
-      // insert anchor into headings
-      if (options.anchorLinkBefore) {
-        // before
-        heading.insertBefore(anchor, heading.firstChild);
-      } else {
-        // after
-        heading.append(anchor);
-      }
+    // insert anchor into headings
+    if (options.anchorLinkBefore) {
+      // before
+      heading.insertBefore(anchor, heading.firstChild);
+    } else {
+      // after
+      heading.append(anchor);
     }
   }
 };
