@@ -224,7 +224,7 @@ export const Mokuji = (
 // [data-mokuji-anchor]要素をすべて破棄する
 export const destory = () => {
   const mokujiAnchor = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
-  for (let i = 0; i < mokujiAnchor.length; i++) {
+  for (let i = mokujiAnchor.length - 1; i >= 0; i--) {
     const element = mokujiAnchor[i];
     element.remove();
   }
