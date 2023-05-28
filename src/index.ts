@@ -15,25 +15,27 @@ const defaultOptions = {
   anchorContainerTagName: 'ol',
 } as const;
 
-const renderAnchorLink = (
+const generateAnchorsMap = (anchors: HTMLAnchorElement[]) => {
+  const anchorMap = new Map<string, HTMLAnchorElement>();
+
+  for (let i = 0; i < anchors.length; i++) {
+    const anchorId = anchors[i].hash.replace('#', '');
+    anchorMap.set(anchorId, anchors[i]);
+  }
+
+  return anchorMap;
+};
+
+const insertAnchorToHeadings = (
   headings: HTMLHeadingElement[],
-  anchors: HTMLAnchorElement[] | undefined,
+  anchorMap: Map<string, HTMLAnchorElement>,
   options: MokujiOption,
 ) => {
-  if (!anchors) return;
-
   const a = createElement('a');
   a.setAttribute(ANCHOR_DATASET_ATTRIBUTE, '');
 
   if (options.anchorLinkClassName) {
     a.classList.add(options.anchorLinkClassName);
-  }
-
-  // Create a map for faster lookup
-  const anchorMap = new Map<string, HTMLAnchorElement>();
-  for (let i = 0; i < anchors.length; i++) {
-    const anchorId = anchors[i].hash.replace('#', '');
-    anchorMap.set(anchorId, anchors[i]);
   }
 
   for (let i = 0; i < headings.length; i++) {
@@ -63,9 +65,7 @@ const renderAnchorLink = (
   }
 };
 
-const removeDuplicateIds = (headings: HTMLHeadingElement[], elementContainer: HTMLElement) => {
-  const anchors = [...elementContainer.querySelectorAll('a')];
-
+const removeDuplicateIds = (headings: HTMLHeadingElement[], anchors: HTMLAnchorElement[]) => {
   for (let i = 0; i < anchors.length; i++) {
     const anchor = anchors[i];
     const id = anchor.textContent;
@@ -176,13 +176,19 @@ export const Mokuji = (
   // generate mokuji list
   generateHierarchyList(headings, elementContainer, options.anchorType);
 
+  const anchors = [...elementContainer.querySelectorAll('a')];
+
+  if (anchors.length === 0) {
+    return;
+  }
+
   // remove duplicates by adding suffix
-  removeDuplicateIds(headings, elementContainer);
+  removeDuplicateIds(headings, anchors);
 
   // setup anchor link
   if (options.anchorLink) {
-    const anchors = [...elementContainer.querySelectorAll('a')];
-    renderAnchorLink(headings, anchors, options);
+    const anchorsMap = generateAnchorsMap(anchors);
+    insertAnchorToHeadings(headings, anchorsMap, options);
   }
 
   return elementContainer;
