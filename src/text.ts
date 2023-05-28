@@ -35,7 +35,7 @@ export const generateAnchorText = (text: string, isConvertToWikipediaStyleAnchor
   // remove &
   anchor = anchor.replaceAll(/&+/g, '').replaceAll(/&amp;+/g, '');
 
-  if (isConvertToWikipediaStyleAnchor === true) {
+  if (isConvertToWikipediaStyleAnchor) {
     anchor = convert2WikipediaStyleAnchor(anchor);
   }
 
