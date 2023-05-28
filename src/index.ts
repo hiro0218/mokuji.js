@@ -165,6 +165,10 @@ export const Mokuji = (
 
   const headings = [...getHeadingsElement(element)];
 
+  if (headings.length === 0) {
+    return;
+  }
+
   // mokuji start
   const elementContainer = createElement(options.anchorContainerTagName);
 
