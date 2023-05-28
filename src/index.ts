@@ -1,4 +1,4 @@
-import { hasParentNode, getHeadingsElement } from './dom';
+import { hasParentNode, getHeadingsElement, createElement } from './dom';
 import type { MokujiOption } from './types';
 import { censorshipId, generateAnchorText } from './text';
 
@@ -22,7 +22,7 @@ const renderAnchorLink = (
 ) => {
   if (!anchors) return;
 
-  const a = document.createElement('a');
+  const a = createElement('a');
   a.setAttribute(ANCHOR_DATASET_ATTRIBUTE, '');
 
   if (options.anchorLinkClassName) {
@@ -105,8 +105,8 @@ const generateHierarchyList = (
   isConvertToWikipediaStyleAnchor: boolean,
 ) => {
   let number = 0;
-  const elementListClone = document.createElement('li');
-  const elementAnchorClone = document.createElement('a');
+  const elementListClone = createElement('li');
+  const elementAnchorClone = createElement('a');
 
   for (let i = 0; i < headings.length; i++) {
     const heading = headings[i];
@@ -115,7 +115,7 @@ const generateHierarchyList = (
     // check list hierarchy
     if (number !== 0 && number < currentNumber) {
       // number of the heading is large (small as heading)
-      const nextElementOListClone = document.createElement('ol');
+      const nextElementOListClone = createElement('ol');
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       elementContainer.lastChild.append(nextElementOListClone);
@@ -124,7 +124,7 @@ const generateHierarchyList = (
       // number of heading is small (large as heading)
       for (let i = 0; i < number - currentNumber; i++) {
         if (hasParentNode(elementContainer, elementContainer.parentNode)) {
-          elementContainer = elementContainer?.parentNode?.parentNode as HTMLUListElement | HTMLOListElement;
+          elementContainer = elementContainer.parentNode?.parentNode as HTMLUListElement | HTMLOListElement;
         }
       }
     }
@@ -166,9 +166,7 @@ export const Mokuji = (
   const headings = [...getHeadingsElement(element)];
 
   // mokuji start
-  const elementContainer = document.createElement(
-    options.anchorContainerTagName || defaultOptions.anchorContainerTagName,
-  ) as HTMLUListElement | HTMLOListElement;
+  const elementContainer = createElement(options.anchorContainerTagName || defaultOptions.anchorContainerTagName);
 
   // generate mokuji list
   generateHierarchyList(headings, elementContainer, options.anchorType);

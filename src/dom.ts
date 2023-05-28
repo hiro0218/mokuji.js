@@ -15,3 +15,10 @@ export const hasParentNode = (element: Node | null, parent: Node | null) => {
 export const getHeadingsElement = (element: Element) => {
   return element.querySelectorAll<HTMLHeadingElement>('h1, h2, h3, h4, h5, h6');
 };
+
+/**
+ * 要素を作成する
+ */
+export const createElement = <T extends keyof HTMLElementTagNameMap>(tagName: T): HTMLElementTagNameMap[T] => {
+  return document.createElement(tagName);
+};
