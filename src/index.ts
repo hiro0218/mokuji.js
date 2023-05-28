@@ -166,7 +166,7 @@ export const Mokuji = (
   const headings = [...getHeadingsElement(element)];
 
   // mokuji start
-  const elementContainer = createElement(options.anchorContainerTagName || defaultOptions.anchorContainerTagName);
+  const elementContainer = createElement(options.anchorContainerTagName);
 
   // generate mokuji list
   generateHierarchyList(headings, elementContainer, options.anchorType);
