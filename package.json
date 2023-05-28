@@ -1,6 +1,6 @@
 {
   "name": "mokuji.js",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "description": "A table of content JavaScript Library",
   "scripts": {
     "build": "tsup",
