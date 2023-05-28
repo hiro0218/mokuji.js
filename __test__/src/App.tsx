@@ -1,7 +1,7 @@
 // eslint-disable-next-line unicorn/filename-case
 import React, { useEffect } from 'react';
 
-import { Mokuji, destroy } from 'mokuji.js';
+import { Mokuji, Destroy } from 'mokuji.js';
 
 function App() {
   useEffect(() => {
@@ -20,7 +20,7 @@ function App() {
     }
 
     return () => {
-      destroy();
+      Destroy();
     };
   }, []);
 
