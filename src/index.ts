@@ -1,5 +1,4 @@
 import { hasParentNode, getHeadingsElement } from './dom';
-import { getHeadingTagName2Number } from './utils';
 import type { MokujiOption } from './types';
 import { censorshipId, generateAnchorText } from './text';
 
@@ -111,7 +110,7 @@ const generateHierarchyList = (
 
   for (let i = 0; i < headings.length; i++) {
     const heading = headings[i];
-    const currentNumber = getHeadingTagName2Number(heading.tagName);
+    const currentNumber = Number(heading.tagName[1]);
 
     // check list hierarchy
     if (number !== 0 && number < currentNumber) {
