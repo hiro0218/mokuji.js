@@ -66,37 +66,35 @@ const insertAnchorToHeadings = (
 };
 
 const removeDuplicateIds = (headings: HTMLHeadingElement[], anchors: HTMLAnchorElement[]) => {
-  for (let i = 0; i < anchors.length; i++) {
-    const anchor = anchors[i];
-    const id = anchor.textContent;
-    const hash = anchor.hash;
-    const matchedHeadings = headings.filter((heading) => heading.id === id);
+  const idCountMap = new Map<string, number>();
+  const anchorMap = new Map<string, HTMLAnchorElement[]>();
 
-    if (matchedHeadings.length === 1) {
-      continue;
-    }
+  // Build an anchor map based on hash
+  for (const anchor of anchors) {
+    const id = anchor.hash.slice(1); // remove the '#' prefix
+    const list = anchorMap.get(id) || [];
+    list.push(anchor);
+    anchorMap.set(id, list);
+  }
 
-    // duplicated id
-    let count = 0;
+  // Deduplicate ids and update headings and anchors
+  for (const heading of headings) {
+    const originalId = heading.id;
+    const count = idCountMap.get(originalId) || 0;
 
-    for (let j = 0; j < matchedHeadings.length; j++) {
-      const heading = matchedHeadings[j];
-      const heading_id = `${heading.id}-${count}`;
+    // If this is a duplicate id, append count to make it unique
+    if (count > 0) {
+      const newId = `${originalId}-${count}`;
+      heading.id = newId;
 
-      // search duplicate list
-      for (let k = 0; k < anchors.length; k++) {
-        const anchor = anchors[k];
-        if (anchor.hash === hash) {
-          // update hash
-          anchor.href = `#${heading_id}`;
-          break;
-        }
+      // Update the href of matching anchors
+      const matchingAnchors = anchorMap.get(originalId) || [];
+      for (const anchor of matchingAnchors) {
+        anchor.href = `#${newId}`;
       }
-
-      // update id
-      heading.id = heading_id;
-      count++;
     }
+
+    idCountMap.set(originalId, count + 1);
   }
 };
 
