@@ -40,7 +40,7 @@ const insertAnchorToHeadings = (
 
   for (let i = 0; i < headings.length; i++) {
     const heading = headings[i];
-    const matchedAnchor = anchorMap.get(heading.id);
+    const matchedAnchor = anchorMap.get(encodeURIComponent(heading.id));
 
     if (!matchedAnchor) {
       continue;
