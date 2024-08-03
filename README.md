@@ -58,7 +58,7 @@ set the anchor link symbol
 
 ### `anchorLinkPosition`
 
-(default: `'before`)
+(default: `'before'`)
 
 set position (before/after) the anchor link in headings.
 
