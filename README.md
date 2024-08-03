@@ -30,7 +30,7 @@ listElement?.appendChild(mokujiList);
   anchorType: true,
   anchorLink: false,
   anchorLinkSymbol: '#',
-  anchorLinkBefore: true,
+  anchorLinkPosition: 'before',
   anchorLinkClassName: '',
 }
 ```
@@ -56,11 +56,13 @@ enable/disable the anchor link in the headings
 
 set the anchor link symbol
 
-### `anchorLinkBefore`
+### `anchorLinkPosition`
 
-(default: `true`)
+(default: `'before`)
 
 set position (before/after) the anchor link in headings.
+
+Set the position of the anchor link with 'before' or 'after'.
 
 
 ### `anchorLinkClassName`
