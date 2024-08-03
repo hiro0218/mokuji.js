@@ -10,7 +10,7 @@ const defaultOptions = {
   anchorType: true,
   anchorLink: false,
   anchorLinkSymbol: '#',
-  anchorLinkBefore: true,
+  anchorLinkPosition: 'before',
   anchorLinkClassName: '',
   anchorContainerTagName: 'ol',
 } as const;
@@ -55,7 +55,7 @@ const insertAnchorToHeadings = (
     }
 
     // insert anchor into headings
-    if (options.anchorLinkBefore) {
+    if (options.anchorLinkPosition === 'before') {
       // before
       heading.insertBefore(anchor, heading.firstChild);
     } else {
