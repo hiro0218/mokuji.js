@@ -23,7 +23,7 @@
     "dist",
     "LICENSE",
     "package.json",
-    "READNME.md"
+    "README.md"
   ],
   "lint-staged": {
     "*.{js,ts,tsx}": [
