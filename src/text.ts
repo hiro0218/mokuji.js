@@ -1,7 +1,7 @@
 const storeIds = new Set<string>();
 
 const replaceSpacesWithUnderscores = (text: string) => {
-  return text.replaceAll(/\s+/g, '_');
+  return text.replaceAll(/\s+/g, '_').replaceAll(':', '');
 };
 
 const convert2WikipediaStyleAnchor = (anchor: string) => {
