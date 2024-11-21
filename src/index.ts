@@ -70,7 +70,8 @@ const removeDuplicateIds = (headings: HTMLHeadingElement[], anchors: HTMLAnchorE
   const anchorMap = new Map<string, HTMLAnchorElement[]>();
 
   // Build an anchor map based on hash
-  for (const anchor of anchors) {
+  for (let i = 0; i < anchors.length; i++) {
+    const anchor = anchors[i];
     const id = anchor.hash.slice(1); // remove the '#' prefix
     const list = anchorMap.get(id) || [];
     list.push(anchor);
@@ -78,7 +79,8 @@ const removeDuplicateIds = (headings: HTMLHeadingElement[], anchors: HTMLAnchorE
   }
 
   // Deduplicate ids and update headings and anchors
-  for (const heading of headings) {
+  for (let i = 0; i < headings.length; i++) {
+    const heading = headings[i];
     const originalId = heading.id;
     const count = idCountMap.get(originalId) || 0;
 
@@ -89,7 +91,8 @@ const removeDuplicateIds = (headings: HTMLHeadingElement[], anchors: HTMLAnchorE
 
       // Update the href of matching anchors
       const matchingAnchors = anchorMap.get(originalId) || [];
-      for (const anchor of matchingAnchors) {
+      for (let j = 0; j < matchingAnchors.length; j++) {
+        const anchor = matchingAnchors[j];
         anchor.href = `#${newId}`;
       }
     }
