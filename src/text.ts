@@ -1,4 +1,4 @@
-const storeIds = new Set<string>();
+export const storeIds = new Set<string>();
 
 const replaceSpacesWithUnderscores = (text: string) => {
   return text.replaceAll(/\s+/g, '_').replaceAll(':', '');
