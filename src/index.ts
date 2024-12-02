@@ -1,9 +1,10 @@
 import { hasParentNode, getHeadingsElement, createElement } from './dom';
 import type { MokujiOption } from './types';
-import { censorshipId, generateAnchorText } from './text';
+import { censorshipId, generateAnchorText, storeIds } from './text';
 
 export { MokujiOption };
 
+const MOKUJI_LIST_DATASET_ATTRIBUTE = 'data-mokuji-list';
 const ANCHOR_DATASET_ATTRIBUTE = 'data-mokuji-anchor';
 
 const defaultOptions = {
@@ -173,6 +174,7 @@ export const Mokuji = (
 
   // mokuji start
   const elementContainer = createElement(options.anchorContainerTagName);
+  elementContainer.setAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE, '');
 
   // generate mokuji list
   generateHierarchyList(headings, elementContainer, options.anchorType);
@@ -195,11 +197,20 @@ export const Mokuji = (
   return elementContainer;
 };
 
-// [data-mokuji-anchor]要素をすべて破棄する
 export const Destroy = () => {
+  // アンカー: [data-mokuji-anchor]要素をすべて破棄する
   const mokujiAnchor = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
   for (let i = mokujiAnchor.length - 1; i >= 0; i--) {
     const element = mokujiAnchor[i];
     element.remove();
   }
+
+  // 目次リスト: [data-mokuji-list]要素を破棄する
+  const mokujiList = document.querySelector(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`);
+  if (mokujiList) {
+    mokujiList.remove();
+  }
+
+  // 格納したidをクリアして次回の採番時に影響しないようにする
+  storeIds.clear();
 };
