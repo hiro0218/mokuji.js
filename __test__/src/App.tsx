@@ -1,10 +1,10 @@
 // eslint-disable-next-line unicorn/filename-case
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import { Mokuji, Destroy } from 'mokuji.js';
 
 function App() {
-  useEffect(() => {
+  const create = useCallback(() => {
     const mokuji = Mokuji(document.querySelector('#target'), {
       anchorType: true,
       anchorLink: true,
@@ -18,6 +18,10 @@ function App() {
       const list = document.querySelector('#mokuji');
       list?.append(mokuji);
     }
+  }, []);
+
+  useEffect(() => {
+    create();
 
     return () => {
       Destroy();
@@ -26,6 +30,12 @@ function App() {
 
   return (
     <main className="container">
+      <button type="button" onClick={() => create()}>
+        Create
+      </button>
+      <button type="button" onClick={() => Destroy()}>
+        Destroy
+      </button>
       <div className="grid">
         <div>
           <h2 className="heading">目次</h2>
