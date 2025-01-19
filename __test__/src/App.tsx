@@ -10,7 +10,7 @@ function App() {
       anchorLink: true,
       anchorLinkSymbol: '#',
       anchorLinkPosition: 'before',
-      anchorLinkClassName: 'anchor',
+      anchorLinkClassName: 'anchor  anchor2  ',
       anchorContainerTagName: 'ol',
     });
 

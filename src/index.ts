@@ -36,7 +36,18 @@ const insertAnchorToHeadings = (
   a.setAttribute(ANCHOR_DATASET_ATTRIBUTE, '');
 
   if (options.anchorLinkClassName) {
-    a.classList.add(options.anchorLinkClassName);
+    const anchorLinkClassName = options.anchorLinkClassName.trim();
+    const classNames = anchorLinkClassName.split(/\s+/);
+    // スペース区切りの場合
+    if (classNames.length > 1) {
+      // eslint-disable-next-line unicorn/no-array-for-each
+      classNames.forEach((className) => {
+        a.classList.add(className.trim());
+      });
+    } else {
+      // 通常の場合
+      a.classList.add(anchorLinkClassName);
+    }
   }
 
   for (let i = 0; i < headings.length; i++) {
