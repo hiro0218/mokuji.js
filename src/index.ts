@@ -2,7 +2,14 @@ import { hasParentNode, getHeadingsElement, createElement } from './dom';
 import type { MokujiOption } from './types';
 import { censorshipId, generateAnchorText, storeIds } from './text';
 
-export { MokujiOption };
+type ResultProps<T> =
+  | {
+      element?: T;
+      list: HTMLUListElement | HTMLOListElement;
+    }
+  | undefined;
+
+export { MokujiOption, ResultProps };
 
 const MOKUJI_LIST_DATASET_ATTRIBUTE = 'data-mokuji-list';
 const ANCHOR_DATASET_ATTRIBUTE = 'data-mokuji-anchor';
@@ -163,13 +170,13 @@ const generateHierarchyList = (
   }
 };
 
-export const Mokuji = (
-  element: HTMLElement | null,
-  externalOptions?: MokujiOption,
-): HTMLUListElement | HTMLOListElement | undefined => {
+export const Mokuji = <T extends HTMLElement>(element: T | null, externalOptions?: MokujiOption): ResultProps<T> => {
   if (!element) {
     return;
   }
+
+  // Create a copy of the element to avoid destructive changes
+  const modifiedElement = element.cloneNode(true) as T;
 
   // Merge the default options with the external options.
   const options = {
@@ -177,7 +184,7 @@ export const Mokuji = (
     ...externalOptions,
   };
 
-  const headings = [...getHeadingsElement(element)];
+  const headings = [...getHeadingsElement(modifiedElement)];
 
   if (headings.length === 0) {
     return;
@@ -205,7 +212,7 @@ export const Mokuji = (
     insertAnchorToHeadings(headings, anchorsMap, options);
   }
 
-  return elementContainer;
+  return { element: modifiedElement, list: elementContainer };
 };
 
 export const Destroy = () => {
