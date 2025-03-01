@@ -137,14 +137,16 @@ const generateHierarchyList = (
     if (number !== 0 && number < currentNumber) {
       // number of the heading is large (small as heading)
       const nextElementOListClone = createElement('ol');
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      elementContainer.lastChild.append(nextElementOListClone);
-      elementContainer = nextElementOListClone;
+      if (elementContainer.lastChild) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        elementContainer.lastChild.append(nextElementOListClone);
+        elementContainer = nextElementOListClone;
+      }
     } else if (number !== 0 && number > currentNumber) {
       // number of heading is small (large as heading)
       for (let i = 0; i < number - currentNumber; i++) {
-        if (hasParentNode(elementContainer, elementContainer.parentNode)) {
+        if (elementContainer.parentNode && hasParentNode(elementContainer, elementContainer.parentNode)) {
           elementContainer = elementContainer.parentNode?.parentNode as HTMLUListElement | HTMLOListElement;
         }
       }
