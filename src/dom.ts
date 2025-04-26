@@ -1,23 +1,23 @@
 /**
- * 親要素内に要素が存在するか判定する
+ * 子要素が親要素内に存在するか判定する
  */
-export const hasParentNode = (element: Node | null, parent: Node | null) => {
-  if (!element || !parent) {
+export const isElementWithinParent = (childElement: Node | null, parentElement: Node | null) => {
+  if (!childElement || !parentElement) {
     return false;
   }
 
-  return parent.contains(element);
+  return parentElement.contains(childElement);
 };
 
 /**
- * 見出し要素をすべて取得する
+ * h1からh6までのすべての見出し要素を取得する
  */
-export const getHeadingsElement = (element: Element) => {
-  return element.querySelectorAll<HTMLHeadingElement>('h1, h2, h3, h4, h5, h6');
+export const getAllHeadingElements = (containerElement: Element) => {
+  return containerElement.querySelectorAll<HTMLHeadingElement>('h1, h2, h3, h4, h5, h6');
 };
 
 /**
- * 要素を作成する
+ * 指定したタグ名の新しいHTML要素を作成する
  */
 export const createElement = <T extends keyof HTMLElementTagNameMap>(tagName: T): HTMLElementTagNameMap[T] => {
   return document.createElement(tagName);
