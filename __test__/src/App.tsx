@@ -1,11 +1,14 @@
 // eslint-disable-next-line unicorn/filename-case
-import React, { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { Mokuji, Destroy } from 'mokuji.js';
 
 function App() {
+  const ref = useRef<HTMLDivElement>(null);
+  const refMokuji = useRef<HTMLDivElement>(null);
+
   const create = useCallback(() => {
-    const mokuji = Mokuji(document.querySelector('#target'), {
+    const result = Mokuji(ref.current, {
       anchorType: true,
       anchorLink: true,
       anchorLinkSymbol: '#',
@@ -14,9 +17,13 @@ function App() {
       anchorContainerTagName: 'ol',
     });
 
-    if (mokuji) {
-      const list = document.querySelector('#mokuji');
-      list?.append(mokuji);
+    if (result) {
+      if (refMokuji.current) {
+        refMokuji.current.append(result.list);
+      }
+      if (ref.current && result.element) {
+        ref.current.innerHTML = result.element.innerHTML;
+      }
     }
   }, []);
 
@@ -39,11 +46,11 @@ function App() {
       <div className="grid">
         <div>
           <h2 className="heading">目次</h2>
-          <div id="mokuji"></div>
+          <div id="mokuji" ref={refMokuji}></div>
         </div>
         <div>
           <h2 className="heading">本文</h2>
-          <div id="target">
+          <div id="target" ref={ref}>
             <h1>one</h1>
 
             <h2>two</h2>

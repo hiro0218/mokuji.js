@@ -2,7 +2,14 @@ import { hasParentNode, getHeadingsElement, createElement } from './dom';
 import type { MokujiOption } from './types';
 import { censorshipId, generateAnchorText, storeIds } from './text';
 
-export { MokujiOption };
+type ResultProps<T> =
+  | {
+      element?: T;
+      list: HTMLUListElement | HTMLOListElement;
+    }
+  | undefined;
+
+export { MokujiOption, ResultProps };
 
 const MOKUJI_LIST_DATASET_ATTRIBUTE = 'data-mokuji-list';
 const ANCHOR_DATASET_ATTRIBUTE = 'data-mokuji-anchor';
@@ -113,49 +120,72 @@ const removeDuplicateIds = (headings: HTMLHeadingElement[], anchors: HTMLAnchorE
   }
 };
 
+const adjustElementContainerHierarchy = (
+  number: number,
+  currentNumber: number,
+  elementContainer: HTMLUListElement | HTMLOListElement,
+) => {
+  if (number !== 0 && number < currentNumber) {
+    // number of the heading is large (small as heading)
+    const nextElementOListClone = createElement('ol');
+    if (elementContainer.lastChild) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      elementContainer.lastChild.append(nextElementOListClone);
+      elementContainer = nextElementOListClone;
+    }
+  } else if (number !== 0 && number > currentNumber) {
+    // number of heading is small (large as heading)
+    for (let i = 0; i < number - currentNumber; i++) {
+      if (elementContainer.parentNode && hasParentNode(elementContainer, elementContainer.parentNode)) {
+        elementContainer = elementContainer.parentNode?.parentNode as HTMLUListElement | HTMLOListElement;
+      }
+    }
+  }
+  return elementContainer;
+};
+
+const assignHeadingId = (
+  heading: HTMLHeadingElement,
+  headings: HTMLHeadingElement[],
+  isConvertToWikipediaStyleAnchor: boolean,
+) => {
+  const textContent = censorshipId(headings, heading.textContent || '');
+  const anchorText = generateAnchorText(textContent, isConvertToWikipediaStyleAnchor);
+  heading.id = anchorText;
+  return anchorText;
+};
+
+const createListElement = (anchorText: string, heading: HTMLHeadingElement) => {
+  const elementListClone = createElement('li');
+  const elementAnchorClone = createElement('a');
+  const elementAnchor = elementAnchorClone.cloneNode(false) as HTMLAnchorElement;
+  elementAnchor.href = `#${anchorText}`;
+  elementAnchor.textContent = heading.textContent;
+  const elementList = elementListClone.cloneNode(false) as HTMLLIElement;
+  elementList.append(elementAnchor);
+  return elementList;
+};
+
 const generateHierarchyList = (
   headings: HTMLHeadingElement[],
   elementContainer: HTMLUListElement | HTMLOListElement,
   isConvertToWikipediaStyleAnchor: boolean,
 ) => {
   let number = 0;
-  const elementListClone = createElement('li');
-  const elementAnchorClone = createElement('a');
 
   for (let i = 0; i < headings.length; i++) {
     const heading = headings[i];
     const currentNumber = Number(heading.tagName[1]);
 
     // check list hierarchy
-    if (number !== 0 && number < currentNumber) {
-      // number of the heading is large (small as heading)
-      const nextElementOListClone = createElement('ol');
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      elementContainer.lastChild.append(nextElementOListClone);
-      elementContainer = nextElementOListClone;
-    } else if (number !== 0 && number > currentNumber) {
-      // number of heading is small (large as heading)
-      for (let i = 0; i < number - currentNumber; i++) {
-        if (hasParentNode(elementContainer, elementContainer.parentNode)) {
-          elementContainer = elementContainer.parentNode?.parentNode as HTMLUListElement | HTMLOListElement;
-        }
-      }
-    }
+    elementContainer = adjustElementContainerHierarchy(number, currentNumber, elementContainer);
 
-    const textContent = censorshipId(headings, heading.textContent || '');
+    // assign ID to heading
+    const anchorText = assignHeadingId(heading, headings, isConvertToWikipediaStyleAnchor);
 
-    // headingへidを付与
-    const anchorText = generateAnchorText(textContent, isConvertToWikipediaStyleAnchor);
-    heading.id = anchorText;
-
-    // add to wrapper
-    const elementAnchor = elementAnchorClone.cloneNode(false) as HTMLAnchorElement;
-    elementAnchor.href = `#${anchorText}`;
-    elementAnchor.textContent = heading.textContent;
-    const elementList = elementListClone.cloneNode(false) as HTMLLIElement;
-    elementList.append(elementAnchor);
-
+    // create and append list element
+    const elementList = createListElement(anchorText, heading);
     elementContainer.append(elementList);
 
     // update current number
@@ -163,13 +193,13 @@ const generateHierarchyList = (
   }
 };
 
-export const Mokuji = (
-  element: HTMLElement | null,
-  externalOptions?: MokujiOption,
-): HTMLUListElement | HTMLOListElement | undefined => {
+export const Mokuji = <T extends HTMLElement>(element: T | null, externalOptions?: MokujiOption): ResultProps<T> => {
   if (!element) {
     return;
   }
+
+  // Create a copy of the element to avoid destructive changes
+  const modifiedElement = element.cloneNode(true) as T;
 
   // Merge the default options with the external options.
   const options = {
@@ -177,7 +207,7 @@ export const Mokuji = (
     ...externalOptions,
   };
 
-  const headings = [...getHeadingsElement(element)];
+  const headings = [...getHeadingsElement(modifiedElement)];
 
   if (headings.length === 0) {
     return;
@@ -205,7 +235,7 @@ export const Mokuji = (
     insertAnchorToHeadings(headings, anchorsMap, options);
   }
 
-  return elementContainer;
+  return { element: modifiedElement, list: elementContainer };
 };
 
 export const Destroy = () => {
