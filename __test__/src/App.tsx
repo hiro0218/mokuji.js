@@ -55,7 +55,7 @@ function App() {
     return () => {
       Destroy();
     };
-  }, [create]);
+  }, []);
 
   // レベル変更時の処理を共通化
   const handleLevelChange = useCallback(() => {
