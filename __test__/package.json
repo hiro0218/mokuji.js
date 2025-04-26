@@ -7,18 +7,16 @@
     "build": "tsc && vite build",
     "serve": "vite preview"
   },
-  "dependencies": {
-    "@picocss/pico": "^2.0.6",
-    "mokuji.js": "file:../",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "shokika.css": "^1.7.1"
-  },
   "devDependencies": {
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@picocss/pico": "^2.1.1",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "mokuji.js": "file:../",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "shokika.css": "^1.8.0",
     "typescript": "^5.7.2",
-    "vite": "^6.0.2"
+    "vite": "^6.3.3"
   }
 }
