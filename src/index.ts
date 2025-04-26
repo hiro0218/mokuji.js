@@ -23,6 +23,8 @@ const defaultOptions = {
   anchorLinkPosition: 'before', // アンカーリンクの位置
   anchorLinkClassName: '', // アンカーリンクのクラス名
   anchorContainerTagName: 'ol', // 目次のコンテナ要素
+  minLevel: 1, // 最小見出しレベル（h1）
+  maxLevel: 6, // 最大見出しレベル（h6）
 } as const;
 
 /**
@@ -155,6 +157,14 @@ const adjustHeadingHierarchy = (
 };
 
 /**
+ * 見出し要素が指定されたレベル範囲内かどうかを判定する
+ */
+const isHeadingWithinLevelRange = (heading: HTMLHeadingElement, minLevel: number, maxLevel: number): boolean => {
+  const level = Number(heading.tagName[1]);
+  return level >= minLevel && level <= maxLevel;
+};
+
+/**
  * 見出し要素にIDを割り当てる
  */
 const assignIdToHeading = (
@@ -235,12 +245,21 @@ export const Mokuji = <T extends HTMLElement>(element: T | null, externalOptions
     return;
   }
 
+  // 指定されたレベル範囲内の見出し要素だけをフィルタリング
+  const filteredHeadings = headings.filter((heading) =>
+    isHeadingWithinLevelRange(heading, options.minLevel, options.maxLevel),
+  );
+
+  if (filteredHeadings.length === 0) {
+    return;
+  }
+
   // 目次コンテナを作成
   const listContainer = createElement(options.anchorContainerTagName);
   listContainer.setAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE, '');
 
   // 目次を生成
-  generateTableOfContents(headings, listContainer, options.anchorType);
+  generateTableOfContents(filteredHeadings, listContainer, options.anchorType);
 
   const anchors = [...listContainer.querySelectorAll('a')];
 
@@ -249,12 +268,12 @@ export const Mokuji = <T extends HTMLElement>(element: T | null, externalOptions
   }
 
   // 重複IDを修正
-  ensureUniqueHeadingIds(headings, anchors);
+  ensureUniqueHeadingIds(filteredHeadings, anchors);
 
   // アンカーリンクを設定
   if (options.anchorLink) {
     const anchorsMap = generateAnchorsMap(anchors);
-    insertAnchorToHeadings(headings, anchorsMap, options);
+    insertAnchorToHeadings(filteredHeadings, anchorsMap, options);
   }
 
   return { element: modifiedElement, list: listContainer };
