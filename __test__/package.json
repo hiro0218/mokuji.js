@@ -17,6 +17,6 @@
     "react-dom": "^19.1.0",
     "shokika.css": "^1.8.0",
     "typescript": "^5.7.2",
-    "vite": "^6.3.3"
+    "vite": "^6.3.4"
   }
 }
