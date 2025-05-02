@@ -13,7 +13,6 @@ export const getAllHeadingElements = (containerElement: Element) => {
   const headingTags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as const;
   const headings: HTMLHeadingElement[] = [];
 
-  // パフォーマンス警告を避けつつDOM要素を効率的に取得
   for (let i = 0; i < headingTags.length; i++) {
     const tagElements = containerElement.querySelectorAll(headingTags[i]);
     for (let j = 0; j < tagElements.length; j++) {
@@ -46,6 +45,5 @@ export const createElement = <T extends keyof HTMLElementTagNameMap>(tagName: T)
     return cachedElement.cloneNode(false) as HTMLElementTagNameMap[T];
   }
 
-  // 予備的なフォールバック（通常は実行されない）
   return document.createElement(tagName);
 };
