@@ -24,8 +24,9 @@ export const generateTableOfContents = (
 ) => {
   let previousHeadingLevel = 0;
   const documentFragment = document.createDocumentFragment();
-  let currentListContainer = listContainer;
-  const listContainerStack: TableOfContentsContainer[] = [listContainer];
+  let currentListContainer = listContainer.cloneNode(false) as TableOfContentsContainer;
+  documentFragment.append(currentListContainer);
+  const listContainerStack: TableOfContentsContainer[] = [currentListContainer];
 
   // リスト要素とアンカー要素のテンプレートを一度だけ作成（メモリ効率化）
   const listItemTemplate = createElement('li');
@@ -77,5 +78,6 @@ export const generateTableOfContents = (
     previousHeadingLevel = currentHeadingLevel;
   }
 
+  listContainer.innerHTML = '';
   listContainer.append(documentFragment);
 };
