@@ -27,11 +27,6 @@ export type MokujiOption = {
   anchorLinkSymbol?: string;
 
   /**
-   * @deprecated use anchorLinkPosition
-   */
-  anchorLinkBefore?: boolean;
-
-  /**
    * アンカーリンクの配置位置
    */
   anchorLinkPosition?: 'before' | 'after';
