@@ -38,7 +38,7 @@ export const createListElement = (
   const elementList = listItemTemplate.cloneNode(false) as HTMLLIElement;
   const elementAnchor = anchorTemplate.cloneNode(false) as HTMLAnchorElement;
 
-  elementAnchor.href = `#${anchorText}`;
+  elementAnchor.href = `#${encodeURIComponent(anchorText)}`;
   elementAnchor.textContent = heading.textContent;
   elementList.append(elementAnchor);
 
@@ -85,7 +85,7 @@ export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: 
   // アンカー要素をIDごとにグループ化
   for (let i = 0; i < anchors.length; i++) {
     const anchor = anchors[i];
-    const headingId = anchor.hash.slice(1);
+    const headingId = decodeURIComponent(anchor.hash.slice(1));
     const anchorsForId = idToAnchorsMap.get(headingId) || [];
     anchorsForId.push(anchor);
     idToAnchorsMap.set(headingId, anchorsForId);
@@ -105,7 +105,7 @@ export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: 
       const matchingAnchors = idToAnchorsMap.get(originalHeadingId) || [];
       for (let j = 0; j < matchingAnchors.length; j++) {
         const anchor = matchingAnchors[j];
-        anchor.href = `#${uniqueHeadingId}`;
+        anchor.href = `#${encodeURIComponent(uniqueHeadingId)}`;
       }
     }
 
