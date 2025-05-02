@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Mokuji, Destroy } from 'mokuji.js';
+import { Mokuji, Destroy, type HeadingLevel } from 'mokuji.js';
 
 function App() {
   const ref = useRef<HTMLDivElement>(null);
   const refMokuji = useRef<HTMLDivElement>(null);
-  const [minLevel, setMinLevel] = useState<number>(1);
-  const [maxLevel, setMaxLevel] = useState<number>(6);
+  const [minLevel, setMinLevel] = useState<HeadingLevel>(1);
+  const [maxLevel, setMaxLevel] = useState<HeadingLevel>(6);
 
   // オプションを関数外で参照できるようにする
   const mokujiOptionsRef = useRef({
