@@ -39,6 +39,10 @@ export const Mokuji = <T extends HTMLElement>(element: T | null, externalOptions
     ...externalOptions,
   };
 
+  // minLevelとmaxLevelの値を有効範囲内に制限する
+  options.minLevel = Math.max(1, Math.min(options.minLevel || 1, 6));
+  options.maxLevel = Math.max(options.minLevel || 1, Math.min(options.maxLevel || 6, 6));
+
   // ヘッダー要素を取得し、レベルでフィルタリング
   const { minLevel, maxLevel } = options;
   const filteredHeadings = getFilteredHeadings(modifiedElement, minLevel, maxLevel);
