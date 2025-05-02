@@ -3,7 +3,7 @@
  */
 
 import { createElement } from './common/dom';
-import type { MokujiOption } from './common/types';
+import type { MokujiOption, HeadingLevel } from './common/types';
 import { usedHeadingIds } from './heading/text';
 import { getFilteredHeadings, ensureUniqueHeadingIds } from './heading/heading';
 import { generateAnchorsMap, insertAnchorToHeadings } from './anchor/anchor';
@@ -13,19 +13,26 @@ import { MOKUJI_LIST_DATASET_ATTRIBUTE, ANCHOR_DATASET_ATTRIBUTE, defaultOptions
 /**
  * 目次生成の結果型定義
  */
-type ResultProps<T> =
-  | {
-      element?: T;
-      list: HTMLUListElement | HTMLOListElement;
-    }
-  | undefined;
+export type MokujiResult<T extends HTMLElement = HTMLElement> = {
+  /** 目次が生成された元の要素（オプション） */
+  element?: T;
+  /** 生成された目次のリスト要素 */
+  list: HTMLUListElement | HTMLOListElement;
+};
 
-export { MokujiOption, ResultProps };
+export { MokujiOption, HeadingLevel };
 
 /**
  * 与えられた要素内の見出しから目次を生成する
+ *
+ * @param element 目次を生成する対象のHTML要素
+ * @param externalOptions 目次生成オプション
+ * @returns 生成された目次情報。要素が見つからないか見出しがない場合はundefined
  */
-export const Mokuji = <T extends HTMLElement>(element: T | null, externalOptions?: MokujiOption): ResultProps<T> => {
+export const Mokuji = <T extends HTMLElement>(
+  element: T | null,
+  externalOptions?: MokujiOption,
+): MokujiResult<T> | undefined => {
   if (!element) {
     return;
   }
@@ -40,8 +47,8 @@ export const Mokuji = <T extends HTMLElement>(element: T | null, externalOptions
   };
 
   // minLevelとmaxLevelの値を有効範囲内に制限する
-  options.minLevel = Math.max(1, Math.min(options.minLevel || 1, 6));
-  options.maxLevel = Math.max(options.minLevel || 1, Math.min(options.maxLevel || 6, 6));
+  options.minLevel = Math.max(1, Math.min(options.minLevel || 1, 6)) as HeadingLevel;
+  options.maxLevel = Math.max(options.minLevel || 1, Math.min(options.maxLevel || 6, 6)) as HeadingLevel;
 
   // ヘッダー要素を取得し、レベルでフィルタリング
   const { minLevel, maxLevel } = options;

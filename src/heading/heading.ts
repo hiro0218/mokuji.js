@@ -4,6 +4,7 @@
 
 import { generateUniqueHeadingId, generateAnchorText } from './text';
 import { getAllHeadingElements } from '../common/dom';
+import type { HeadingLevel } from '../common/types';
 
 /**
  * 見出し要素にIDを割り当てる
@@ -52,13 +53,17 @@ export const createListElement = (
  * @param maxLevel 最大見出しレベル（例: 6はh6を表す）
  * @returns フィルタリングされた見出し要素の配列
  */
-export const getFilteredHeadings = (element: Element, minLevel: number, maxLevel: number): HTMLHeadingElement[] => {
+export const getFilteredHeadings = (
+  element: Element,
+  minLevel: HeadingLevel,
+  maxLevel: HeadingLevel,
+): HTMLHeadingElement[] => {
   const filteredHeadings: HTMLHeadingElement[] = [];
   const allHeadings = getAllHeadingElements(element);
 
   for (let i = 0; i < allHeadings.length; i++) {
     const heading = allHeadings[i];
-    const level = Number(heading.tagName[1]);
+    const level = Number(heading.tagName[1]) as HeadingLevel;
     if (level >= minLevel && level <= maxLevel) {
       filteredHeadings.push(heading);
     }

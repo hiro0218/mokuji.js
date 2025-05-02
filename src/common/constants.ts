@@ -2,6 +2,8 @@
  * 目次生成で使用する定数を提供するモジュール
  */
 
+import type { MokujiOption } from './types';
+
 /**
  * 目次関連の要素を識別するための属性
  */
@@ -11,7 +13,7 @@ export const ANCHOR_DATASET_ATTRIBUTE = 'data-mokuji-anchor';
 /**
  * デフォルトオプション設定
  */
-export const defaultOptions = {
+export const defaultOptions: Required<MokujiOption> = {
   anchorType: true, // Wikipediaスタイルのアンカーを生成
   anchorLink: false, // 見出しへのアンカーリンクを追加
   anchorLinkSymbol: '#', // アンカーリンクのシンボル

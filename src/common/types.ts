@@ -3,7 +3,13 @@
  */
 
 /** 目次コンテナとして使用可能なHTML要素タグ名 */
-type AnchorContainerTagNameProps = 'ul' | 'ol';
+export type AnchorContainerTagName = 'ul' | 'ol';
+
+/** 見出しレベルを表す型（h1-h6に対応する1-6の値） */
+export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+
+/** アンカーリンクの配置位置 */
+export type AnchorLinkPosition = 'before' | 'after';
 
 export type MokujiOption = {
   /** Wikipediaスタイルのアンカーを生成するかどうか */
@@ -16,17 +22,17 @@ export type MokujiOption = {
   anchorLinkSymbol?: string;
 
   /** アンカーリンクの配置位置 */
-  anchorLinkPosition?: 'before' | 'after';
+  anchorLinkPosition?: AnchorLinkPosition;
 
   /** アンカーリンクに適用するCSSクラス名 */
   anchorLinkClassName?: string;
 
   /** 目次のコンテナとして使用するHTML要素のタグ名 */
-  anchorContainerTagName?: AnchorContainerTagNameProps;
+  anchorContainerTagName?: AnchorContainerTagName;
 
   /** 最小見出しレベル（例: 1はh1を意味する。これより小さいレベルは表示しない） */
-  minLevel?: number;
+  minLevel?: HeadingLevel;
 
   /** 最大見出しレベル（例: 3はh3を意味する。これより大きいレベルは表示しない） */
-  maxLevel?: number;
+  maxLevel?: HeadingLevel;
 };

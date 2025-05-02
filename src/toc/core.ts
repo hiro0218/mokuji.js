@@ -6,6 +6,11 @@ import { createElement } from '../common/dom';
 import { assignIdToHeading, createListElement } from '../heading/heading';
 
 /**
+ * 目次コンテナの型
+ */
+type TableOfContentsContainer = HTMLUListElement | HTMLOListElement;
+
+/**
  * 見出し要素から階層構造を持つ目次を生成する
  *
  * @param headings 処理対象の見出し要素配列
@@ -14,13 +19,13 @@ import { assignIdToHeading, createListElement } from '../heading/heading';
  */
 export const generateTableOfContents = (
   headings: HTMLHeadingElement[],
-  listContainer: HTMLUListElement | HTMLOListElement,
+  listContainer: TableOfContentsContainer,
   isConvertToWikipediaStyleAnchor: boolean,
 ) => {
   let previousHeadingLevel = 0;
   const documentFragment = document.createDocumentFragment();
   let currentListContainer = listContainer;
-  const listContainerStack: (HTMLUListElement | HTMLOListElement)[] = [listContainer];
+  const listContainerStack: TableOfContentsContainer[] = [listContainer];
 
   // リスト要素とアンカー要素のテンプレートを一度だけ作成（メモリ効率化）
   const listItemTemplate = createElement('li');

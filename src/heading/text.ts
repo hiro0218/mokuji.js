@@ -24,15 +24,21 @@ const DOT_REPLACEMENT = '.';
 
 /**
  * テキスト内のスペースをアンダースコアに置換する
+ *
+ * @param text 置換対象のテキスト
+ * @returns スペースがアンダースコアに置換されたテキスト
  */
-const replaceSpacesWithUnderscores = (text: string) => {
+const replaceSpacesWithUnderscores = (text: string): string => {
   return text.replaceAll(WHITESPACE_PATTERN, '_').replace(COLON_CHARACTER, '');
 };
 
 /**
  * テキストをWikipediaスタイルのアンカーに変換する
+ *
+ * @param anchor 変換対象のアンカーテキスト
+ * @returns Wikipediaスタイルに変換されたアンカーテキスト
  */
-const convertToWikipediaStyleAnchor = (anchor: string) => {
+const convertToWikipediaStyleAnchor = (anchor: string): string => {
   return encodeURIComponent(anchor).replaceAll(PERCENT_ENCODING_PATTERN, DOT_REPLACEMENT);
 };
 
@@ -42,7 +48,7 @@ const convertToWikipediaStyleAnchor = (anchor: string) => {
  * @param textContent 見出しのテキスト内容
  * @returns 生成された一意のID
  */
-export const generateUniqueHeadingId = (textContent = '') => {
+export const generateUniqueHeadingId = (textContent = ''): string => {
   const baseHeadingId = textContent;
 
   // 現在のIDの出現回数を取得または初期化
@@ -67,7 +73,7 @@ export const generateUniqueHeadingId = (textContent = '') => {
  * @param isConvertToWikipediaStyleAnchor Wikipediaスタイルの変換を行うかどうかのフラグ
  * @returns 生成されたアンカーテキスト
  */
-export const generateAnchorText = (text: string, isConvertToWikipediaStyleAnchor: boolean) => {
+export const generateAnchorText = (text: string, isConvertToWikipediaStyleAnchor: boolean): string => {
   // 変換ステップを効率化: 一度の関数呼び出しで置換
   let anchorText = replaceSpacesWithUnderscores(text);
 
