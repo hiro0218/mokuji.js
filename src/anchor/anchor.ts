@@ -30,19 +30,17 @@ export const generateAnchorsMap = (anchors: HTMLAnchorElement[]) => {
  * @param classNameString スペース区切りのクラス名文字列
  */
 const applyClassNamesToElement = (element: HTMLElement, classNameString: string): void => {
-  const trimmedClassName = classNameString.trim();
-  const classNames = trimmedClassName.split(/\s+/);
+  // 空文字列の場合は何もしない
+  if (!classNameString.trim()) {
+    return;
+  }
 
-  // クラス名が複数ある場合は個別に追加、1つのみの場合はそのまま追加
-  if (classNames.length > 1) {
-    for (const className of classNames) {
-      const trimmedClass = className.trim();
-      if (trimmedClass) {
-        element.classList.add(trimmedClass);
-      }
+  // スペースで区切られたクラス名を配列に変換し、各クラス名に対して処理を行う
+  for (const className of classNameString.trim().split(/\s+/)) {
+    const trimmedClass = className.trim();
+    if (trimmedClass) {
+      element.classList.add(trimmedClass);
     }
-  } else if (trimmedClassName) {
-    element.classList.add(trimmedClassName);
   }
 };
 
