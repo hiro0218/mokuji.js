@@ -115,6 +115,65 @@ const createAnchorForHeading = (
 };
 
 /**
+ * 見出しとアンカーのペア型定義
+ */
+type HeadingAnchorPair = {
+  heading: HTMLHeadingElement;
+  anchor: HTMLAnchorElement;
+};
+
+/**
+ * 有効な見出しとアンカーのペアを作成する
+ *
+ * @param heading 見出し要素
+ * @param anchorMap アンカーIDからアンカー要素へのマップ
+ * @param anchorTemplate アンカーテンプレート
+ * @param options 目次生成オプション
+ * @returns 見出しとアンカーのペア、または無効な場合はundefined
+ */
+const createHeadingAnchorPair = (
+  heading: HTMLHeadingElement,
+  anchorMap: Map<string, HTMLAnchorElement>,
+  anchorTemplate: HTMLAnchorElement,
+  options: MokujiOption,
+): HeadingAnchorPair | undefined => {
+  // 親要素がない場合は無効
+  if (!heading.parentNode) {
+    return undefined;
+  }
+
+  const anchor = createAnchorForHeading(heading, anchorMap, anchorTemplate, options);
+
+  // アンカーが作成できなかった場合は無効
+  if (!anchor) {
+    return undefined;
+  }
+
+  return { heading, anchor };
+};
+
+/**
+ * ペアを親要素のマップに追加する
+ *
+ * @param pair 見出しとアンカーのペア
+ * @param headingsByParent 親要素ごとのペアのマップ
+ */
+const addPairToParentMap = (pair: HeadingAnchorPair, headingsByParent: Map<Node, HeadingAnchorPair[]>): void => {
+  const parent = pair.heading.parentNode as Node;
+
+  // 親要素のエントリがない場合は作成
+  if (!headingsByParent.has(parent)) {
+    headingsByParent.set(parent, []);
+  }
+
+  // ペアを親要素のリストに追加
+  const pairs = headingsByParent.get(parent);
+  if (pairs) {
+    pairs.push(pair);
+  }
+};
+
+/**
  * 見出し要素を親要素ごとにグループ化する
  *
  * @param headings 見出し要素の配列
@@ -128,33 +187,15 @@ const groupHeadingsByParent = (
   anchorMap: Map<string, HTMLAnchorElement>,
   anchorTemplate: HTMLAnchorElement,
   options: MokujiOption,
-): Map<Node, Array<{ heading: HTMLHeadingElement; anchor: HTMLAnchorElement }>> => {
-  const headingsByParent = new Map<Node, Array<{ heading: HTMLHeadingElement; anchor: HTMLAnchorElement }>>();
+): Map<Node, HeadingAnchorPair[]> => {
+  const headingsByParent = new Map<Node, HeadingAnchorPair[]>();
 
   for (let i = 0; i < headings.length; i++) {
-    const heading = headings[i];
+    const pair = createHeadingAnchorPair(headings[i], anchorMap, anchorTemplate, options);
 
-    // 親要素がない場合はスキップ
-    if (!heading.parentNode) {
-      continue;
-    }
-
-    const anchor = createAnchorForHeading(heading, anchorMap, anchorTemplate, options);
-
-    // アンカーが作成できなかった場合はスキップ
-    if (!anchor) {
-      continue;
-    }
-
-    // 親要素ごとにグループ化
-    const parent = heading.parentNode;
-    if (!headingsByParent.has(parent)) {
-      headingsByParent.set(parent, []);
-    }
-
-    const pairs = headingsByParent.get(parent);
-    if (pairs) {
-      pairs.push({ heading, anchor });
+    // 有効なペアの場合のみ処理を続行
+    if (pair) {
+      addPairToParentMap(pair, headingsByParent);
     }
   }
 
@@ -168,7 +209,7 @@ const groupHeadingsByParent = (
  * @param position アンカーリンクの配置位置
  */
 const insertAnchorsToGroups = (
-  headingsByParent: Map<Node, Array<{ heading: HTMLHeadingElement; anchor: HTMLAnchorElement }>>,
+  headingsByParent: Map<Node, HeadingAnchorPair[]>,
   position: AnchorLinkPosition = 'before',
 ): void => {
   // 親要素ごとにアンカーを挿入
