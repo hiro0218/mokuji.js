@@ -23,6 +23,47 @@ export type MokujiResult<T extends HTMLElement = HTMLElement> = {
 export { MokujiOption, HeadingLevel };
 
 /**
+ * オプション設定を処理し、有効な範囲内に制限する
+ *
+ * @param externalOptions 外部から指定されたオプション
+ * @returns 処理された有効なオプション
+ */
+const processOptions = (externalOptions?: MokujiOption) => {
+  // オプションをマージ
+  const options = {
+    ...defaultOptions,
+    ...externalOptions,
+  };
+
+  // minLevelとmaxLevelの値を有効範囲内に制限する
+  options.minLevel = Math.max(1, Math.min(options.minLevel || 1, 6)) as HeadingLevel;
+  options.maxLevel = Math.max(options.minLevel || 1, Math.min(options.maxLevel || 6, 6)) as HeadingLevel;
+
+  return options;
+};
+
+/**
+ * 目次とアンカーを生成する
+ *
+ * @param filteredHeadings フィルタリングされた見出し要素の配列
+ * @param options 目次生成オプション
+ * @returns 生成された目次コンテナとアンカー要素の配列
+ */
+const generateTocAndAnchors = (filteredHeadings: HTMLHeadingElement[], options: Required<MokujiOption>) => {
+  // 目次コンテナを作成
+  const listContainer = createElement(options.anchorContainerTagName);
+  listContainer.setAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE, '');
+
+  // 目次を生成
+  generateTableOfContents(filteredHeadings, listContainer, options.anchorType);
+
+  // アンカー要素を一度に取得（効率化）
+  const anchors = [...listContainer.querySelectorAll('a')];
+
+  return { listContainer, anchors };
+};
+
+/**
  * 与えられた要素内の見出しから目次を生成する
  *
  * @param element 目次を生成する対象のHTML要素
@@ -40,15 +81,8 @@ export const Mokuji = <T extends HTMLElement>(
   // 要素のコピーを作成
   const modifiedElement = element.cloneNode(true) as T;
 
-  // オプションをマージ
-  const options = {
-    ...defaultOptions,
-    ...externalOptions,
-  };
-
-  // minLevelとmaxLevelの値を有効範囲内に制限する
-  options.minLevel = Math.max(1, Math.min(options.minLevel || 1, 6)) as HeadingLevel;
-  options.maxLevel = Math.max(options.minLevel || 1, Math.min(options.maxLevel || 6, 6)) as HeadingLevel;
+  // オプションを処理
+  const options = processOptions(externalOptions);
 
   // ヘッダー要素を取得し、レベルでフィルタリング
   const { minLevel, maxLevel } = options;
@@ -58,15 +92,8 @@ export const Mokuji = <T extends HTMLElement>(
     return;
   }
 
-  // 目次コンテナを作成
-  const listContainer = createElement(options.anchorContainerTagName);
-  listContainer.setAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE, '');
-
-  // 目次を生成
-  generateTableOfContents(filteredHeadings, listContainer, options.anchorType);
-
-  // アンカー要素を一度に取得（効率化）
-  const anchors = [...listContainer.querySelectorAll('a')];
+  // 目次とアンカーを生成
+  const { listContainer, anchors } = generateTocAndAnchors(filteredHeadings, options);
 
   if (anchors.length === 0) {
     return;
