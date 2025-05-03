@@ -39,9 +39,9 @@ const createAnchorTemplate = (options: Required<MokujiOption>): HTMLAnchorElemen
   const anchorTemplate = createElement('a');
   anchorTemplate.setAttribute(ANCHOR_DATASET_ATTRIBUTE, '');
 
-  if (options.anchorLinkClassName) {
-    applyClassNamesToElement(anchorTemplate, options.anchorLinkClassName);
-  }
+  // anchorLinkClassNameが空文字列の場合でもクラス名適用処理を実行する
+  // 空文字列の場合はapplyClassNamesToElement内で早期リターンされる
+  applyClassNamesToElement(anchorTemplate, options.anchorLinkClassName);
 
   return anchorTemplate;
 };
@@ -71,18 +71,39 @@ const createAnchorForHeading = (
   options: Required<MokujiOption>,
 ): HTMLAnchorElement | undefined => {
   const headingId = heading.id;
-  const matchedTocAnchor = anchorMap.get(headingId);
+  let matchedTocAnchor = anchorMap.get(headingId);
 
+  // headingIdから直接対応するアンカーが見つからない場合
   if (!matchedTocAnchor) {
-    return undefined;
+    // IDが「ID_数字」の形式かチェックする（重複により変更されたIDの場合）
+    const idWithoutSuffix = headingId.replace(/_\d+$/, '');
+    if (idWithoutSuffix !== headingId) {
+      // サフィックスを取り除いた元のIDでアンカーを検索
+      matchedTocAnchor = anchorMap.get(idWithoutSuffix);
+    }
+
+    // それでも見つからない場合はテキスト内容をベースに検索
+    if (!matchedTocAnchor) {
+      const headingText = heading.textContent?.trim() || '';
+      // アンカーマップ内をテキスト内容で検索
+      for (const [, anchor] of anchorMap.entries()) {
+        if (anchor.textContent?.trim() === headingText) {
+          matchedTocAnchor = anchor;
+          break;
+        }
+      }
+    }
+
+    // 最終的にもマッチするアンカーが見つからなかった場合
+    if (!matchedTocAnchor) {
+      return undefined;
+    }
   }
 
   const anchorElement = anchorTemplate.cloneNode(false) as HTMLAnchorElement;
   anchorElement.href = matchedTocAnchor.hash;
 
-  if (options.anchorLinkSymbol) {
-    anchorElement.textContent = options.anchorLinkSymbol;
-  }
+  anchorElement.textContent = options.anchorLinkSymbol;
 
   return anchorElement;
 };
