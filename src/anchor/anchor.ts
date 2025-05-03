@@ -122,13 +122,12 @@ const createHeadingAnchorPair = (
  * 見出しとアンカーのペアを、親要素をキーとするマップに追加する
  */
 const addPairToParentMap = (pair: HeadingAnchorPair, headingsByParent: Map<Node, HeadingAnchorPair[]>): void => {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const parent = pair.heading.parentNode!;
 
   if (!headingsByParent.has(parent)) {
     headingsByParent.set(parent, []);
   }
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
   headingsByParent.get(parent)!.push(pair);
 };
 

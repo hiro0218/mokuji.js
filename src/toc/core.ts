@@ -46,12 +46,10 @@ export const generateTableOfContents = (
       children: [],
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     while (currentHeadingLevel <= levelStack.at(-1)!.level) {
       levelStack.pop();
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     levelStack.at(-1)!.items.push(newItem);
     levelStack.push({ level: currentHeadingLevel, items: newItem.children });
   }

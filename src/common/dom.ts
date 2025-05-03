@@ -20,7 +20,6 @@ export const createElement = <T extends keyof HTMLElementTagNameMap>(tagName: T)
     elementCache.set(tagName, document.createElement(tagName));
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const cachedElement = elementCache.get(tagName)!;
 
   return cachedElement.cloneNode(false) as HTMLElementTagNameMap[T];
