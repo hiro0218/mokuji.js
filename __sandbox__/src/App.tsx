@@ -27,6 +27,10 @@ function App() {
     // 現在の設定値を参照
     const { minLevel, maxLevel } = mokujiOptionsRef.current;
 
+    if (!ref.current) {
+      return;
+    }
+
     const result = Mokuji(ref.current, {
       anchorType: true,
       anchorLink: true,
@@ -68,9 +72,9 @@ function App() {
 
   const handleMinLevelChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const newMinLevel = Number(e.target.value) as HeadingLevel;
+      const newMinLevel = Number(e.target.value);
       // 最小レベルが最大レベルを超えないようにする
-      setMinLevel(Math.min(newMinLevel, maxLevel));
+      setMinLevel(Math.min(newMinLevel, maxLevel) as HeadingLevel);
       // 直ちにhandleLevelChangeを呼び出さない（setStateの後に実行される）
     },
     [maxLevel],
@@ -78,9 +82,9 @@ function App() {
 
   const handleMaxLevelChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const newMaxLevel = Number(e.target.value) as HeadingLevel;
+      const newMaxLevel = Number(e.target.value);
       // 最大レベルが最小レベル未満にならないようにする
-      setMaxLevel(Math.max(newMaxLevel, minLevel));
+      setMaxLevel(Math.max(newMaxLevel, minLevel) as HeadingLevel);
       // 直ちにhandleLevelChangeを呼び出さない（setStateの後に実行される）
     },
     [minLevel],
