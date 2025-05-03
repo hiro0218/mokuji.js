@@ -32,9 +32,11 @@ export const generateTableOfContents = (
   isConvertToWikipediaStyleAnchor: boolean,
 ): void => {
   const rootLevelItems: TocItem[] = [];
-  const levelStack: { level: number; items: TocItem[] }[] = [{ level: 0, items: rootLevelItems }];
+  const levelStack: { level: number; items: TocItem[] }[] = [];
+  levelStack.push({ level: 0, items: rootLevelItems });
 
-  for (let i = 0; i < headings.length; i++) {
+  const headingsLength = headings.length;
+  for (let i = 0; i < headingsLength; i++) {
     const heading = headings[i];
     const currentHeadingLevel = Number(heading.tagName[1]);
     const anchorText = assignInitialIdToHeading(heading, isConvertToWikipediaStyleAnchor);
@@ -46,11 +48,16 @@ export const generateTableOfContents = (
       children: [],
     };
 
-    while (currentHeadingLevel <= levelStack.at(-1)!.level) {
+    let stackIndex = levelStack.length - 1;
+    let currentStackTop = levelStack[stackIndex];
+
+    while (currentHeadingLevel <= currentStackTop.level && stackIndex > 0) {
       levelStack.pop();
+      stackIndex--;
+      currentStackTop = levelStack[stackIndex];
     }
 
-    levelStack.at(-1)!.items.push(newItem);
+    currentStackTop.items.push(newItem);
     levelStack.push({ level: currentHeadingLevel, items: newItem.children });
   }
 
@@ -63,7 +70,8 @@ export const generateTableOfContents = (
   const childListTemplate = createElement(childListTagName);
 
   const buildListRecursive = (parentListElement: HTMLElement, items: TocItem[]): void => {
-    for (const item of items) {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
       const elementList = listItemTemplate.cloneNode(false) as HTMLLIElement;
       const elementAnchor = anchorTemplate.cloneNode(false) as HTMLAnchorElement;
 
@@ -82,7 +90,5 @@ export const generateTableOfContents = (
 
   buildListRecursive(rootListElement, rootLevelItems);
   documentFragment.append(rootListElement);
-
-  listContainer.innerHTML = '';
-  listContainer.append(documentFragment);
+  listContainer.replaceChildren(documentFragment);
 };

@@ -55,11 +55,10 @@ const generateTocAndAnchorsInternal = (
  * 与えられた要素内の見出しから目次を生成する (公開API)
  */
 export const Mokuji = <T extends HTMLElement>(
-  element: T | null,
+  element: T | undefined,
   externalOptions?: MokujiOption,
 ): MokujiResult<T> | undefined => {
   if (!element) {
-    console.warn('Mokuji: Target element not found.');
     return undefined;
   }
 
@@ -69,14 +68,12 @@ export const Mokuji = <T extends HTMLElement>(
   const filteredHeadings = getFilteredHeadings(element, minLevel, maxLevel);
 
   if (filteredHeadings.length === 0) {
-    console.warn(`Mokuji: No headings found within the level range (${minLevel}-${maxLevel}).`);
     return undefined;
   }
 
   const { listContainer, anchors } = generateTocAndAnchorsInternal(filteredHeadings, options);
 
   if (anchors.length === 0) {
-    console.warn('Mokuji: No anchor links were generated in the table of contents.');
     return undefined;
   }
 
@@ -95,8 +92,9 @@ export const Mokuji = <T extends HTMLElement>(
  */
 export const Destroy = (): void => {
   const mokujiAnchors = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
-  for (let i = mokujiAnchors.length - 1; i >= 0; i--) {
-    mokujiAnchors[i].remove();
+  for (let i = 0; i < mokujiAnchors.length; i++) {
+    const anchor = mokujiAnchors[i];
+    anchor.remove();
   }
 
   const tableOfContentsList = document.querySelector(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`);

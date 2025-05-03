@@ -17,19 +17,19 @@ const INVALID_PERCENT_PATTERN = /%[^0-9A-F]|%[0-9A-F][^0-9A-F]|%$/i;
  * 不正なエンコーディングの場合は元の文字列を返す
  */
 const safeDecodeURIComponent = (encoded: string): string => {
-  // エンコードされた部分がなければそのまま返す
   if (!VALID_PERCENT_ENCODING.test(encoded)) {
     return encoded;
   }
 
-  // 不正なパーセントエンコーディングパターンがある場合は元の文字列を返す
   if (INVALID_PERCENT_PATTERN.test(encoded)) {
     return encoded;
   }
 
-  // ここまで来たらデコード可能と判断してデコードを実行
-  // decodeURIComponentはまだ失敗する可能性があるが、上記の検証で大部分のケースはカバーされる
-  return decodeURIComponent(encoded);
+  try {
+    return decodeURIComponent(encoded);
+  } catch {
+    return encoded;
+  }
 };
 
 /**
@@ -78,7 +78,7 @@ export const getFilteredHeadings = (
 
   for (let i = 0; i < allHeadings.length; i++) {
     const heading = allHeadings[i];
-    const level = Number(heading.tagName[1]) as HeadingLevel;
+    const level = Number(heading.tagName.at(1)) as HeadingLevel;
     if (level >= minLevel && level <= maxLevel) {
       filteredHeadings.push(heading);
     }
@@ -128,7 +128,8 @@ export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: 
 
       if (originalIdDecoded) {
         const matchingAnchors = idToAnchorsMap.get(originalIdDecoded) || [];
-        for (const anchor of matchingAnchors) {
+        for (let j = 0; j < matchingAnchors.length; j++) {
+          const anchor = matchingAnchors[j];
           anchor.href = `#${uniqueHeadingId}`;
         }
       }

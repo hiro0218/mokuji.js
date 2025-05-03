@@ -10,16 +10,16 @@ import type { MokujiOption, AnchorLinkPosition } from '../common/types';
  * 目次内のアンカー要素から、そのhrefのハッシュ値をキーとするマップを作成する
  */
 export const generateAnchorsMap = (anchors: HTMLAnchorElement[]): Map<string, HTMLAnchorElement> => {
-  const anchorMap = new Map<string, HTMLAnchorElement>();
+  const result = new Map<string, HTMLAnchorElement>();
 
   for (let i = 0; i < anchors.length; i++) {
-    const anchorId = anchors[i].hash.slice(1);
-    if (anchorId) {
-      anchorMap.set(anchorId, anchors[i]);
+    const anchor = anchors[i];
+    if (anchor.hash && anchor.hash.length > 1) {
+      result.set(anchor.hash.slice(1), anchor);
     }
   }
 
-  return anchorMap;
+  return result;
 };
 
 /**
@@ -29,12 +29,7 @@ const applyClassNamesToElement = (element: HTMLElement, classNameString: string)
   const trimmedClassNames = classNameString.trim();
   if (!trimmedClassNames) return;
 
-  for (const className of trimmedClassNames.split(/\s+/)) {
-    const trimmedClass = className.trim();
-    if (trimmedClass) {
-      element.classList.add(trimmedClass);
-    }
-  }
+  element.classList.add(...trimmedClassNames.split(/\s+/).filter(Boolean));
 };
 
 /**
@@ -74,13 +69,12 @@ const createAnchorForHeading = (
   anchorMap: Map<string, HTMLAnchorElement>,
   anchorTemplate: HTMLAnchorElement,
   options: Required<MokujiOption>,
-): HTMLAnchorElement | null => {
+): HTMLAnchorElement | undefined => {
   const headingId = heading.id;
   const matchedTocAnchor = anchorMap.get(headingId);
 
   if (!matchedTocAnchor) {
-    // eslint-disable-next-line unicorn/no-null
-    return null;
+    return undefined;
   }
 
   const anchorElement = anchorTemplate.cloneNode(false) as HTMLAnchorElement;
@@ -119,52 +113,6 @@ const createHeadingAnchorPair = (
 };
 
 /**
- * 見出しとアンカーのペアを、親要素をキーとするマップに追加する
- */
-const addPairToParentMap = (pair: HeadingAnchorPair, headingsByParent: Map<Node, HeadingAnchorPair[]>): void => {
-  const parent = pair.heading.parentNode!;
-
-  if (!headingsByParent.has(parent)) {
-    headingsByParent.set(parent, []);
-  }
-
-  headingsByParent.get(parent)!.push(pair);
-};
-
-/**
- * 見出し要素を親要素ごとにグループ化し、対応するアンカーと共に格納する
- */
-const groupHeadingsByParent = (
-  headings: HTMLHeadingElement[],
-  anchorMap: Map<string, HTMLAnchorElement>,
-  anchorTemplate: HTMLAnchorElement,
-  options: Required<MokujiOption>,
-): Map<Node, HeadingAnchorPair[]> => {
-  const headingsByParent = new Map<Node, HeadingAnchorPair[]>();
-  for (let i = 0; i < headings.length; i++) {
-    const pair = createHeadingAnchorPair(headings[i], anchorMap, anchorTemplate, options);
-    if (pair) {
-      addPairToParentMap(pair, headingsByParent);
-    }
-  }
-  return headingsByParent;
-};
-
-/**
- * 親要素ごとにグループ化された見出しに、対応するアンカーを挿入する
- */
-const insertAnchorsToGroups = (
-  headingsByParent: Map<Node, HeadingAnchorPair[]>,
-  position: AnchorLinkPosition = 'before',
-): void => {
-  for (const [, headingsWithAnchors] of headingsByParent.entries()) {
-    for (const { heading, anchor } of headingsWithAnchors) {
-      placeAnchorInHeading(heading, anchor, position);
-    }
-  }
-};
-
-/**
  * 見出し要素にアンカーリンクを追加する
  */
 export const insertAnchorToHeadings = (
@@ -173,6 +121,24 @@ export const insertAnchorToHeadings = (
   options: Required<MokujiOption>,
 ): void => {
   const anchorTemplate = createAnchorTemplate(options);
-  const headingsByParent = groupHeadingsByParent(headings, anchorMap, anchorTemplate, options);
-  insertAnchorsToGroups(headingsByParent, options.anchorLinkPosition);
+
+  const headingsByParent = new Map<Node, HeadingAnchorPair[]>();
+
+  for (let i = 0; i < headings.length; i++) {
+    const heading = headings[i];
+    const pair = createHeadingAnchorPair(heading, anchorMap, anchorTemplate, options);
+    if (!pair || !pair.heading.parentNode) continue;
+
+    const parent = pair.heading.parentNode;
+    const existingPairs = headingsByParent.get(parent) || [];
+    existingPairs.push(pair);
+    headingsByParent.set(parent, existingPairs);
+  }
+
+  for (const [, headingsWithAnchors] of headingsByParent.entries()) {
+    for (let j = 0; j < headingsWithAnchors.length; j++) {
+      const { heading, anchor } = headingsWithAnchors[j];
+      placeAnchorInHeading(heading, anchor, options.anchorLinkPosition);
+    }
+  }
 };
