@@ -30,9 +30,9 @@ export type MokujiOption = {
   /** 目次のコンテナとして使用するHTML要素のタグ名 */
   anchorContainerTagName?: AnchorContainerTagName;
 
-  /** 最小見出しレベル（例: 1はh1を意味する。これより小さいレベルは表示しない） */
+  /** 最小見出しレベル */
   minLevel?: HeadingLevel;
 
-  /** 最大見出しレベル（例: 3はh3を意味する。これより大きいレベルは表示しない） */
+  /** 最大見出しレベル */
   maxLevel?: HeadingLevel;
 };
