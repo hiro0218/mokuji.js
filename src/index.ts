@@ -78,15 +78,13 @@ export const Mokuji = <T extends HTMLElement>(
     return;
   }
 
-  // 要素のコピーを作成
-  const modifiedElement = element.cloneNode(true) as T;
-
   // オプションを処理
   const options = processOptions(externalOptions);
 
   // ヘッダー要素を取得し、レベルでフィルタリング
   const { minLevel, maxLevel } = options;
-  const filteredHeadings = getFilteredHeadings(modifiedElement, minLevel, maxLevel);
+  // 元の要素から直接見出し要素を取得
+  const filteredHeadings = getFilteredHeadings(element, minLevel, maxLevel);
 
   if (filteredHeadings.length === 0) {
     return;
@@ -108,7 +106,8 @@ export const Mokuji = <T extends HTMLElement>(
     insertAnchorToHeadings(filteredHeadings, anchorsMap, options);
   }
 
-  return { element: modifiedElement, list: listContainer };
+  // 元の要素を返す（修正済み）
+  return { element, list: listContainer };
 };
 
 /**
