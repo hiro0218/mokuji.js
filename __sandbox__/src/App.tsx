@@ -70,7 +70,7 @@ function App() {
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const newMinLevel = Number(e.target.value) as HeadingLevel;
       // 最小レベルが最大レベルを超えないようにする
-      setMinLevel(newMinLevel <= maxLevel ? newMinLevel : maxLevel);
+      setMinLevel(Math.min(newMinLevel, maxLevel));
       // 直ちにhandleLevelChangeを呼び出さない（setStateの後に実行される）
     },
     [maxLevel],
@@ -80,7 +80,7 @@ function App() {
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const newMaxLevel = Number(e.target.value) as HeadingLevel;
       // 最大レベルが最小レベル未満にならないようにする
-      setMaxLevel(newMaxLevel >= minLevel ? newMaxLevel : minLevel);
+      setMaxLevel(Math.max(newMaxLevel, minLevel));
       // 直ちにhandleLevelChangeを呼び出さない（setStateの後に実行される）
     },
     [minLevel],
