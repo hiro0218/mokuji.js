@@ -1,5 +1,5 @@
 /**
- * アンカーリンク関連の処理を提供するモジュール
+ * 見出し横へのアンカーリンク挿入に関する処理を提供するモジュール
  */
 
 import { createElement } from '../common/dom';
@@ -7,17 +7,16 @@ import { ANCHOR_DATASET_ATTRIBUTE } from '../common/constants';
 import type { MokujiOption, AnchorLinkPosition } from '../common/types';
 
 /**
- * アンカー要素からアンカーIDへのマッピングを生成する
- *
- * @param anchors マッピングするアンカー要素の配列
- * @returns アンカーIDからアンカー要素へのマップ
+ * 目次内のアンカー要素から、そのhrefのハッシュ値をキーとするマップを作成する
  */
-export const generateAnchorsMap = (anchors: HTMLAnchorElement[]) => {
+export const generateAnchorsMap = (anchors: HTMLAnchorElement[]): Map<string, HTMLAnchorElement> => {
   const anchorMap = new Map<string, HTMLAnchorElement>();
 
   for (let i = 0; i < anchors.length; i++) {
-    const anchorId = anchors[i].hash.replace('#', '');
-    anchorMap.set(anchorId, anchors[i]);
+    const anchorId = anchors[i].hash.slice(1);
+    if (anchorId) {
+      anchorMap.set(anchorId, anchors[i]);
+    }
   }
 
   return anchorMap;
@@ -25,18 +24,12 @@ export const generateAnchorsMap = (anchors: HTMLAnchorElement[]) => {
 
 /**
  * 要素に複数のクラス名を適用する
- *
- * @param element クラスを適用する要素
- * @param classNameString スペース区切りのクラス名文字列
  */
 const applyClassNamesToElement = (element: HTMLElement, classNameString: string): void => {
-  // 空文字列の場合は何もしない
-  if (!classNameString.trim()) {
-    return;
-  }
+  const trimmedClassNames = classNameString.trim();
+  if (!trimmedClassNames) return;
 
-  // スペースで区切られたクラス名を配列に変換し、各クラス名に対して処理を行う
-  for (const className of classNameString.trim().split(/\s+/)) {
+  for (const className of trimmedClassNames.split(/\s+/)) {
     const trimmedClass = className.trim();
     if (trimmedClass) {
       element.classList.add(trimmedClass);
@@ -46,11 +39,8 @@ const applyClassNamesToElement = (element: HTMLElement, classNameString: string)
 
 /**
  * アンカーテンプレート要素を作成する
- *
- * @param options 目次生成オプション
- * @returns アンカーテンプレート要素
  */
-const createAnchorTemplate = (options: MokujiOption): HTMLAnchorElement => {
+const createAnchorTemplate = (options: Required<MokujiOption>): HTMLAnchorElement => {
   const anchorTemplate = createElement('a');
   anchorTemplate.setAttribute(ANCHOR_DATASET_ATTRIBUTE, '');
 
@@ -62,11 +52,7 @@ const createAnchorTemplate = (options: MokujiOption): HTMLAnchorElement => {
 };
 
 /**
- * 見出しにアンカー要素を配置する
- *
- * @param heading 見出し要素
- * @param anchor アンカー要素
- * @param position アンカーリンクの配置位置
+ * 見出し要素内の指定した位置にアンカー要素を挿入する
  */
 const placeAnchorInHeading = (
   heading: HTMLHeadingElement,
@@ -82,30 +68,23 @@ const placeAnchorInHeading = (
 
 /**
  * ある見出し要素に対応するアンカー要素を作成する
- *
- * @param heading 見出し要素
- * @param anchorMap アンカーIDからアンカー要素へのマップ
- * @param anchorTemplate アンカーテンプレート
- * @param options 目次生成オプション
- * @returns 作成されたアンカー要素（対応するアンカーがない場合はnull）
  */
 const createAnchorForHeading = (
   heading: HTMLHeadingElement,
   anchorMap: Map<string, HTMLAnchorElement>,
   anchorTemplate: HTMLAnchorElement,
-  options: MokujiOption,
+  options: Required<MokujiOption>,
 ): HTMLAnchorElement | null => {
-  const matchedAnchor = anchorMap.get(encodeURIComponent(heading.id));
+  const headingId = heading.id;
+  const matchedTocAnchor = anchorMap.get(headingId);
 
-  // アンカーが見つからない場合はnullを返す
-  if (!matchedAnchor) {
+  if (!matchedTocAnchor) {
     // eslint-disable-next-line unicorn/no-null
     return null;
   }
 
-  // アンカー要素を複製して属性を設定
   const anchorElement = anchorTemplate.cloneNode(false) as HTMLAnchorElement;
-  anchorElement.setAttribute('href', matchedAnchor.hash);
+  anchorElement.href = matchedTocAnchor.hash;
 
   if (options.anchorLinkSymbol) {
     anchorElement.textContent = options.anchorLinkSymbol;
@@ -115,7 +94,7 @@ const createAnchorForHeading = (
 };
 
 /**
- * 見出しとアンカーのペア型定義
+ * 見出しと、それに対応する見出し横アンカーのペア
  */
 type HeadingAnchorPair = {
   heading: HTMLHeadingElement;
@@ -124,95 +103,61 @@ type HeadingAnchorPair = {
 
 /**
  * 有効な見出しとアンカーのペアを作成する
- *
- * @param heading 見出し要素
- * @param anchorMap アンカーIDからアンカー要素へのマップ
- * @param anchorTemplate アンカーテンプレート
- * @param options 目次生成オプション
- * @returns 見出しとアンカーのペア、または無効な場合はundefined
  */
 const createHeadingAnchorPair = (
   heading: HTMLHeadingElement,
   anchorMap: Map<string, HTMLAnchorElement>,
   anchorTemplate: HTMLAnchorElement,
-  options: MokujiOption,
+  options: Required<MokujiOption>,
 ): HeadingAnchorPair | undefined => {
-  // 親要素がない場合は無効
-  if (!heading.parentNode) {
-    return undefined;
-  }
+  if (!heading.parentNode) return undefined;
 
   const anchor = createAnchorForHeading(heading, anchorMap, anchorTemplate, options);
-
-  // アンカーが作成できなかった場合は無効
-  if (!anchor) {
-    return undefined;
-  }
+  if (!anchor) return undefined;
 
   return { heading, anchor };
 };
 
 /**
- * ペアを親要素のマップに追加する
- *
- * @param pair 見出しとアンカーのペア
- * @param headingsByParent 親要素ごとのペアのマップ
+ * 見出しとアンカーのペアを、親要素をキーとするマップに追加する
  */
 const addPairToParentMap = (pair: HeadingAnchorPair, headingsByParent: Map<Node, HeadingAnchorPair[]>): void => {
-  const parent = pair.heading.parentNode as Node;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const parent = pair.heading.parentNode!;
 
-  // 親要素のエントリがない場合は作成
   if (!headingsByParent.has(parent)) {
     headingsByParent.set(parent, []);
   }
-
-  // ペアを親要素のリストに追加
-  const pairs = headingsByParent.get(parent);
-  if (pairs) {
-    pairs.push(pair);
-  }
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  headingsByParent.get(parent)!.push(pair);
 };
 
 /**
- * 見出し要素を親要素ごとにグループ化する
- *
- * @param headings 見出し要素の配列
- * @param anchorMap アンカーIDからアンカー要素へのマップ
- * @param anchorTemplate アンカーテンプレート
- * @param options 目次生成オプション
- * @returns 親ノードごとにグループ化された見出しとアンカーのペア
+ * 見出し要素を親要素ごとにグループ化し、対応するアンカーと共に格納する
  */
 const groupHeadingsByParent = (
   headings: HTMLHeadingElement[],
   anchorMap: Map<string, HTMLAnchorElement>,
   anchorTemplate: HTMLAnchorElement,
-  options: MokujiOption,
+  options: Required<MokujiOption>,
 ): Map<Node, HeadingAnchorPair[]> => {
   const headingsByParent = new Map<Node, HeadingAnchorPair[]>();
-
   for (let i = 0; i < headings.length; i++) {
     const pair = createHeadingAnchorPair(headings[i], anchorMap, anchorTemplate, options);
-
-    // 有効なペアの場合のみ処理を続行
     if (pair) {
       addPairToParentMap(pair, headingsByParent);
     }
   }
-
   return headingsByParent;
 };
 
 /**
- * 見出し要素のグループにアンカーを挿入する
- *
- * @param headingsByParent 親要素ごとにグループ化された見出しとアンカーのペア
- * @param position アンカーリンクの配置位置
+ * 親要素ごとにグループ化された見出しに、対応するアンカーを挿入する
  */
 const insertAnchorsToGroups = (
   headingsByParent: Map<Node, HeadingAnchorPair[]>,
   position: AnchorLinkPosition = 'before',
 ): void => {
-  // 親要素ごとにアンカーを挿入
   for (const [, headingsWithAnchors] of headingsByParent.entries()) {
     for (const { heading, anchor } of headingsWithAnchors) {
       placeAnchorInHeading(heading, anchor, position);
@@ -222,22 +167,13 @@ const insertAnchorsToGroups = (
 
 /**
  * 見出し要素にアンカーリンクを追加する
- *
- * @param headings アンカーリンクを追加する見出し要素の配列
- * @param anchorMap アンカーIDからアンカー要素へのマップ
- * @param options 目次生成オプション
  */
 export const insertAnchorToHeadings = (
   headings: HTMLHeadingElement[],
   anchorMap: Map<string, HTMLAnchorElement>,
-  options: MokujiOption,
+  options: Required<MokujiOption>,
 ): void => {
-  // アンカーテンプレートを作成
   const anchorTemplate = createAnchorTemplate(options);
-
-  // 見出しとアンカーのペアを親要素ごとにグループ化
   const headingsByParent = groupHeadingsByParent(headings, anchorMap, anchorTemplate, options);
-
-  // グループごとにアンカーを挿入
   insertAnchorsToGroups(headingsByParent, options.anchorLinkPosition);
 };
