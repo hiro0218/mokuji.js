@@ -131,8 +131,7 @@ describe('Mokuji.js', () => {
   it('outputs a warning and returns undefined when element is null', () => {
     const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    // eslint-disable-next-line unicorn/no-null
-    const result = Mokuji(null);
+    const result = Mokuji();
 
     expect(result).toBeUndefined();
     expect(consoleSpy).toHaveBeenCalledWith('Mokuji: Target element not found.');

@@ -59,6 +59,7 @@ export const Mokuji = <T extends HTMLElement>(
   externalOptions?: MokujiOption,
 ): MokujiResult<T> | undefined => {
   if (!element) {
+    console.warn('Mokuji: Target element not found.');
     return undefined;
   }
 
