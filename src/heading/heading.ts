@@ -6,6 +6,33 @@ import { getAllHeadingElements } from '../common/dom';
 import type { HeadingLevel } from '../common/types';
 
 /**
+ * URLエンコード文字列の妥当性をチェックする正規表現
+ * %の後に2桁の16進数が続くパターンが正しいものとみなす
+ */
+const VALID_PERCENT_ENCODING = /%[0-9A-F]{2}/gi;
+const INVALID_PERCENT_PATTERN = /%[^0-9A-F]|%[0-9A-F][^0-9A-F]|%$/i;
+
+/**
+ * URIコンポーネントを安全にデコードする（例外を発生させない）
+ * 不正なエンコーディングの場合は元の文字列を返す
+ */
+const safeDecodeURIComponent = (encoded: string): string => {
+  // エンコードされた部分がなければそのまま返す
+  if (!VALID_PERCENT_ENCODING.test(encoded)) {
+    return encoded;
+  }
+
+  // 不正なパーセントエンコーディングパターンがある場合は元の文字列を返す
+  if (INVALID_PERCENT_PATTERN.test(encoded)) {
+    return encoded;
+  }
+
+  // ここまで来たらデコード可能と判断してデコードを実行
+  // decodeURIComponentはまだ失敗する可能性があるが、上記の検証で大部分のケースはカバーされる
+  return decodeURIComponent(encoded);
+};
+
+/**
  * 見出し要素に初期ID（アンカーテキスト）を割り当てる
  * この時点ではIDの重複可能性があるため、後続の ensureUniqueHeadingIds で解決される。
  */
@@ -68,15 +95,13 @@ const groupAnchorsByHeadingId = (anchors: HTMLAnchorElement[]): Map<string, HTML
 
   for (let i = 0; i < anchors.length; i++) {
     const anchor = anchors[i];
-    try {
-      if (anchor.hash && anchor.hash.length > 1) {
-        const headingId = decodeURIComponent(anchor.hash.slice(1));
-        const anchorsForId = idToAnchorsMap.get(headingId) || [];
-        anchorsForId.push(anchor);
-        idToAnchorsMap.set(headingId, anchorsForId);
-      }
-    } catch (error) {
-      console.error(`Mokuji: Failed to decode anchor hash: ${anchor.hash}`, error);
+    if (anchor.hash && anchor.hash.length > 1) {
+      const rawHeadingId = anchor.hash.slice(1);
+      const headingId = safeDecodeURIComponent(rawHeadingId);
+
+      const anchorsForId = idToAnchorsMap.get(headingId) || [];
+      anchorsForId.push(anchor);
+      idToAnchorsMap.set(headingId, anchorsForId);
     }
   }
 
@@ -99,13 +124,7 @@ export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: 
       const uniqueHeadingId = `${currentHeadingId}_${occurrenceCount}`;
       heading.id = uniqueHeadingId;
 
-      let originalIdDecoded: string;
-      try {
-        originalIdDecoded = decodeURIComponent(currentHeadingId);
-      } catch (error) {
-        console.error(`Mokuji: Failed to decode original heading ID for anchor update: ${currentHeadingId}`, error);
-        originalIdDecoded = '';
-      }
+      const originalIdDecoded = safeDecodeURIComponent(currentHeadingId);
 
       if (originalIdDecoded) {
         const matchingAnchors = idToAnchorsMap.get(originalIdDecoded) || [];
