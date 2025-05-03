@@ -73,16 +73,14 @@ export const getFilteredHeadings = (
 };
 
 /**
- * 見出し要素のIDが重複している場合に一意になるよう修正する
+ * アンカー要素をIDごとにグループ化する
  *
- * @param headings 処理対象の見出し要素配列
- * @param anchors 処理対象のアンカー要素配列
+ * @param anchors グループ化するアンカー要素の配列
+ * @returns IDをキーとしたアンカー要素の配列を値とするマップ
  */
-export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: HTMLAnchorElement[]) => {
-  const headingIdOccurrenceMap = new Map<string, number>();
+const groupAnchorsByHeadingId = (anchors: HTMLAnchorElement[]): Map<string, HTMLAnchorElement[]> => {
   const idToAnchorsMap = new Map<string, HTMLAnchorElement[]>();
 
-  // アンカー要素をIDごとにグループ化
   for (let i = 0; i < anchors.length; i++) {
     const anchor = anchors[i];
     const headingId = decodeURIComponent(anchor.hash.slice(1));
@@ -91,23 +89,54 @@ export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: 
     idToAnchorsMap.set(headingId, anchorsForId);
   }
 
+  return idToAnchorsMap;
+};
+
+/**
+ * 重複IDを持つ見出しに新しいIDを割り当てる
+ *
+ * @param heading 見出し要素
+ * @param originalHeadingId 元のID
+ * @param occurrenceCount 出現回数
+ * @param matchingAnchors 対応するアンカー要素の配列
+ */
+const assignUniqueIdToHeading = (
+  heading: HTMLHeadingElement,
+  originalHeadingId: string,
+  occurrenceCount: number,
+  matchingAnchors: HTMLAnchorElement[],
+): void => {
+  // 重複IDの場合のみ処理
+  if (occurrenceCount > 0) {
+    const uniqueHeadingId = `${originalHeadingId}-${occurrenceCount}`;
+    heading.id = uniqueHeadingId;
+
+    // 対応するアンカー要素のhrefを更新
+    for (let i = 0; i < matchingAnchors.length; i++) {
+      const anchor = matchingAnchors[i];
+      anchor.href = `#${encodeURIComponent(uniqueHeadingId)}`;
+    }
+  }
+};
+
+/**
+ * 見出し要素のIDが重複している場合に一意になるよう修正する
+ *
+ * @param headings 処理対象の見出し要素配列
+ * @param anchors 処理対象のアンカー要素配列
+ */
+export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: HTMLAnchorElement[]) => {
+  const headingIdOccurrenceMap = new Map<string, number>();
+  const idToAnchorsMap = groupAnchorsByHeadingId(anchors);
+
   for (let i = 0; i < headings.length; i++) {
     const heading = headings[i];
     const originalHeadingId = heading.id;
     const occurrenceCount = headingIdOccurrenceMap.get(originalHeadingId) || 0;
 
-    // 重複IDの処理
-    if (occurrenceCount > 0) {
-      const uniqueHeadingId = `${originalHeadingId}-${occurrenceCount}`;
-      heading.id = uniqueHeadingId;
-
-      // 対応するアンカー要素も更新
-      const matchingAnchors = idToAnchorsMap.get(originalHeadingId) || [];
-      for (let j = 0; j < matchingAnchors.length; j++) {
-        const anchor = matchingAnchors[j];
-        anchor.href = `#${encodeURIComponent(uniqueHeadingId)}`;
-      }
-    }
+    // 重複IDを持つ見出しに新しいIDを割り当てる
+    const matchingAnchors = idToAnchorsMap.get(originalHeadingId) || [];
+    assignUniqueIdToHeading(heading, originalHeadingId, occurrenceCount, matchingAnchors);
 
     // 出現回数をインクリメント
     headingIdOccurrenceMap.set(originalHeadingId, occurrenceCount + 1);
