@@ -8,19 +8,10 @@
  * @param containerElement 見出し要素を検索する親要素
  * @returns 見つかったすべての見出し要素の配列
  */
-export const getAllHeadingElements = (containerElement: Element) => {
-  // 特定の見出しタグの静的リストを使用
-  const headingTags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as const;
-  const headings: HTMLHeadingElement[] = [];
-
-  for (let i = 0; i < headingTags.length; i++) {
-    const tagElements = containerElement.querySelectorAll(headingTags[i]);
-    for (let j = 0; j < tagElements.length; j++) {
-      headings.push(tagElements[j] as HTMLHeadingElement);
-    }
-  }
-
-  return headings;
+export const getAllHeadingElements = (containerElement: Element): HTMLHeadingElement[] => {
+  // 単一のクエリで全ての見出しを取得
+  const headings = containerElement.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  return [...headings] as HTMLHeadingElement[];
 };
 
 /**
