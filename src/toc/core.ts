@@ -61,9 +61,6 @@ export const generateTableOfContents = (
     levelStack.push({ level: currentHeadingLevel, items: newItem.children });
   }
 
-  const documentFragment = document.createDocumentFragment();
-  const rootListElement = listContainer.cloneNode(false) as TableOfContentsContainer;
-
   const listItemTemplate = createElement('li');
   const anchorTemplate = createElement('a');
   const childListTagName = listContainer.tagName.toLowerCase() as 'ul' | 'ol';
@@ -88,7 +85,5 @@ export const generateTableOfContents = (
     }
   };
 
-  buildListRecursive(rootListElement, rootLevelItems);
-  documentFragment.append(rootListElement);
-  listContainer.replaceChildren(documentFragment);
+  buildListRecursive(listContainer, rootLevelItems);
 };
