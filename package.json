@@ -6,6 +6,8 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "lint": "eslint --cache ./src/**/*.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "prepare": "npm run build && husky"
   },
   "type": "module",
@@ -51,15 +53,19 @@
   },
   "homepage": "https://github.com/hiro0218/mokuji.js",
   "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
     "@types/node": "~22.10.1",
     "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@vitest/browser": "^3.1.2",
     "eslint": "^9.26.0",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-unicorn": "^59.0.0",
     "husky": "^9.1.7",
+    "jsdom": "^26.1.0",
     "lint-staged": "^15.5.1",
     "prettier": "^3.5.3",
     "tsup": "^8.4.0",
-    "typescript": "~5.8.3"
+    "typescript": "~5.8.3",
+    "vitest": "^3.1.2"
   }
 }
