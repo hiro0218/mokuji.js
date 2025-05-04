@@ -47,25 +47,6 @@ export const assignInitialIdToHeading = (
 };
 
 /**
- * 見出し要素からリスト要素を作成する (目次用)
- */
-export const createListElement = (
-  anchorText: string,
-  heading: HTMLHeadingElement,
-  listItemTemplate: HTMLLIElement,
-  anchorTemplate: HTMLAnchorElement,
-): HTMLLIElement => {
-  const elementList = listItemTemplate.cloneNode(false) as HTMLLIElement;
-  const elementAnchor = anchorTemplate.cloneNode(false) as HTMLAnchorElement;
-
-  elementAnchor.href = `#${anchorText}`;
-  elementAnchor.textContent = heading.textContent;
-  elementList.append(elementAnchor);
-
-  return elementList;
-};
-
-/**
  * 指定したレベル範囲内の見出し要素を取得する
  */
 export const getFilteredHeadings = (
