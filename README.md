@@ -32,6 +32,9 @@ listElement?.appendChild(mokujiList);
   anchorLinkSymbol: '#',
   anchorLinkPosition: 'before',
   anchorLinkClassName: '',
+  anchorContainerTagName: 'ol',
+  minLevel: 1,
+  maxLevel: 6,
 }
 ```
 
@@ -62,12 +65,27 @@ set the anchor link symbol
 
 set position (before/after) the anchor link in headings.
 
-Set the position of the anchor link with 'before' or 'after'.
-
-
 ### `anchorLinkClassName`
 
 (default: `''`)
 
-set anchor link class name.
+set anchor link class name. Multiple class names can be specified with spaces.
+
+### `anchorContainerTagName`
+
+(default: `'ol'`)
+
+set the container element tag name for the table of contents. Possible values are 'ol' or 'ul'.
+
+### `minLevel`
+
+(default: `1`)
+
+set the minimum heading level to include in the table of contents (1 means h1).
+
+### `maxLevel`
+
+(default: `6`)
+
+set the maximum heading level to include in the table of contents (6 means h6).
 

@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Mokuji, Destroy } from 'mokuji.js';
+import { Mokuji, Destroy, type HeadingLevel } from 'mokuji.js';
 
 function App() {
   const ref = useRef<HTMLDivElement>(null);
   const refMokuji = useRef<HTMLDivElement>(null);
-  const [minLevel, setMinLevel] = useState<number>(1);
-  const [maxLevel, setMaxLevel] = useState<number>(6);
+  const [minLevel, setMinLevel] = useState<HeadingLevel>(1);
+  const [maxLevel, setMaxLevel] = useState<HeadingLevel>(6);
 
   // オプションを関数外で参照できるようにする
   const mokujiOptionsRef = useRef({
@@ -26,6 +26,10 @@ function App() {
   const create = useCallback(() => {
     // 現在の設定値を参照
     const { minLevel, maxLevel } = mokujiOptionsRef.current;
+
+    if (!ref.current) {
+      return;
+    }
 
     const result = Mokuji(ref.current, {
       anchorType: true,
@@ -70,7 +74,7 @@ function App() {
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const newMinLevel = Number(e.target.value);
       // 最小レベルが最大レベルを超えないようにする
-      setMinLevel(newMinLevel <= maxLevel ? newMinLevel : maxLevel);
+      setMinLevel(Math.min(newMinLevel, maxLevel) as HeadingLevel);
       // 直ちにhandleLevelChangeを呼び出さない（setStateの後に実行される）
     },
     [maxLevel],
@@ -80,7 +84,7 @@ function App() {
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const newMaxLevel = Number(e.target.value);
       // 最大レベルが最小レベル未満にならないようにする
-      setMaxLevel(newMaxLevel >= minLevel ? newMaxLevel : minLevel);
+      setMaxLevel(Math.max(newMaxLevel, minLevel) as HeadingLevel);
       // 直ちにhandleLevelChangeを呼び出さない（setStateの後に実行される）
     },
     [minLevel],
