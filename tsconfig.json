@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
     /* Basic Options */
-    "module": "es2022",
+    "module": "esnext",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "newLine": "LF",
     "outDir": "./lib/",
-    "target": "es2022",
+    "target": "es2024",
     "sourceMap": true,
     "declaration": true,
     "jsx": "preserve",
