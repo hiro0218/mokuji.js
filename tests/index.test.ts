@@ -6,8 +6,8 @@ describe('Mokuji.js - Table of Contents Generator', () => {
   let container: HTMLElement;
 
   beforeEach(() => {
+    // Always start fresh to avoid test pollution
     container = document.createElement('div');
-    container.innerHTML = ''; // Start with clean state
     document.body.append(container);
   });
 
@@ -19,7 +19,7 @@ describe('Mokuji.js - Table of Contents Generator', () => {
   });
 
   describe('when no headings are present', () => {
-    it('should return error and no longer warn (functional API)', () => {
+    it('returns error when target element contains no headings', () => {
       container.innerHTML = '<p>Just some regular content without headings</p>';
 
       const result = createMokuji(container);
@@ -32,8 +32,16 @@ describe('Mokuji.js - Table of Contents Generator', () => {
   });
 
   describe('when element is not found', () => {
-    it('should return error about missing element (functional API)', () => {
-      // Simulate user passing invalid element
+    it('returns error when target element is invalid', () => {
+      const result = createMokuji(undefined as unknown as HTMLElement);
+
+      expect(ResultUtils.isError(result)).toBe(true);
+      if (ResultUtils.isError(result)) {
+        expect(result.error.message).toBe('Mokuji: Target element not found.');
+      }
+    });
+
+    it('returns error when target element is null', () => {
       const result = createMokuji(undefined as unknown as HTMLElement);
 
       expect(ResultUtils.isError(result)).toBe(true);
@@ -64,42 +72,38 @@ describe('Mokuji.js - Table of Contents Generator', () => {
       `;
     });
 
-    it('should generate a navigable table of contents', () => {
+    it('generates a navigable table of contents with all headings', () => {
       const result = createMokuji(container);
 
       expect(ResultUtils.isOk(result)).toBe(true);
       if (ResultUtils.isOk(result)) {
         expect(result.data.targetElement).toBe(container);
 
-        // User should be able to use the generated list for navigation
         const tocList = result.data.listElement;
         expect(tocList).toBeInstanceOf(HTMLElement);
         expect(tocList.tagName).toMatch(/^(UL|OL)$/);
 
-        // Should contain clickable links for navigation
         const navigationLinks = tocList.querySelectorAll('a[href]');
         expect(navigationLinks).toHaveLength(6); // All headings become navigation links (h1 + h2 + h2 + h3 + h3 + h4)
 
-        // Links should point to heading anchors
+        // All links should be internal anchor links
         for (const link of navigationLinks) {
           const href = link.getAttribute('href');
-          expect(href).toMatch(/^#.+/); // Should be internal anchor link
+          expect(href).toMatch(/^#.+/);
         }
       }
     });
 
-    it('should generate hierarchical navigation structure', () => {
+    it('generates hierarchical navigation structure', () => {
       const result = createMokuji(container);
 
       expect(ResultUtils.isOk(result)).toBe(true);
       if (ResultUtils.isOk(result)) {
         const tocList = result.data.listElement;
 
-        // Should create nested structure for different heading levels
         const topLevelItems = tocList.children;
         expect(topLevelItems).toHaveLength(1); // Only one top-level item (h1)
 
-        // First item should contain nested structure for h2 and below
         const firstItem = topLevelItems[0] as HTMLElement;
         const nestedList = firstItem.querySelector('ul, ol');
         expect(nestedList).toBeTruthy();
@@ -110,7 +114,7 @@ describe('Mokuji.js - Table of Contents Generator', () => {
     });
   });
 
-  describe('when filtering headings by level', () => {
+  describe('heading level filtering', () => {
     beforeEach(() => {
       container.innerHTML = `
         <article>
@@ -124,7 +128,7 @@ describe('Mokuji.js - Table of Contents Generator', () => {
       `;
     });
 
-    it('should respect user-defined heading level boundaries', () => {
+    it('includes only headings within specified level range', () => {
       const result = createMokuji(container, {
         minLevel: 2,
         maxLevel: 4,
@@ -135,18 +139,25 @@ describe('Mokuji.js - Table of Contents Generator', () => {
         const navigationLinks = result.data.listElement.querySelectorAll('a');
         const linkTexts = [...navigationLinks].map((link) => link.textContent);
 
-        // Should include only h2, h3, h4
         expect(linkTexts).toEqual(['Chapter 1', 'Section 1.1', 'Subsection 1.1.1']);
-
-        // Should exclude h1, h5, h6
         expect(linkTexts).not.toContain('Title');
         expect(linkTexts).not.toContain('Detail 1.1.1.1');
         expect(linkTexts).not.toContain('Fine Detail');
       }
     });
+
+    it('includes all headings when no filtering is specified', () => {
+      const result = createMokuji(container);
+
+      expect(ResultUtils.isOk(result)).toBe(true);
+      if (ResultUtils.isOk(result)) {
+        const navigationLinks = result.data.listElement.querySelectorAll('a');
+        expect(navigationLinks).toHaveLength(6); // All headings h1-h6
+      }
+    });
   });
 
-  describe('when anchor links are enabled', () => {
+  describe('anchor links functionality', () => {
     beforeEach(() => {
       container.innerHTML = `
         <article>
@@ -156,7 +167,7 @@ describe('Mokuji.js - Table of Contents Generator', () => {
       `;
     });
 
-    it('should add clickable anchor links to headings for easy sharing', () => {
+    it('adds anchor links to headings when enabled', () => {
       const result = createMokuji(container, { anchorLink: true });
 
       expect(ResultUtils.isOk(result)).toBe(true);
@@ -167,12 +178,12 @@ describe('Mokuji.js - Table of Contents Generator', () => {
           const anchorLink = heading.querySelector('a[data-mokuji-anchor]');
           expect(anchorLink).toBeTruthy();
           expect(anchorLink!.getAttribute('href')).toMatch(/^#.+/);
-          expect(anchorLink!.textContent).toBe('#'); // Default symbol
+          expect(anchorLink!.textContent).toBe('#');
         }
       }
     });
 
-    it('should allow customization of anchor symbol and position', () => {
+    it('allows customization of anchor symbol and position', () => {
       const result = createMokuji(container, {
         anchorLink: true,
         anchorLinkSymbol: '🔗',
@@ -187,10 +198,20 @@ describe('Mokuji.js - Table of Contents Generator', () => {
         expect(anchorLink!.textContent).toBe('🔗');
       }
     });
+
+    it('does not add anchor links when disabled', () => {
+      const result = createMokuji(container, { anchorLink: false });
+
+      expect(ResultUtils.isOk(result)).toBe(true);
+      if (ResultUtils.isOk(result)) {
+        const anchorLinks = container.querySelectorAll('[data-mokuji-anchor]');
+        expect(anchorLinks).toHaveLength(0);
+      }
+    });
   });
 
   describe('cleanup functionality', () => {
-    it('should remove all generated elements when destroyed', () => {
+    it('removes all generated elements when destroyed', () => {
       container.innerHTML = `
         <h2>Section 1</h2>
         <h3>Subsection</h3>
@@ -203,21 +224,25 @@ describe('Mokuji.js - Table of Contents Generator', () => {
         // Add TOC to DOM to simulate real usage
         document.body.append(result.data.listElement);
 
-        // Verify elements are present
+        // Verify elements are present before cleanup
         expect(document.querySelector('[data-mokuji-list]')).toBeTruthy();
         expect(document.querySelectorAll('[data-mokuji-anchor]')).toHaveLength(2);
 
-        // User calls destroy
         destroyMokuji();
 
-        // All generated elements should be cleaned up
+        // Verify all generated elements are cleaned up
         expect(document.querySelector('[data-mokuji-list]')).toBeNull();
         expect(document.querySelectorAll('[data-mokuji-anchor]')).toHaveLength(0);
       }
     });
+
+    it('handles cleanup gracefully when no elements exist', () => {
+      // Should not throw when called without any generated elements
+      expect(() => destroyMokuji()).not.toThrow();
+    });
   });
 
-  describe('accessibility and user experience', () => {
+  describe('accessibility and semantic structure', () => {
     beforeEach(() => {
       container.innerHTML = `
         <main>
@@ -228,21 +253,44 @@ describe('Mokuji.js - Table of Contents Generator', () => {
       `;
     });
 
-    it('should generate semantic navigation structure', () => {
-      const result = createMokuji(container, { containerTagName: 'ol' });
+    it('generates semantic navigation structure with unordered list when specified', () => {
+      const result = createMokuji(container, { containerTagName: 'ul' });
+
+      expect(ResultUtils.isOk(result)).toBe(true);
+      if (ResultUtils.isOk(result)) {
+        const list = result.data.listElement;
+        expect(list.tagName).toBe('UL');
+
+        // Each list item should contain meaningful navigation links
+        const listItems = list.querySelectorAll('li');
+        for (const item of listItems) {
+          const link = item.querySelector('a');
+          expect(link).toBeTruthy();
+          expect(link!.textContent?.trim()).toBeTruthy();
+        }
+      }
+    });
+
+    it('generates semantic navigation structure with ordered list by default', () => {
+      const result = createMokuji(container);
 
       expect(ResultUtils.isOk(result)).toBe(true);
       if (ResultUtils.isOk(result)) {
         const list = result.data.listElement;
         expect(list.tagName).toBe('OL');
+      }
+    });
 
-        // Should be suitable for screen readers and navigation
-        const listItems = list.querySelectorAll('li');
-        for (const item of listItems) {
-          const link = item.querySelector('a');
-          expect(link).toBeTruthy();
-          expect(link!.textContent).toBeTruthy(); // Should have meaningful text
-        }
+    it('provides meaningful text content for screen readers', () => {
+      const result = createMokuji(container);
+
+      expect(ResultUtils.isOk(result)).toBe(true);
+      if (ResultUtils.isOk(result)) {
+        const links = result.data.listElement.querySelectorAll('a');
+        const linkTexts = [...links].map((link) => link.textContent?.trim());
+
+        expect(linkTexts).toEqual(['Document Title', 'Introduction', 'Getting Started']);
+        expect(linkTexts.every((text) => text && text.length > 0)).toBe(true);
       }
     });
   });
