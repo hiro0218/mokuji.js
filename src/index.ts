@@ -1,5 +1,6 @@
 /**
- * 目次生成ライブラリ - 公開APIインターフェース
+ * mokuji.js - Table of Contents Generator
+ * TypeScriptで構築された型安全な目次生成ライブラリ
  */
 
 export type {

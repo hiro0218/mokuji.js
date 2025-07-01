@@ -1,3 +1,8 @@
+/**
+ * 関数型プログラミングのユーティリティ
+ * Rustライクなエラーハンドリングと型安全性を提供
+ */
+
 import type { Result, Option, NonEmptyArray } from '../types/core';
 
 export const ResultUtils = {

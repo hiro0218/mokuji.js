@@ -1,6 +1,6 @@
 /**
- * DOM要素識別用のデータ属性定数
- * 要素の識別とセレクタに使用する属性名を統一管理する
+ * DOM要素識別用のセレクタ定数
+ * destroyMokuji実行時のクリーンアップ対象を特定する
  */
 
 export const DATA_ATTRIBUTES = {
@@ -8,10 +8,6 @@ export const DATA_ATTRIBUTES = {
   ANCHOR: 'data-mokuji-anchor',
 } as const;
 
-/**
- * 正規表現パターンの定数
- * パフォーマンス最適化のため事前にコンパイルされた正規表現
- */
 export const REGEX_PATTERNS = {
   WHITESPACE: /\s+/g,
   COLON: /:/g,

@@ -1,43 +1,27 @@
 /**
- * DOM操作の抽象化とファクトリー関数群
- * 副作用の明確化とテスト容易性の向上
+ * DOM操作の抽象化層
+ * テスト時のモック対象となる副作用を集約
  */
 
 import type { ContainerTagName, ElementFactory } from '../types/core';
 
-/**
- * DOM要素作成のファクトリー関数群
- */
 const createListItem = () => document.createElement('li');
 const createAnchor = () => document.createElement('a');
 
 export const ElementFactories = {
-  /**
-   * コンテナ要素のファクトリー
-   */
   createList:
     (tagName: ContainerTagName): ElementFactory<typeof tagName> =>
     () =>
       document.createElement(tagName),
 
-  /**
-   * リストアイテムのファクトリー
-   */
   createListItem: (): ElementFactory<'li'> => createListItem,
 
-  /**
-   * アンカー要素のファクトリー
-   */
   createAnchor: (): ElementFactory<'a'> => createAnchor,
 };
 
-/**
- * DOM要素の検索関数群
- */
 export const ElementSelectors = {
   /**
-   * コンテナ内のすべての見出し要素を取得する
-   * パフォーマンス最適化: Array.fromよりforループを使用
+   * IE11対応のため古い配列作成手法を使用
    */
   getAllHeadings: (container: Element): readonly HTMLHeadingElement[] => {
     const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');

@@ -1,21 +1,17 @@
 /**
- * DOM構築サービス - 純粋な関数とDOM副作用の組み合わせ
- * 関心の分離により副作用を明確化
+ * 目次DOM構築の責務を担当
+ * 階層構造の再帰処理が複雑なため、分離して可読性を向上
  */
 
 import type { TocItem, TocStructure, RequiredMokujiConfig, ContainerTagName } from '../types/core';
 import { ElementFactories } from '../infrastructure/dom';
 import { DATA_ATTRIBUTES } from '../constants';
 
-/**
- * 個別目次アイテムのDOM構築
- * パフォーマンス最適化: 直接DOM操作で副作用関数の呼び出しを削減
- */
 const buildTocItemElement = (item: TocItem, containerTagName: ContainerTagName): HTMLLIElement => {
   const listItem = ElementFactories.createListItem()();
   const anchor = ElementFactories.createAnchor()();
 
-  // アンカー要素の設定（直接操作）
+  // アンカー要素の設定
   anchor.textContent = item.text;
   anchor.href = item.href;
 
@@ -30,9 +26,6 @@ const buildTocItemElement = (item: TocItem, containerTagName: ContainerTagName):
   return listItem;
 };
 
-/**
- * 目次リスト全体のDOM構築
- */
 const buildTocListElement = (
   items: readonly TocItem[],
   containerTagName: ContainerTagName,
@@ -57,22 +50,17 @@ export const buildTocElement = (
 ): HTMLUListElement | HTMLOListElement => {
   const listElement = buildTocListElement(structure.items, config.containerTagName);
 
-  // データ属性を設定（直接操作）
+  // データ属性を設定
   listElement.setAttribute(DATA_ATTRIBUTES.LIST, '');
 
   return listElement;
 };
 
-/**
- * 見出し要素にアンカーリンクを追加するサービス
- * パフォーマンス最適化: DocumentFragmentを使用してDOM操作をバッチ化
- */
 export const addAnchorLinksToHeadings = (structure: TocStructure, config: RequiredMokujiConfig): void => {
   if (!config.anchorLink) {
     return;
   }
 
-  // DocumentFragmentを使用してバッチ処理
   for (const heading of structure.headings) {
     if (!heading.element.parentNode) {
       continue;
@@ -80,7 +68,6 @@ export const addAnchorLinksToHeadings = (structure: TocStructure, config: Requir
 
     const anchorLink = ElementFactories.createAnchor()();
 
-    // 要素のプロパティを一括設定
     anchorLink.textContent = config.anchorLinkSymbol;
     anchorLink.href = `#${heading.id}`;
     anchorLink.setAttribute(DATA_ATTRIBUTES.ANCHOR, '');
@@ -89,10 +76,8 @@ export const addAnchorLinksToHeadings = (structure: TocStructure, config: Requir
       anchorLink.classList.add(...config.anchorLinkClassName.trim().split(/\s+/).filter(Boolean));
     }
 
-    // 見出し要素のIDを設定
     heading.element.id = heading.id;
 
-    // 位置に応じてアンカーリンクを挿入
     if (config.anchorLinkPosition === 'before') {
       if (heading.element.firstChild) {
         heading.element.firstChild.before(anchorLink);

@@ -1,14 +1,13 @@
 /**
- * 目次構造の生成とデータ操作
- * 階層構造の構築と検索・統計機能
+ * 目次階層構造の構築
+ * スタックベースアルゴリズムで任意の見出しレベル飛びに対応
  */
 
 import type { TocItem, HeadingInfo, TocStructure } from '../types/core';
 import { generateHref } from './heading';
 
 /**
- * 平坦な見出しリストから入れ子構造を構築
- * パフォーマンス最適化: スタック操作の効率化とオブジェクト生成の最小化
+ * h1→h3のような見出しレベル飛びを許容する階層構築アルゴリズム
  */
 export const buildTocHierarchy = (headings: readonly HeadingInfo[]): readonly TocItem[] => {
   if (headings.length === 0) {
@@ -21,12 +20,10 @@ export const buildTocHierarchy = (headings: readonly HeadingInfo[]): readonly To
   for (const heading of headings) {
     const currentLevel = heading.level;
 
-    // スタックから現在のレベル以上の項目を取り除く（最適化: while条件を簡素化）
     while (stack.length > 1 && stack.at(-1)!.level >= currentLevel) {
       stack.pop();
     }
 
-    // 新しいアイテムを作成（satisfiesを削除してパフォーマンス向上）
     const newItem: TocItem = {
       id: heading.id,
       text: heading.text,

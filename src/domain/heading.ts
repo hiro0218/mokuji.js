@@ -1,15 +1,12 @@
 /**
- * 見出し処理のドメインロジック
- * DOM操作から分離された不変データ操作
+ * 見出し処理のビジネスロジック
+ * Wikipediaスタイルとの互換性保持が重要な設計要件
  */
 
 import type { HeadingInfo, HeadingLevel } from '../types/core';
 import { REGEX_PATTERNS } from '../constants';
 import { generateUniqueId } from '../utils/id-generator';
 
-/**
- * 見出し要素から構造化データを抽出
- */
 export const extractHeadingInfo = (element: HTMLHeadingElement): HeadingInfo => {
   const level = Number(element.tagName.charAt(1)) as HeadingLevel;
   const text = (element.textContent || '').trim();
@@ -23,9 +20,6 @@ export const extractHeadingInfo = (element: HTMLHeadingElement): HeadingInfo => 
   };
 };
 
-/**
- * 指定レベル範囲の見出しのみを抽出
- */
 export const filterHeadingsByLevel = (
   headings: readonly HeadingInfo[],
   minLevel: HeadingLevel,
@@ -35,30 +29,26 @@ export const filterHeadingsByLevel = (
 };
 
 /**
- * スタイル設定に応じたアンカーテキスト生成
- * パフォーマンス最適化: 正規表現を事前コンパイル & 単一パス処理
+ * Wikipediaのアンカー生成ルールを実装
+ * マルチバイト文字は%エンコードし、%を.に変換する
+ * 通常スタイルでは&文字と空白を除去する
  */
 export const generateAnchorText = (text: string, useWikipediaStyle: boolean): string => {
   if (text.length === 0) {
     return '';
   }
 
-  // 単一パスで文字列変換
   let baseAnchor = text.trim().replaceAll(REGEX_PATTERNS.WHITESPACE, '_').replaceAll(REGEX_PATTERNS.COLON, '');
 
   if (useWikipediaStyle) {
     return encodeURIComponent(baseAnchor).replaceAll('%', '.');
   }
 
-  // 通常スタイルの場合、&文字の処理を単一パスで実行
   baseAnchor = baseAnchor.replaceAll(REGEX_PATTERNS.AMPERSAND, '').replaceAll(REGEX_PATTERNS.AMPERSAND_HTML, '');
 
   return baseAnchor;
 };
 
-/**
- * 見出し情報の配列から重複のない一意なIDを持つ新しい配列を生成する純粋関数
- */
 export const assignUniqueIds = (
   headings: readonly HeadingInfo[],
   useWikipediaStyle: boolean,
@@ -76,16 +66,10 @@ export const assignUniqueIds = (
   });
 };
 
-/**
- * IDからアンカーhrefを生成する純粋関数
- */
 export const generateHref = (id: string): string => {
   return `#${id}`;
 };
 
-/**
- * 見出し要素の配列から見出し情報の配列を生成する純粋関数
- */
 export const extractHeadingsInfo = (elements: readonly HTMLHeadingElement[]): readonly HeadingInfo[] => {
   return elements.map((element) => extractHeadingInfo(element));
 };

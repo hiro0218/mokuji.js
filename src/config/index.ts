@@ -1,5 +1,6 @@
 /**
- * 設定管理
+ * デフォルト設定とバリデーション
+ * 不正な設定値の自動修正ロジックを含む
  */
 
 import type { MokujiConfig, RequiredMokujiConfig, HeadingLevel } from '../types/core';
@@ -15,16 +16,13 @@ const DEFAULT_CONFIG: RequiredMokujiConfig = {
   maxLevel: 6,
 } as const;
 
-/**
- * レベル値の正規化
- */
 const normalizeHeadingLevel = (level: number): HeadingLevel => {
   const normalized = Math.max(1, Math.min(level, 6));
   return normalized as HeadingLevel;
 };
 
 /**
- * minLevel > maxLevelの場合を防ぐため
+ * minLevel > maxLevelの矛盾状態を自動修正
  */
 const normalizeConfig = (config: RequiredMokujiConfig): RequiredMokujiConfig => {
   const normalizedMinLevel = normalizeHeadingLevel(config.minLevel);

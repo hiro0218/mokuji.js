@@ -1,6 +1,6 @@
 /**
- * メインのユースケース実装
- * 関数型アーキテクチャによる目次生成フロー
+ * 目次生成の中核API
+ * 外部向けインターフェースとエラーハンドリングの責務を持つ
  */
 
 import type { MokujiConfig, Option, TocStructure, Result, HeadingInfo, HeadingLevel } from '../types/core';
@@ -13,9 +13,6 @@ import { ElementSelectors } from '../infrastructure/dom';
 import { buildTocElement, addAnchorLinksToHeadings } from '../services/dom-builder';
 import { ERROR_MESSAGES, DATA_ATTRIBUTES } from '../constants';
 
-/**
- * 見出し要素から情報を抽出する純粋関数
- */
 const extractSingleHeadingInfo = (
   element: HTMLHeadingElement,
   config: ReturnType<typeof createConfig>,
@@ -23,7 +20,7 @@ const extractSingleHeadingInfo = (
 ): HeadingInfo | undefined => {
   const level = Number(element.tagName.charAt(1)) as HeadingLevel;
 
-  // レベルフィルタリングを早期に実行
+  // レベルフィルタリングを早期に実行（パフォーマンス向上）
   if (level < config.minLevel || level > config.maxLevel) {
     return undefined;
   }
@@ -35,10 +32,6 @@ const extractSingleHeadingInfo = (
   return { id: uniqueId, text, level, element };
 };
 
-/**
- * 要素内の見出しを取得し、処理する純粋関数パイプライン
- * 関数分割により行数を削減し、単一責任原則を遵守
- */
 const processHeadings = (element: HTMLElement, config: ReturnType<typeof createConfig>) => {
   const headingElements = ElementSelectors.getAllHeadings(element);
 
@@ -108,21 +101,11 @@ export const createMokuji = <T extends HTMLElement>(
   }
 };
 
-/**
- * レベル値の有効性をチェックする純粋関数
- */
 const isValidLevel = (level: number | undefined): boolean => level === undefined || (level >= 1 && level <= 6);
 
-/**
- * レベル範囲の整合性をチェックする純粋関数
- */
 const isValidRange = (min: number | undefined, max: number | undefined): boolean =>
   min === undefined || max === undefined || min <= max;
 
-/**
- * 設定のバリデーション用ヘルパー
- * 関数型アプローチを採用し、認知的複雑度を低減
- */
 export const validateMokujiConfig = (config?: MokujiConfig): boolean => {
   if (!config) return true;
 
@@ -130,9 +113,6 @@ export const validateMokujiConfig = (config?: MokujiConfig): boolean => {
   return isValidLevel(minLevel) && isValidLevel(maxLevel) && isValidRange(minLevel, maxLevel);
 };
 
-/**
- * デバッグ用の情報を取得する関数
- */
 export const getMokujiDebugInfo = <T extends HTMLElement>(element: Option<T>, config?: MokujiConfig) => {
   if (OptionUtils.isNone(element)) {
     return { error: ERROR_MESSAGES.ELEMENT_NOT_FOUND };
@@ -153,8 +133,8 @@ export const getMokujiDebugInfo = <T extends HTMLElement>(element: Option<T>, co
 };
 
 /**
- * 生成された目次とアンカーリンクを削除
- * パフォーマンス最適化: 単一のquerySelectorAllでまとめて削除
+ * DOM要素のクリーンアップ
+ * WARNING: 全ページの目次要素を削除するため、複数インスタンス使用時は注意
  */
 export const destroyMokuji = (containerId?: string): void => {
   const selector = containerId
@@ -163,9 +143,7 @@ export const destroyMokuji = (containerId?: string): void => {
 
   const elements = document.querySelectorAll(selector);
 
-  // DocumentFragmentを使用してDOM操作をバッチ化
   if (elements.length > 0) {
-    // removeは軽量なので直接実行
     for (let i = 0; i < elements.length; i++) {
       elements[i].remove();
     }

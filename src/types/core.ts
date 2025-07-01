@@ -1,22 +1,14 @@
 /**
- * コア型定義
+ * 型安全性の中核定義
+ * 関数型プログラミングの恩恵を受けるための基盤型
  */
 
-/**
- * エラーハンドリング用
- */
 export type Result<T, E = Error> =
   | { readonly success: true; readonly data: T }
   | { readonly success: false; readonly error: E };
 
-/**
- * null安全性のため
- */
 export type Option<T> = T | null | undefined;
 
-/**
- * 配列の空チェック用
- */
 export type NonEmptyArray<T> = readonly [T, ...T[]];
 
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
@@ -25,9 +17,6 @@ export type ContainerTagName = 'ul' | 'ol';
 
 export type AnchorPosition = 'before' | 'after';
 
-/**
- * 不変性を保証するため
- */
 export type HeadingInfo = {
   readonly id: string;
   readonly text: string;
