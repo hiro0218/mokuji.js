@@ -1,105 +1,35 @@
 /**
- * 目次（もくじ）生成ライブラリのメインエントリーポイント
+ * 目次生成ライブラリ - 公開APIインターフェース
  */
-import { createElement } from './common/dom';
-import type { MokujiOption, HeadingLevel } from './common/types';
-import { getFilteredHeadings, ensureUniqueHeadingIds } from './heading/heading';
-import { generateAnchorsMap, insertAnchorToHeadings } from './anchor/anchor';
-import { generateTableOfContents } from './toc/core';
-import { MOKUJI_LIST_DATASET_ATTRIBUTE, ANCHOR_DATASET_ATTRIBUTE, defaultOptions } from './common/constants';
 
-/**
- * 目次生成の結果型定義
- */
-export type MokujiResult<T extends HTMLElement = HTMLElement> = {
-  element?: T;
-  list: HTMLUListElement | HTMLOListElement;
-};
+export type {
+  MokujiConfig,
+  MokujiResult,
+  HeadingLevel,
+  ContainerTagName,
+  AnchorPosition,
+  HeadingInfo,
+  TocItem,
+  TocStructure,
+  Option,
+  Result,
+} from './types/core';
 
-// 型エクスポート
-export { MokujiOption, HeadingLevel };
+export { destroyMokuji, createMokuji, validateMokujiConfig, getMokujiDebugInfo } from './api/create-mokuji';
 
-/**
- * オプション設定を処理し、デフォルト値とマージして有効な範囲内に制限する
- */
-const processOptions = (externalOptions?: MokujiOption): Required<MokujiOption> => {
-  const options = {
-    ...defaultOptions,
-    ...externalOptions,
-  };
+export { createConfig, getDefaultConfig, validateConfig } from './config';
 
-  options.minLevel = Math.max(1, Math.min(options.minLevel, 6)) as HeadingLevel;
-  options.maxLevel = Math.max(options.minLevel, Math.min(options.maxLevel, 6)) as HeadingLevel;
+export { ResultUtils, OptionUtils, ArrayUtils, StringUtils } from './utils/functional';
 
-  return options;
-};
+export { extractHeadingInfo, filterHeadingsByLevel, generateAnchorText, assignUniqueIds } from './domain/heading';
 
-/**
- * 目次生成の主要ロジック（内部関数）
- */
-const generateTocAndAnchorsInternal = (
-  filteredHeadings: HTMLHeadingElement[],
-  options: Required<MokujiOption>,
-): { listContainer: HTMLUListElement | HTMLOListElement; anchors: HTMLAnchorElement[] } => {
-  const listContainer = createElement(options.anchorContainerTagName);
-  listContainer.setAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE, '');
+export {
+  createTocStructure,
+  buildTocHierarchy,
+  isTocStructureEmpty,
+  flattenTocItems,
+  findTocItemById,
+  getTocStatistics,
+} from './domain/toc';
 
-  generateTableOfContents(filteredHeadings, listContainer, options.anchorType);
-
-  const anchors = [...listContainer.querySelectorAll('a')];
-
-  return { listContainer, anchors };
-};
-
-/**
- * 与えられた要素内の見出しから目次を生成する (公開API)
- */
-export const Mokuji = <T extends HTMLElement>(
-  element: T | undefined,
-  externalOptions?: MokujiOption,
-): MokujiResult<T> | undefined => {
-  if (!element) {
-    console.warn('Mokuji: Target element not found.');
-    return undefined;
-  }
-
-  const options = processOptions(externalOptions);
-
-  const { minLevel, maxLevel } = options;
-  const filteredHeadings = getFilteredHeadings(element, minLevel, maxLevel);
-
-  if (filteredHeadings.length === 0) {
-    return undefined;
-  }
-
-  const { listContainer, anchors } = generateTocAndAnchorsInternal(filteredHeadings, options);
-
-  if (anchors.length === 0) {
-    return undefined;
-  }
-
-  ensureUniqueHeadingIds(filteredHeadings, anchors);
-
-  if (options.anchorLink) {
-    const anchorsMap = generateAnchorsMap(anchors);
-    insertAnchorToHeadings(filteredHeadings, anchorsMap, options);
-  }
-
-  return { element, list: listContainer };
-};
-
-/**
- * 生成された目次とアンカーリンクを破棄（削除）する
- */
-export const Destroy = (): void => {
-  const mokujiAnchors = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
-  for (let i = 0; i < mokujiAnchors.length; i++) {
-    const anchor = mokujiAnchors[i];
-    anchor.remove();
-  }
-
-  const tableOfContentsList = document.querySelector(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`);
-  if (tableOfContentsList) {
-    tableOfContentsList.remove();
-  }
-};
+export { DATA_ATTRIBUTES } from './services/dom-builder';

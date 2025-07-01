@@ -1,139 +1,249 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { Mokuji, Destroy } from '../src/index';
-import { MOKUJI_LIST_DATASET_ATTRIBUTE, ANCHOR_DATASET_ATTRIBUTE } from '../src/common/constants';
+import { createMokuji, destroyMokuji, ResultUtils } from '../src/index';
 
-describe('Mokuji.js', () => {
+// Test user behavior, not implementation details
+describe('Mokuji.js - Table of Contents Generator', () => {
   let container: HTMLElement;
 
   beforeEach(() => {
-    // テスト用のDOM要素を作成する
     container = document.createElement('div');
+    container.innerHTML = ''; // Start with clean state
     document.body.append(container);
   });
 
   afterEach(() => {
-    // テスト後にクリーンアップする
-    Destroy();
+    // Clean up after each test to avoid test pollution
+    destroyMokuji();
     container.remove();
     vi.restoreAllMocks();
   });
 
-  it('returns undefined when no headings exist', () => {
-    // 見出しを含まない要素を渡す
-    container.innerHTML = '<p>This is a paragraph</p>';
-    const result = Mokuji(container);
+  describe('when no headings are present', () => {
+    it('should return error and no longer warn (functional API)', () => {
+      container.innerHTML = '<p>Just some regular content without headings</p>';
 
-    expect(result).toBeUndefined();
+      const result = createMokuji(container);
+
+      expect(ResultUtils.isError(result)).toBe(true);
+      if (ResultUtils.isError(result)) {
+        expect(result.error.message).toBe('Mokuji: No headings found in the target element.');
+      }
+    });
   });
 
-  it('generates a table of contents from heading elements', () => {
-    // 見出し要素を含むHTMLを設定する
-    container.innerHTML = `
-      <h1>Title</h1>
-      <p>Paragraph 1</p>
-      <h2>Section 1</h2>
-      <p>Paragraph 2</p>
-      <h2>Section 2</h2>
-      <h3>Subsection</h3>
-    `;
+  describe('when element is not found', () => {
+    it('should return error about missing element (functional API)', () => {
+      // Simulate user passing invalid element
+      const result = createMokuji(undefined as unknown as HTMLElement);
 
-    const result = Mokuji(container);
-
-    expect(result).toBeDefined();
-    expect(result?.element).toBe(container);
-    // OLまたはULのいずれかのリスト要素が生成されることを検証する
-    expect(result?.list).toBeInstanceOf(HTMLElement);
-    expect(['OL', 'UL'].includes(result?.list.tagName || '')).toBe(true);
-    expect(result?.list.getAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE)).toBe('');
-
-    // 生成された目次の構造を検証する
-    const listItems = result?.list.querySelectorAll('li');
-    expect(listItems?.length).toBe(4); // 見出しの数
-
-    // 目次のリンクが正しく生成されていることを確認する
-    const links = result?.list.querySelectorAll('a');
-    expect(links?.length).toBe(4);
+      expect(ResultUtils.isError(result)).toBe(true);
+      if (ResultUtils.isError(result)) {
+        expect(result.error.message).toBe('Mokuji: Target element not found.');
+      }
+    });
   });
 
-  it('correctly applies minLevel and maxLevel options', () => {
-    container.innerHTML = `
-      <h1>Title</h1>
-      <h2>Section 1</h2>
-      <h3>Subsection 1</h3>
-      <h4>Sub-subsection</h4>
-      <h5>Detail section</h5>
-      <h6>Minimal section</h6>
-    `;
+  describe('when headings are present', () => {
+    beforeEach(() => {
+      container.innerHTML = `
+        <article>
+          <h1>Getting Started Guide</h1>
+          <p>Introduction paragraph</p>
+          
+          <h2>Installation</h2>
+          <p>How to install...</p>
+          
+          <h2>Configuration</h2>
+          <h3>Basic Setup</h3>
+          <p>Basic configuration...</p>
+          
+          <h3>Advanced Options</h3>
+          <h4>Custom Styling</h4>
+          <p>Advanced styling...</p>
+        </article>
+      `;
+    });
 
-    // h2からh4までの見出しのみを対象とする
-    const result = Mokuji(container, { minLevel: 2, maxLevel: 4 });
+    it('should generate a navigable table of contents', () => {
+      const result = createMokuji(container);
 
-    expect(result).toBeDefined();
-    const links = result?.list.querySelectorAll('a');
-    expect(links?.length).toBe(3); // h2, h3, h4の3つの見出し
+      expect(ResultUtils.isOk(result)).toBe(true);
+      if (ResultUtils.isOk(result)) {
+        expect(result.data.targetElement).toBe(container);
 
-    // h1とh5, h6が含まれていないことを確認する
-    const linkTexts = [...(links || [])].map((a) => a.textContent);
-    expect(linkTexts).toContain('Section 1');
-    expect(linkTexts).toContain('Subsection 1');
-    expect(linkTexts).toContain('Sub-subsection');
-    expect(linkTexts).not.toContain('Title');
-    expect(linkTexts).not.toContain('Detail section');
-    expect(linkTexts).not.toContain('Minimal section');
+        // User should be able to use the generated list for navigation
+        const tocList = result.data.listElement;
+        expect(tocList).toBeInstanceOf(HTMLElement);
+        expect(tocList.tagName).toMatch(/^(UL|OL)$/);
+
+        // Should contain clickable links for navigation
+        const navigationLinks = tocList.querySelectorAll('a[href]');
+        expect(navigationLinks).toHaveLength(6); // All headings become navigation links (h1 + h2 + h2 + h3 + h3 + h4)
+
+        // Links should point to heading anchors
+        for (const link of navigationLinks) {
+          const href = link.getAttribute('href');
+          expect(href).toMatch(/^#.+/); // Should be internal anchor link
+        }
+      }
+    });
+
+    it('should generate hierarchical navigation structure', () => {
+      const result = createMokuji(container);
+
+      expect(ResultUtils.isOk(result)).toBe(true);
+      if (ResultUtils.isOk(result)) {
+        const tocList = result.data.listElement;
+
+        // Should create nested structure for different heading levels
+        const topLevelItems = tocList.children;
+        expect(topLevelItems).toHaveLength(1); // Only one top-level item (h1)
+
+        // First item should contain nested structure for h2 and below
+        const firstItem = topLevelItems[0] as HTMLElement;
+        const nestedList = firstItem.querySelector('ul, ol');
+        expect(nestedList).toBeTruthy();
+
+        const nestedItems = nestedList!.children;
+        expect(nestedItems).toHaveLength(2); // Two h2 items
+      }
+    });
   });
 
-  it('inserts anchor links to headings when anchorLink option is enabled', () => {
-    container.innerHTML = `
-      <h1>Title</h1>
-      <h2>Section 1</h2>
-    `;
+  describe('when filtering headings by level', () => {
+    beforeEach(() => {
+      container.innerHTML = `
+        <article>
+          <h1>Title</h1>
+          <h2>Chapter 1</h2>
+          <h3>Section 1.1</h3>
+          <h4>Subsection 1.1.1</h4>
+          <h5>Detail 1.1.1.1</h5>
+          <h6>Fine Detail</h6>
+        </article>
+      `;
+    });
 
-    const result = Mokuji(container, { anchorLink: true });
+    it('should respect user-defined heading level boundaries', () => {
+      const result = createMokuji(container, {
+        minLevel: 2,
+        maxLevel: 4,
+      });
 
-    expect(result).toBeDefined();
+      expect(ResultUtils.isOk(result)).toBe(true);
+      if (ResultUtils.isOk(result)) {
+        const navigationLinks = result.data.listElement.querySelectorAll('a');
+        const linkTexts = [...navigationLinks].map((link) => link.textContent);
 
-    // 見出しにアンカーリンクが挿入されていることを確認する
-    const anchorLinks = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
-    expect(anchorLinks.length).toBe(2); // 2つの見出しにアンカーが追加される
+        // Should include only h2, h3, h4
+        expect(linkTexts).toEqual(['Chapter 1', 'Section 1.1', 'Subsection 1.1.1']);
+
+        // Should exclude h1, h5, h6
+        expect(linkTexts).not.toContain('Title');
+        expect(linkTexts).not.toContain('Detail 1.1.1.1');
+        expect(linkTexts).not.toContain('Fine Detail');
+      }
+    });
   });
 
-  it('removes table of contents and anchor links when Destroy function is called', () => {
-    container.innerHTML = `
-      <h1>Title</h1>
-      <h2>Section 1</h2>
-    `;
+  describe('when anchor links are enabled', () => {
+    beforeEach(() => {
+      container.innerHTML = `
+        <article>
+          <h2>User Guide</h2>
+          <h3>Quick Start</h3>
+        </article>
+      `;
+    });
 
-    // 目次を生成する
-    const result = Mokuji(container, { anchorLink: true });
-    expect(result).toBeDefined();
+    it('should add clickable anchor links to headings for easy sharing', () => {
+      const result = createMokuji(container, { anchorLink: true });
 
-    // 生成された目次を明示的にドキュメントに追加する
-    if (result && result.list) {
-      document.body.append(result.list);
-    }
+      expect(ResultUtils.isOk(result)).toBe(true);
+      if (ResultUtils.isOk(result)) {
+        const headings = container.querySelectorAll('h2, h3');
 
-    // 目次とアンカーリンクが存在することを確認する
-    const tocList = document.querySelector(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`);
-    const anchorLinks = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
-    expect(tocList).not.toBeNull();
-    expect(anchorLinks.length).toBe(2);
+        for (const heading of headings) {
+          const anchorLink = heading.querySelector('a[data-mokuji-anchor]');
+          expect(anchorLink).toBeTruthy();
+          expect(anchorLink!.getAttribute('href')).toMatch(/^#.+/);
+          expect(anchorLink!.textContent).toBe('#'); // Default symbol
+        }
+      }
+    });
 
-    // Destroy関数を呼び出す
-    Destroy();
+    it('should allow customization of anchor symbol and position', () => {
+      const result = createMokuji(container, {
+        anchorLink: true,
+        anchorLinkSymbol: '🔗',
+        anchorLinkPosition: 'after',
+      });
 
-    // 目次とアンカーリンクが削除されていることを確認する
-    const tocListAfter = document.querySelector(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`);
-    const anchorLinksAfter = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
-    expect(tocListAfter).toBeNull();
-    expect(anchorLinksAfter.length).toBe(0);
+      expect(ResultUtils.isOk(result)).toBe(true);
+      if (ResultUtils.isOk(result)) {
+        const heading = container.querySelector('h2');
+        const anchorLink = heading!.querySelector('a[data-mokuji-anchor]');
+
+        expect(anchorLink!.textContent).toBe('🔗');
+      }
+    });
   });
 
-  it('outputs a warning and returns undefined when element is null', () => {
-    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  describe('cleanup functionality', () => {
+    it('should remove all generated elements when destroyed', () => {
+      container.innerHTML = `
+        <h2>Section 1</h2>
+        <h3>Subsection</h3>
+      `;
 
-    const result = Mokuji();
+      const result = createMokuji(container, { anchorLink: true });
 
-    expect(result).toBeUndefined();
-    expect(consoleSpy).toHaveBeenCalledWith('Mokuji: Target element not found.');
+      expect(ResultUtils.isOk(result)).toBe(true);
+      if (ResultUtils.isOk(result)) {
+        // Add TOC to DOM to simulate real usage
+        document.body.append(result.data.listElement);
+
+        // Verify elements are present
+        expect(document.querySelector('[data-mokuji-list]')).toBeTruthy();
+        expect(document.querySelectorAll('[data-mokuji-anchor]')).toHaveLength(2);
+
+        // User calls destroy
+        destroyMokuji();
+
+        // All generated elements should be cleaned up
+        expect(document.querySelector('[data-mokuji-list]')).toBeNull();
+        expect(document.querySelectorAll('[data-mokuji-anchor]')).toHaveLength(0);
+      }
+    });
+  });
+
+  describe('accessibility and user experience', () => {
+    beforeEach(() => {
+      container.innerHTML = `
+        <main>
+          <h1>Document Title</h1>
+          <h2>Introduction</h2>
+          <h2>Getting Started</h2>
+        </main>
+      `;
+    });
+
+    it('should generate semantic navigation structure', () => {
+      const result = createMokuji(container, { containerTagName: 'ol' });
+
+      expect(ResultUtils.isOk(result)).toBe(true);
+      if (ResultUtils.isOk(result)) {
+        const list = result.data.listElement;
+        expect(list.tagName).toBe('OL');
+
+        // Should be suitable for screen readers and navigation
+        const listItems = list.querySelectorAll('li');
+        for (const item of listItems) {
+          const link = item.querySelector('a');
+          expect(link).toBeTruthy();
+          expect(link!.textContent).toBeTruthy(); // Should have meaningful text
+        }
+      }
+    });
   });
 });
