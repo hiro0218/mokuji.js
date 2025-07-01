@@ -3,7 +3,7 @@
  * 副作用の明確化とテスト容易性の向上
  */
 
-import type { ContainerTagName, ElementFactory, DomEffect } from '../types/core';
+import type { ContainerTagName, ElementFactory } from '../types/core';
 
 /**
  * DOM要素作成のファクトリー関数群
@@ -29,112 +29,6 @@ export const ElementFactories = {
    * アンカー要素のファクトリー
    */
   createAnchor: (): ElementFactory<'a'> => createAnchor,
-};
-
-/**
- * DOM要素のプロパティ設定のための純粋関数群
- */
-export const ElementProperties = {
-  /**
-   * 要素にテキストコンテンツを設定する
-   */
-  setTextContent:
-    (element: HTMLElement, text: string): DomEffect =>
-    () => {
-      element.textContent = text;
-    },
-
-  /**
-   * 要素にhref属性を設定する
-   */
-  setHref:
-    (element: HTMLAnchorElement, href: string): DomEffect =>
-    () => {
-      element.href = href;
-    },
-
-  /**
-   * 要素にクラス名を追加する
-   */
-  addClass:
-    (element: HTMLElement, className: string): DomEffect =>
-    () => {
-      if (className.trim()) {
-        element.classList.add(...className.trim().split(/\s+/).filter(Boolean));
-      }
-    },
-
-  /**
-   * 要素にデータ属性を設定する
-   */
-  setDataAttribute:
-    (element: HTMLElement, name: string, value?: string): DomEffect =>
-    () => {
-      element.setAttribute(name, value ?? '');
-    },
-
-  /**
-   * 要素にIDを設定する
-   */
-  setId:
-    (element: HTMLElement, id: string): DomEffect =>
-    () => {
-      element.id = id;
-    },
-};
-
-/**
- * DOM操作の組み合わせ関数群
- */
-export const DomEffects = {
-  /**
-   * 複数のDOM効果を組み合わせる
-   */
-  combine:
-    (...effects: DomEffect[]): DomEffect =>
-    () => {
-      for (const effect of effects) {
-        effect();
-      }
-    },
-
-  /**
-   * 子要素を親要素に追加する
-   */
-  appendChild:
-    (parent: HTMLElement, child: HTMLElement): DomEffect =>
-    () => {
-      parent.append(child);
-    },
-
-  /**
-   * 要素を特定の位置に挿入する
-   */
-  insertBefore:
-    (parent: HTMLElement, newNode: HTMLElement, referenceNode: Node | null): DomEffect =>
-    () => {
-      if (referenceNode && referenceNode.parentNode === parent) {
-        // Element型の場合はbeforeメソッドを使用、そうでなければinsertBeforeを使用
-        if (referenceNode instanceof Element) {
-          referenceNode.before(newNode);
-        } else {
-          // Node型にはbeforeメソッドが存在しないため、insertBeforeを使用
-          // @ts-expect-error before method is not available on Node
-          referenceNode.before(newNode);
-        }
-      } else {
-        parent.append(newNode);
-      }
-    },
-
-  /**
-   * 要素を末尾に追加する
-   */
-  append:
-    (parent: HTMLElement, child: HTMLElement): DomEffect =>
-    () => {
-      parent.append(child);
-    },
 };
 
 /**

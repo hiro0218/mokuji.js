@@ -18,13 +18,6 @@ export const generateUniqueId = (baseId: string, usedIds: Set<string>): string =
 };
 
 /**
- * IDの一意性チェック用の純粋関数
- */
-export const isIdUnique = (id: string, usedIds: Set<string>): boolean => {
-  return !usedIds.has(id);
-};
-
-/**
  * IDセットを管理するファクトリー関数
  */
 export const createIdTracker = () => {
