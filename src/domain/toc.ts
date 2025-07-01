@@ -67,91 +67,38 @@ export const isTocStructureEmpty = (structure: TocStructure): boolean => {
 
 /**
  * 目次構造から平坦なアイテムリストを取得する純粋関数
- * パフォーマンス最適化: 事前に配列サイズを推定して効率化
  */
 export const flattenTocItems = (items: readonly TocItem[]): readonly TocItem[] => {
-  if (items.length === 0) {
-    return [];
-  }
-
-  // 最初のパスで概算サイズを計算
-  let estimatedSize = 0;
-  const countItems = (tocItems: readonly TocItem[]): void => {
-    estimatedSize += tocItems.length;
-    for (const item of tocItems) {
-      if (item.children.length > 0) {
-        countItems(item.children);
-      }
-    }
-  };
-  countItems(items);
-
-  // 事前に適切なサイズの配列を確保
-  const result: TocItem[] = [];
-  result.length = estimatedSize;
-  let index = 0;
-
-  const traverse = (tocItems: readonly TocItem[]): void => {
-    for (const item of tocItems) {
-      result[index++] = item;
-      if (item.children.length > 0) {
-        traverse(item.children);
-      }
-    }
-  };
-
-  traverse(items);
-  return result;
+  return items.flatMap((item) => [item, ...flattenTocItems(item.children)]);
 };
 
 /**
  * 特定のIDの目次アイテムを検索する純粋関数
+ * 関数型アプローチを採用し、認知的複雑度を低減
  */
 export const findTocItemById = (items: readonly TocItem[], id: string): TocItem | undefined => {
-  for (const item of items) {
-    if (item.id === id) {
-      return item;
-    }
-
-    if (item.children.length > 0) {
-      const found = findTocItemById(item.children, id);
-      if (found) {
-        return found;
-      }
-    }
-  }
-
-  return undefined;
+  return flattenTocItems(items).find((item) => item.id === id);
 };
 
 /**
  * 目次構造の統計情報を取得する純粋関数
- * パフォーマンス最適化: 単一パスで複数の統計値を計算
+ * 関数型アプローチを採用し、認知的複雑度を低減
  */
 export const getTocStatistics = (structure: TocStructure) => {
   const flatItems = flattenTocItems(structure.items);
+  const levels = flatItems.map((item) => item.level);
+
+  // レベル別カウントを計算
   const levelCounts: Record<number, number> = {};
-  let maxDepth = 0;
-  let minLevel = 6;
-
-  // 単一パスで全統計値を計算
-  for (const item of flatItems) {
-    const level = item.level;
+  for (const level of levels) {
     levelCounts[level] = (levelCounts[level] || 0) + 1;
-
-    if (level > maxDepth) {
-      maxDepth = level;
-    }
-    if (level < minLevel) {
-      minLevel = level;
-    }
   }
 
   return {
     totalItems: flatItems.length,
     totalHeadings: structure.headings.length,
     levelCounts,
-    maxDepth: flatItems.length > 0 ? maxDepth : 0,
-    minLevel: flatItems.length > 0 ? minLevel : 6,
+    maxDepth: levels.length > 0 ? Math.max(...levels) : 0,
+    minLevel: levels.length > 0 ? Math.min(...levels) : 6,
   };
 };

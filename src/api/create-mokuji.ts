@@ -22,49 +22,61 @@ const ERROR_MESSAGES = {
 } as const;
 
 /**
+ * 一意なIDを生成する純粋関数
+ */
+const generateUniqueId = (baseId: string, usedIds: Set<string>): string => {
+  let uniqueId = baseId;
+  let suffix = 1;
+  while (usedIds.has(uniqueId)) {
+    uniqueId = `${baseId}_${suffix++}`;
+  }
+  usedIds.add(uniqueId);
+  return uniqueId;
+};
+
+/**
+ * 見出し要素から情報を抽出する純粋関数
+ */
+const extractSingleHeadingInfo = (
+  element: HTMLHeadingElement,
+  config: ReturnType<typeof createConfig>,
+  usedIds: Set<string>,
+): HeadingInfo | undefined => {
+  const level = Number(element.tagName.charAt(1)) as HeadingLevel;
+
+  // レベルフィルタリングを早期に実行
+  if (level < config.minLevel || level > config.maxLevel) {
+    return undefined;
+  }
+
+  const text = (element.textContent || '').trim();
+  const baseId = generateAnchorText(text, config.anchorType);
+  const uniqueId = generateUniqueId(baseId, usedIds);
+
+  return { id: uniqueId, text, level, element };
+};
+
+/**
  * 要素内の見出しを取得し、処理する純粋関数パイプライン
- * パフォーマンス最適化: 中間変数を削減し、単一パスでの処理を最適化
+ * 関数分割により行数を削減し、単一責任原則を遵守
  */
 const processHeadings = (element: HTMLElement, config: ReturnType<typeof createConfig>) => {
-  // 1. 見出し要素を取得し、一気に処理
   const headingElements = ElementSelectors.getAllHeadings(element);
 
   if (headingElements.length === 0) {
     return createTocStructure([]);
   }
 
-  // 2-4. 見出し情報の抽出、フィルタリング、ID割り当てを統合
-  const processedHeadings: HeadingInfo[] = [];
   const usedIds = new Set<string>();
+  const processedHeadings: HeadingInfo[] = [];
 
-  for (const element of headingElements) {
-    const level = Number(element.tagName.charAt(1)) as HeadingLevel;
-
-    // レベルフィルタリングを早期に実行
-    if (level < config.minLevel || level > config.maxLevel) {
-      continue;
+  for (const headingElement of headingElements) {
+    const headingInfo = extractSingleHeadingInfo(headingElement, config, usedIds);
+    if (headingInfo) {
+      processedHeadings.push(headingInfo);
     }
-
-    const text = (element.textContent || '').trim();
-    const baseId = generateAnchorText(text, config.anchorType);
-
-    // 一意なID生成
-    let uniqueId = baseId;
-    let suffix = 1;
-    while (usedIds.has(uniqueId)) {
-      uniqueId = `${baseId}_${suffix++}`;
-    }
-    usedIds.add(uniqueId);
-
-    processedHeadings.push({
-      id: uniqueId,
-      text,
-      level,
-      element,
-    });
   }
 
-  // 5. 目次構造を作成
   return createTocStructure(processedHeadings);
 };
 
@@ -118,26 +130,25 @@ export const createMokuji = <T extends HTMLElement>(
 };
 
 /**
+ * レベル値の有効性をチェックする純粋関数
+ */
+const isValidLevel = (level: number | undefined): boolean => level === undefined || (level >= 1 && level <= 6);
+
+/**
+ * レベル範囲の整合性をチェックする純粋関数
+ */
+const isValidRange = (min: number | undefined, max: number | undefined): boolean =>
+  min === undefined || max === undefined || min <= max;
+
+/**
  * 設定のバリデーション用ヘルパー
+ * 関数型アプローチを採用し、認知的複雑度を低減
  */
 export const validateMokujiConfig = (config?: MokujiConfig): boolean => {
   if (!config) return true;
 
   const { minLevel, maxLevel } = config;
-
-  if (minLevel !== undefined && (minLevel < 1 || minLevel > 6)) {
-    return false;
-  }
-
-  if (maxLevel !== undefined && (maxLevel < 1 || maxLevel > 6)) {
-    return false;
-  }
-
-  if (minLevel !== undefined && maxLevel !== undefined && minLevel > maxLevel) {
-    return false;
-  }
-
-  return true;
+  return isValidLevel(minLevel) && isValidLevel(maxLevel) && isValidRange(minLevel, maxLevel);
 };
 
 /**
