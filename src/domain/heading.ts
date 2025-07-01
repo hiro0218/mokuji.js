@@ -4,6 +4,8 @@
  */
 
 import type { HeadingInfo, HeadingLevel } from '../types/core';
+import { REGEX_PATTERNS } from '../constants';
+import { generateUniqueId } from '../utils/id-generator';
 
 /**
  * 見出し要素から構造化データを抽出
@@ -36,25 +38,20 @@ export const filterHeadingsByLevel = (
  * スタイル設定に応じたアンカーテキスト生成
  * パフォーマンス最適化: 正規表現を事前コンパイル & 単一パス処理
  */
-const WHITESPACE_REGEX = /\s+/g;
-const COLON_REGEX = /:/g;
-const AMPERSAND_REGEX = /&+/g;
-const AMPERSAND_HTML_REGEX = /&amp;+/g;
-
 export const generateAnchorText = (text: string, useWikipediaStyle: boolean): string => {
   if (text.length === 0) {
     return '';
   }
 
   // 単一パスで文字列変換
-  let baseAnchor = text.trim().replaceAll(WHITESPACE_REGEX, '_').replaceAll(COLON_REGEX, '');
+  let baseAnchor = text.trim().replaceAll(REGEX_PATTERNS.WHITESPACE, '_').replaceAll(REGEX_PATTERNS.COLON, '');
 
   if (useWikipediaStyle) {
     return encodeURIComponent(baseAnchor).replaceAll('%', '.');
   }
 
   // 通常スタイルの場合、&文字の処理を単一パスで実行
-  baseAnchor = baseAnchor.replaceAll(AMPERSAND_REGEX, '').replaceAll(AMPERSAND_HTML_REGEX, '');
+  baseAnchor = baseAnchor.replaceAll(REGEX_PATTERNS.AMPERSAND, '').replaceAll(REGEX_PATTERNS.AMPERSAND_HTML, '');
 
   return baseAnchor;
 };
@@ -70,12 +67,7 @@ export const assignUniqueIds = (
 
   return headings.map((heading) => {
     const baseId = generateAnchorText(heading.text, useWikipediaStyle);
-    let uniqueId = baseId;
-    let suffix = 1;
-    while (usedIds.has(uniqueId)) {
-      uniqueId = `${baseId}_${suffix++}`;
-    }
-    usedIds.add(uniqueId);
+    const uniqueId = generateUniqueId(baseId, usedIds);
 
     return {
       ...heading,

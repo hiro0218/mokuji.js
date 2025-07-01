@@ -21,6 +21,8 @@ export { createConfig, getDefaultConfig, validateConfig } from './config';
 
 export { ResultUtils, OptionUtils, ArrayUtils, StringUtils } from './utils/functional';
 
+export { generateUniqueId, createIdTracker } from './utils/id-generator';
+
 export { extractHeadingInfo, filterHeadingsByLevel, generateAnchorText, assignUniqueIds } from './domain/heading';
 
 export {
@@ -32,4 +34,4 @@ export {
   getTocStatistics,
 } from './domain/toc';
 
-export { DATA_ATTRIBUTES } from './services/dom-builder';
+export { ERROR_MESSAGES, DEBUG_MESSAGES, DATA_ATTRIBUTES, REGEX_PATTERNS } from './constants';

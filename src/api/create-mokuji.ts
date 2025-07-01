@@ -5,34 +5,13 @@
 
 import type { MokujiConfig, Option, TocStructure, Result, HeadingInfo, HeadingLevel } from '../types/core';
 import { ResultUtils, OptionUtils } from '../utils/functional';
+import { generateUniqueId } from '../utils/id-generator';
 import { createConfig } from '../config';
 import { extractHeadingsInfo, filterHeadingsByLevel, generateAnchorText } from '../domain/heading';
 import { createTocStructure, isTocStructureEmpty } from '../domain/toc';
 import { ElementSelectors } from '../infrastructure/dom';
 import { buildTocElement, addAnchorLinksToHeadings } from '../services/dom-builder';
-import { MOKUJI_LIST_DATASET_ATTRIBUTE, ANCHOR_DATASET_ATTRIBUTE } from '../common/constants';
-
-/**
- * エラーメッセージの定数
- */
-const ERROR_MESSAGES = {
-  ELEMENT_NOT_FOUND: 'Mokuji: Target element not found.',
-  NO_HEADINGS: 'Mokuji: No headings found in the target element.',
-  INVALID_CONFIG: 'Mokuji: Invalid configuration provided.',
-} as const;
-
-/**
- * 一意なIDを生成する純粋関数
- */
-const generateUniqueId = (baseId: string, usedIds: Set<string>): string => {
-  let uniqueId = baseId;
-  let suffix = 1;
-  while (usedIds.has(uniqueId)) {
-    uniqueId = `${baseId}_${suffix++}`;
-  }
-  usedIds.add(uniqueId);
-  return uniqueId;
-};
+import { ERROR_MESSAGES, DATA_ATTRIBUTES } from '../constants';
 
 /**
  * 見出し要素から情報を抽出する純粋関数
@@ -179,8 +158,8 @@ export const getMokujiDebugInfo = <T extends HTMLElement>(element: Option<T>, co
  */
 export const destroyMokuji = (containerId?: string): void => {
   const selector = containerId
-    ? `#${containerId} [${MOKUJI_LIST_DATASET_ATTRIBUTE}], #${containerId} [${ANCHOR_DATASET_ATTRIBUTE}]`
-    : `[${MOKUJI_LIST_DATASET_ATTRIBUTE}], [${ANCHOR_DATASET_ATTRIBUTE}]`;
+    ? `#${containerId} [${DATA_ATTRIBUTES.LIST}], #${containerId} [${DATA_ATTRIBUTES.ANCHOR}]`
+    : `[${DATA_ATTRIBUTES.LIST}], [${DATA_ATTRIBUTES.ANCHOR}]`;
 
   const elements = document.querySelectorAll(selector);
 

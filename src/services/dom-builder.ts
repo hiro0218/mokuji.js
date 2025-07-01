@@ -5,14 +5,7 @@
 
 import type { TocItem, TocStructure, RequiredMokujiConfig, ContainerTagName } from '../types/core';
 import { ElementFactories } from '../infrastructure/dom';
-
-/**
- * 目次データ属性の定数
- */
-export const DATA_ATTRIBUTES = {
-  LIST: 'data-mokuji-list',
-  ANCHOR: 'data-mokuji-anchor',
-} as const;
+import { DATA_ATTRIBUTES } from '../constants';
 
 /**
  * 個別目次アイテムのDOM構築
