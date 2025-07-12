@@ -5,12 +5,12 @@
 
 import type { MokujiConfig, Option, TocStructure, Result, HeadingInfo, HeadingLevel } from '../types/core';
 import { ResultUtils, OptionUtils } from '../utils/functional';
-import { generateUniqueId } from '../utils/id-generator';
-import { createConfig } from '../config';
-import { extractHeadingsInfo, filterHeadingsByLevel, generateAnchorText } from '../domain/heading';
-import { createTocStructure, isTocStructureEmpty } from '../domain/toc';
-import { ElementSelectors } from '../infrastructure/dom';
-import { buildTocElement, addAnchorLinksToHeadings } from '../services/dom-builder';
+import { generateUniqueId } from '../utils/id';
+import { createConfig } from '../core/config';
+import { extractHeadingsInfo, filterHeadingsByLevel, generateAnchorText } from '../core/heading';
+import { createTocStructure, isTocStructureEmpty } from '../core/toc';
+import { ElementSelectors } from '../dom/selector';
+import { buildTocElement, addAnchorLinksToHeadings } from '../dom/builder';
 import { ERROR_MESSAGES, DATA_ATTRIBUTES } from '../constants';
 
 const extractSingleHeadingInfo = (

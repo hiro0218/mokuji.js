@@ -18,13 +18,13 @@ export type {
 
 export { destroyMokuji, createMokuji, validateMokujiConfig, getMokujiDebugInfo } from './api/create-mokuji';
 
-export { createConfig, getDefaultConfig, validateConfig } from './config';
+export { createConfig, getDefaultConfig, validateConfig } from './core/config';
 
 export { ResultUtils, OptionUtils, ArrayUtils, StringUtils } from './utils/functional';
 
-export { generateUniqueId, createIdTracker } from './utils/id-generator';
+export { generateUniqueId, createIdTracker } from './utils/id';
 
-export { extractHeadingInfo, filterHeadingsByLevel, generateAnchorText, assignUniqueIds } from './domain/heading';
+export { extractHeadingInfo, filterHeadingsByLevel, generateAnchorText, assignUniqueIds } from './core/heading';
 
 export {
   createTocStructure,
@@ -33,6 +33,6 @@ export {
   flattenTocItems,
   findTocItemById,
   getTocStatistics,
-} from './domain/toc';
+} from './core/toc';
 
 export { ERROR_MESSAGES, DEBUG_MESSAGES, DATA_ATTRIBUTES, REGEX_PATTERNS } from './constants';
