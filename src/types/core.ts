@@ -1,64 +1,54 @@
 /**
  * 型安全性の中核定義
- * 関数型プログラミングの恩恵を受けるための基盤型
+ * 各カテゴリの型定義をインポートしエクスポートする中央モジュール
  */
 
-export type Result<T, E = Error> =
-  | { readonly success: true; readonly data: T }
-  | { readonly success: false; readonly error: E };
+// 関数型プログラミング関連の型定義
+import type { Result, Option, NonEmptyArray, Transform, ErrorHandler, Predicate, Effect } from './functional';
 
-export type Option<T> = T | null | undefined;
+// 見出し関連の型定義
+import type { HeadingLevel, HeadingInfo, HeadingExtractOptions } from './heading';
 
-export type NonEmptyArray<T> = readonly [T, ...T[]];
+// 目次関連の型定義
+import type {
+  ContainerTagName,
+  AnchorPosition,
+  TocItem,
+  TocStructure,
+  MokujiConfig,
+  RequiredMokujiConfig,
+  MokujiResult,
+} from './toc';
 
-export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+// DOM操作関連の型定義
+import type { DomEffect, ElementFactory } from './dom';
 
-export type ContainerTagName = 'ul' | 'ol';
+// すべての型を再エクスポート
+export type {
+  // 関数型
+  Result,
+  Option,
+  NonEmptyArray,
+  Transform,
+  ErrorHandler,
+  Predicate,
+  Effect,
 
-export type AnchorPosition = 'before' | 'after';
+  // 見出し
+  HeadingLevel,
+  HeadingInfo,
+  HeadingExtractOptions,
 
-export type HeadingInfo = {
-  readonly id: string;
-  readonly text: string;
-  readonly level: HeadingLevel;
-  readonly element: HTMLHeadingElement;
-};
+  // 目次
+  ContainerTagName,
+  AnchorPosition,
+  TocItem,
+  TocStructure,
+  MokujiConfig,
+  RequiredMokujiConfig,
+  MokujiResult,
 
-export type TocItem = {
-  readonly id: string;
-  readonly text: string;
-  readonly href: string;
-  readonly level: HeadingLevel;
-  readonly children: readonly TocItem[];
-};
-
-export type TocStructure = {
-  readonly items: readonly TocItem[];
-  readonly headings: readonly HeadingInfo[];
-};
-
-/**
- * 副作用の管理用
- */
-export type DomEffect<T = void> = () => T;
-
-export type ElementFactory<K extends keyof HTMLElementTagNameMap> = () => HTMLElementTagNameMap[K];
-
-export type MokujiConfig = {
-  readonly anchorType?: boolean;
-  readonly anchorLink?: boolean;
-  readonly anchorLinkSymbol?: string;
-  readonly anchorLinkPosition?: AnchorPosition;
-  readonly anchorLinkClassName?: string;
-  readonly containerTagName?: ContainerTagName;
-  readonly minLevel?: HeadingLevel;
-  readonly maxLevel?: HeadingLevel;
-};
-
-export type RequiredMokujiConfig = Required<MokujiConfig>;
-
-export type MokujiResult<T extends HTMLElement = HTMLElement> = {
-  readonly targetElement: T;
-  readonly listElement: HTMLUListElement | HTMLOListElement;
-  readonly structure: TocStructure;
+  // DOM
+  DomEffect,
+  ElementFactory,
 };

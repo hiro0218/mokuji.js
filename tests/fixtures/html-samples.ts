@@ -74,8 +74,12 @@ export const SPECIAL_CHARS_HTML = `
 </div>
 `;
 
+import { createElementFromHTML } from '../utils/test-dom';
+
+/**
+ * HTML文字列からテスト要素を生成
+ * @deprecated 代わりに../utils/test-domのcreateElementFromHTMLを使用してください
+ */
 export const createTestElement = (html: string): HTMLElement => {
-  const div = document.createElement('div');
-  div.innerHTML = html;
-  return div;
+  return createElementFromHTML(html);
 };

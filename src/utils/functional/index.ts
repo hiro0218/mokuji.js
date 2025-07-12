@@ -51,6 +51,64 @@ export const OptionUtils = {
   getOrElse: <T>(option: Option<T>, defaultValue: T): T => (OptionUtils.isSome(option) ? (option as T) : defaultValue),
 };
 
+/**
+ * 汎用的な関数型プログラミングユーティリティ
+ */
+export const FunctionalUtils = {
+  /**
+   * 汎用的なパイプ関数
+   * 関数を直列につなげ、順番に適用していく
+   */
+  pipe:
+    <T>(...fns: Array<(arg: T) => T>) =>
+    (input: T): T => {
+      let result = input;
+
+      for (const fn of fns) {
+        result = fn(result);
+      }
+
+      return result;
+    },
+
+  /**
+   * 結果型のパイプ関数
+   * Result型の値をラップしたまま関数をチェーンする
+   */
+  resultPipe:
+    <T, E>(...fns: Array<(arg: T) => Result<T, E>>) =>
+    (input: T): Result<T, E> => {
+      let result: Result<T, E> = ResultUtils.ok(input);
+
+      for (const fn of fns) {
+        if (ResultUtils.isError(result)) {
+          break;
+        }
+        if (ResultUtils.isOk(result)) {
+          result = fn(result.data);
+        } else {
+          // This should never happen because of the previous check,
+          // but TypeScript needs this to ensure type safety
+          break;
+        }
+      }
+
+      return result;
+    },
+
+  /**
+   * Result<T, E>型のエラーをキャッチする
+   */
+  catchError:
+    <T, E>(handler: (error: E) => Result<T, E>) =>
+    (result: Result<T, E>): Result<T, E> => {
+      if (ResultUtils.isError(result)) {
+        return handler(result.error);
+      }
+      return result;
+    },
+};
+
 export const ArrayUtils = {
   isNonEmpty: <T>(arr: readonly T[]): arr is NonEmptyArray<T> => arr.length > 0,
 
@@ -78,6 +136,9 @@ export const ArrayUtils = {
   flatMap: <T, U>(arr: readonly T[], fn: (item: T) => readonly U[]): U[] => arr.flatMap(fn),
 };
 
+// パイプラインとResult処理のためのユーティリティをインポート
+export * from './pipe';
+
 export const StringUtils = {
   isEmpty: (str: string): boolean => str.length === 0,
 
@@ -91,6 +152,9 @@ export const StringUtils = {
     }
   },
 
+  /**
+   * 文字列用のパイプライン関数
+   */
   pipe:
     (...fns: Array<(str: string) => string>) =>
     (str: string): string => {
@@ -105,6 +169,15 @@ export const StringUtils = {
     const result = str.split(separator);
     return ArrayUtils.isNonEmpty(result) ? result : [];
   },
+
+  /**
+   * 文字列の配列を結合する
+   */
+  join:
+    (separator: string) =>
+    (strings: readonly string[]): string => {
+      return strings.join(separator);
+    },
 
   filterNonEmpty: (strings: readonly string[]): string[] => strings.filter((str) => StringUtils.isNonEmpty(str)),
 };

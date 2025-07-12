@@ -5,6 +5,7 @@
 
 import type { TocItem, TocStructure, RequiredMokujiConfig, ContainerTagName } from '../../types/core';
 import { ElementFactories } from '../factory';
+import { DomCore } from '../core';
 import { DATA_ATTRIBUTES } from '../../constants';
 
 const buildTocItemElement = (item: TocItem, containerTagName: ContainerTagName): HTMLLIElement => {
@@ -50,7 +51,7 @@ export const buildTocElement = (
   const listElement = buildTocListElement(structure.items, config.containerTagName);
 
   // データ属性を設定
-  listElement.setAttribute(DATA_ATTRIBUTES.LIST, '');
+  DomCore.manipulator.setAttribute(listElement, DATA_ATTRIBUTES.LIST, '');
 
   return listElement;
 };
@@ -67,12 +68,12 @@ export const addAnchorLinksToHeadings = (structure: TocStructure, config: Requir
 
     const anchorLink = ElementFactories.createAnchor()();
 
-    anchorLink.textContent = config.anchorLinkSymbol;
+    DomCore.manipulator.setTextContent(anchorLink, config.anchorLinkSymbol);
     anchorLink.href = `#${heading.id}`;
-    anchorLink.setAttribute(DATA_ATTRIBUTES.ANCHOR, '');
+    DomCore.manipulator.setAttribute(anchorLink, DATA_ATTRIBUTES.ANCHOR, '');
 
     if (config.anchorLinkClassName.trim()) {
-      anchorLink.classList.add(...config.anchorLinkClassName.trim().split(/\s+/).filter(Boolean));
+      DomCore.manipulator.addClass(anchorLink, config.anchorLinkClassName);
     }
 
     heading.element.id = heading.id;

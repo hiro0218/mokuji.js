@@ -1,33 +1,25 @@
 /**
  * DOM要素選択の抽象化層
  * テスト時のモック対象となる副作用を集約
+ *
+ * @deprecated 代わりに ../core の DomCore を使用してください
  */
 
+import { DomCore } from '../core';
+
+// 後方互換性のために従来のインターフェースを維持しつつ、
+// 新しいDomCoreを内部で使用するようにリファクタリング
 export const ElementSelectors = {
-  // IE11 compatibility
+  // 新しい実装を利用
   getAllHeadings: (container: Element): readonly HTMLHeadingElement[] => {
-    const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
-    const result: HTMLHeadingElement[] = Array.from({ length: headings.length });
-
-    for (let i = 0; i < headings.length; i++) {
-      result[i] = headings[i] as HTMLHeadingElement;
-    }
-
-    return result;
+    return DomCore.selector.getAllHeadings(container);
   },
 
   findByDataAttribute: (container: Document | Element, attribute: string): readonly HTMLElement[] => {
-    const elements = container.querySelectorAll(`[${attribute}]`);
-    const result: HTMLElement[] = Array.from({ length: elements.length });
-
-    for (let i = 0; i < elements.length; i++) {
-      result[i] = elements[i] as HTMLElement;
-    }
-
-    return result;
+    return DomCore.selector.findByDataAttribute(container, attribute);
   },
 
   findByTagAndAttribute: (container: Document | Element, tagName: string, attribute: string): HTMLElement | null => {
-    return container.querySelector(`${tagName}[${attribute}]`) as HTMLElement | null;
+    return DomCore.selector.findByTagAndAttribute(container, tagName, attribute);
   },
 };

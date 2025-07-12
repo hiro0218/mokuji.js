@@ -3,36 +3,38 @@
  * 外部向けインターフェースとエラーハンドリングの責務を持つ
  */
 
-import type { MokujiConfig, Option, TocStructure, Result, HeadingInfo, HeadingLevel } from '../types/core';
+import type { MokujiConfig, Option, TocStructure, Result, HeadingInfo } from '../types/core';
 import { ResultUtils, OptionUtils } from '../utils/functional';
-import { generateUniqueId } from '../utils/id';
 import { createConfig } from '../core/config';
-import { extractHeadingsInfo, filterHeadingsByLevel, generateAnchorText } from '../core/heading';
+import { extractHeadingInfo, extractHeadingsInfo, filterHeadingsByLevel } from '../core/heading';
 import { createTocStructure, isTocStructureEmpty } from '../core/toc';
 import { ElementSelectors } from '../dom/selector';
 import { buildTocElement, addAnchorLinksToHeadings } from '../dom/builder';
 import { ERROR_MESSAGES, DATA_ATTRIBUTES } from '../constants';
 
+/**
+ * 単一の見出し要素から情報を抽出する
+ * core/heading の拡張関数を利用
+ */
 const extractSingleHeadingInfo = (
   element: HTMLHeadingElement,
   config: ReturnType<typeof createConfig>,
   usedIds: Set<string>,
 ): HeadingInfo | undefined => {
-  const level = Number(element.tagName.charAt(1)) as HeadingLevel;
-
-  // レベルフィルタリングを早期に実行（パフォーマンス向上）
-  if (level < config.minLevel || level > config.maxLevel) {
-    return undefined;
-  }
-
-  const text = (element.textContent || '').trim();
-  const baseId = generateAnchorText(text, config.anchorType);
-  const uniqueId = generateUniqueId(baseId, usedIds);
-
-  return { id: uniqueId, text, level, element };
+  return extractHeadingInfo(element, {
+    filterByLevel: true,
+    minLevel: config.minLevel,
+    maxLevel: config.maxLevel,
+    generateId: true,
+    usedIds,
+    anchorType: config.anchorType,
+  });
 };
 
-const processHeadings = (element: HTMLElement, config: ReturnType<typeof createConfig>) => {
+/**
+ * 見出し要素を処理して目次構造を生成する
+ */
+const processHeadings = (element: HTMLElement, config: ReturnType<typeof createConfig>): TocStructure => {
   const headingElements = ElementSelectors.getAllHeadings(element);
 
   if (headingElements.length === 0) {
@@ -52,19 +54,63 @@ const processHeadings = (element: HTMLElement, config: ReturnType<typeof createC
   return createTocStructure(processedHeadings);
 };
 
+// 要素の検証を行う関数
+const validateElement = <T extends HTMLElement>(element: Option<T>): Result<T, Error> => {
+  return OptionUtils.isSome(element)
+    ? ResultUtils.ok(element)
+    : ResultUtils.error(new Error(ERROR_MESSAGES.ELEMENT_NOT_FOUND));
+};
+
+// 設定を適用して構造を生成する
+const processWithConfig = <T extends HTMLElement>(
+  element: T,
+  externalConfig?: MokujiConfig,
+): Result<{ element: T; config: ReturnType<typeof createConfig>; structure: TocStructure }, Error> => {
+  try {
+    const config = createConfig(externalConfig);
+    const structure = processHeadings(element, config);
+
+    if (isTocStructureEmpty(structure)) {
+      return ResultUtils.error(new Error(ERROR_MESSAGES.NO_HEADINGS));
+    }
+
+    return ResultUtils.ok({ element, config, structure });
+  } catch (error) {
+    return ResultUtils.error(error as Error);
+  }
+};
+
+// TOC要素を生成する
+const buildTocComponents = <T extends HTMLElement>(data: {
+  element: T;
+  config: ReturnType<typeof createConfig>;
+  structure: TocStructure;
+}): Result<{ targetElement: T; listElement: HTMLUListElement | HTMLOListElement; structure: TocStructure }, Error> => {
+  try {
+    const { element, config, structure } = data;
+    const listElement = buildTocElement(structure, config);
+    addAnchorLinksToHeadings(structure, config);
+
+    return ResultUtils.ok({
+      targetElement: element,
+      listElement,
+      structure,
+    });
+  } catch (error) {
+    return ResultUtils.error(error as Error);
+  }
+};
+
 /**
  * Main function for generating table of contents
+ * 関数型プログラミングのパターンを活用
  */
 export const createMokuji = <T extends HTMLElement>(
   element: Option<T>,
   externalConfig?: MokujiConfig,
 ): Result<{ targetElement: T; listElement: HTMLUListElement | HTMLOListElement; structure: TocStructure }, Error> => {
   // 要素の検証
-  const elementResult = OptionUtils.isSome(element)
-    ? ResultUtils.ok(element)
-    : ResultUtils.error(new Error(ERROR_MESSAGES.ELEMENT_NOT_FOUND));
-
-  // 処理チェーンの実行
+  const elementResult = validateElement(element);
   if (ResultUtils.isError(elementResult)) {
     return elementResult as Result<
       { targetElement: T; listElement: HTMLUListElement | HTMLOListElement; structure: TocStructure },
@@ -72,33 +118,33 @@ export const createMokuji = <T extends HTMLElement>(
     >;
   }
 
-  try {
-    if (!ResultUtils.isOk(elementResult)) {
-      return elementResult as Result<
-        { targetElement: T; listElement: HTMLUListElement | HTMLOListElement; structure: TocStructure },
-        Error
-      >;
-    }
-
-    const validElement = elementResult.data;
-    const config = createConfig(externalConfig);
-    const structure = processHeadings(validElement, config);
-
-    if (isTocStructureEmpty(structure)) {
-      return ResultUtils.error(new Error(ERROR_MESSAGES.NO_HEADINGS));
-    }
-
-    const listElement = buildTocElement(structure, config);
-    addAnchorLinksToHeadings(structure, config);
-
-    return ResultUtils.ok({
-      targetElement: validElement,
-      listElement,
-      structure,
-    });
-  } catch (error) {
-    return ResultUtils.error(error as Error);
+  // 型ガードを追加して、dataプロパティにアクセスできることを保証
+  if (!ResultUtils.isOk(elementResult)) {
+    return ResultUtils.error(new Error('Unexpected state: element result is neither success nor error')) as Result<
+      { targetElement: T; listElement: HTMLUListElement | HTMLOListElement; structure: TocStructure },
+      Error
+    >;
   }
+
+  // 設定を適用して構造を生成
+  const configResult = processWithConfig(elementResult.data, externalConfig);
+  if (ResultUtils.isError(configResult)) {
+    return configResult as Result<
+      { targetElement: T; listElement: HTMLUListElement | HTMLOListElement; structure: TocStructure },
+      Error
+    >;
+  }
+
+  // 型ガードを追加
+  if (!ResultUtils.isOk(configResult)) {
+    return ResultUtils.error(new Error('Unexpected state: config result is neither success nor error')) as Result<
+      { targetElement: T; listElement: HTMLUListElement | HTMLOListElement; structure: TocStructure },
+      Error
+    >;
+  }
+
+  // TOC要素を生成
+  return buildTocComponents(configResult.data);
 };
 
 const isValidLevel = (level: number | undefined): boolean => level === undefined || (level >= 1 && level <= 6);
