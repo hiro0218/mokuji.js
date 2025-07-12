@@ -20,8 +20,12 @@ export const ResultUtils = {
 
   isError: <T, E>(result: Result<T, E>): result is { success: false; error: E } => !result.success,
 
-  map: <T, U, E>(result: Result<T, E>, fn: (value: T) => U): Result<U, E> =>
-    ResultUtils.isOk(result) ? ResultUtils.ok(fn(result.data)) : (result as Result<U, E>),
+  map: <T, U, E>(result: Result<T, E>, fn: (value: T) => U): Result<U, E> => {
+    if (ResultUtils.isOk(result)) {
+      return ResultUtils.ok(fn(result.data));
+    }
+    return result as Result<U, E>;
+  },
 
   flatMap: <T, U, E>(result: Result<T, E>, fn: (value: T) => Result<U, E>): Result<U, E> =>
     ResultUtils.isOk(result) ? fn(result.data) : (result as Result<U, E>),
@@ -38,12 +42,16 @@ export const OptionUtils = {
 
   none: <T>(): Option<T> => undefined,
 
-  isSome: <T>(option: Option<T>): option is T => option !== undefined && option !== null,
+  isSome: <T>(option: Option<T>): option is T => option !== undefined,
 
-  isNone: <T>(option: Option<T>): option is null | undefined => option === undefined || option === null,
+  isNone: <T>(option: Option<T>): option is undefined => option === undefined,
 
-  map: <T, U>(option: Option<T>, fn: (value: T) => U): Option<U> =>
-    OptionUtils.isSome(option) ? fn(option as T) : undefined,
+  map: <T, U>(option: Option<T>, fn: (value: T) => U): Option<U> => {
+    if (OptionUtils.isSome(option)) {
+      return fn(option as T);
+    }
+    return undefined;
+  },
 
   flatMap: <T, U>(option: Option<T>, fn: (value: T) => Option<U>): Option<U> =>
     OptionUtils.isSome(option) ? fn(option as T) : undefined,

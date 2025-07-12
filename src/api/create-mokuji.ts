@@ -118,8 +118,11 @@ export const getMokujiDebugInfo = <T extends HTMLElement>(element: Option<T>, co
     return { error: ERROR_MESSAGES.ELEMENT_NOT_FOUND };
   }
 
+  // Option<T>型からT型に変換し、ここでは値が存在することを保証する
+  const validElement = element as T;
+
   const processedConfig = createConfig(config);
-  const headingElements = ElementSelectors.getAllHeadings(element);
+  const headingElements = ElementSelectors.getAllHeadings(validElement);
   const headingsInfo = extractHeadingsInfo(headingElements);
   const filteredHeadings = filterHeadingsByLevel(headingsInfo, processedConfig.minLevel, processedConfig.maxLevel);
 
