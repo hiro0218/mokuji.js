@@ -64,8 +64,8 @@ export const FunctionalUtils = {
     (input: T): T => {
       let result = input;
 
-      for (const fn of fns) {
-        result = fn(result);
+      for (let i = 0, len = fns.length; i < len; i++) {
+        result = fns[i](result);
       }
 
       return result;
@@ -80,12 +80,12 @@ export const FunctionalUtils = {
     (input: T): Result<T, E> => {
       let result: Result<T, E> = ResultUtils.ok(input);
 
-      for (const fn of fns) {
+      for (let i = 0, len = fns.length; i < len; i++) {
         if (ResultUtils.isError(result)) {
           break;
         }
         if (ResultUtils.isOk(result)) {
-          result = fn(result.data);
+          result = fns[i](result.data);
         } else {
           // This should never happen because of the previous check,
           // but TypeScript needs this to ensure type safety
@@ -118,7 +118,8 @@ export const ArrayUtils = {
 
   groupBy: <T, K extends string | number | symbol>(arr: readonly T[], keyFn: (item: T) => K): Record<K, T[]> => {
     const result = {} as Record<K, T[]>;
-    for (const item of arr) {
+    for (let i = 0, len = arr.length; i < len; i++) {
+      const item = arr[i];
       const key = keyFn(item);
       if (!(key in result)) {
         result[key] = [];
@@ -159,8 +160,8 @@ export const StringUtils = {
     (...fns: Array<(str: string) => string>) =>
     (str: string): string => {
       let result = str;
-      for (const fn of fns) {
-        result = fn(result);
+      for (let i = 0, len = fns.length; i < len; i++) {
+        result = fns[i](result);
       }
       return result;
     },

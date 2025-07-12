@@ -33,7 +33,8 @@ const buildTocListElement = (
 ): HTMLUListElement | HTMLOListElement => {
   const listElement = ElementFactories.createList(containerTagName)();
 
-  for (const item of items) {
+  for (let i = 0, len = items.length; i < len; i++) {
+    const item = items[i];
     const listItemElement = buildTocItemElement(item, containerTagName);
     listElement.append(listItemElement);
   }
@@ -61,7 +62,8 @@ export const addAnchorLinksToHeadings = (structure: TocStructure, config: Requir
     return;
   }
 
-  for (const heading of structure.headings) {
+  for (let i = 0, len = structure.headings.length; i < len; i++) {
+    const heading = structure.headings[i];
     if (!heading.element.parentNode) {
       continue;
     }

@@ -17,7 +17,8 @@ export const buildTocHierarchy = (headings: readonly HeadingInfo[]): readonly To
   const root: TocItem[] = [];
   const stack: { level: number; items: TocItem[] }[] = [{ level: 0, items: root }];
 
-  for (const heading of headings) {
+  for (let i = 0, len = headings.length; i < len; i++) {
+    const heading = headings[i];
     const currentLevel = heading.level;
 
     while (stack.length > 1 && stack.at(-1)!.level >= currentLevel) {
@@ -73,7 +74,8 @@ export const getTocStatistics = (structure: TocStructure) => {
 
   // レベル別カウントを計算
   const levelCounts: Record<number, number> = {};
-  for (const level of levels) {
+  for (let i = 0, len = levels.length; i < len; i++) {
+    const level = levels[i];
     levelCounts[level] = (levelCounts[level] || 0) + 1;
   }
 

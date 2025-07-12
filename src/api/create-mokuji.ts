@@ -44,8 +44,8 @@ const processHeadings = (element: HTMLElement, config: ReturnType<typeof createC
   const usedIds = new Set<string>();
   const processedHeadings: HeadingInfo[] = [];
 
-  for (const headingElement of headingElements) {
-    const headingInfo = extractSingleHeadingInfo(headingElement, config, usedIds);
+  for (let i = 0, len = headingElements.length; i < len; i++) {
+    const headingInfo = extractSingleHeadingInfo(headingElements[i], config, usedIds);
     if (headingInfo) {
       processedHeadings.push(headingInfo);
     }

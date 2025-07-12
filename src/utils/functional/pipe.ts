@@ -34,8 +34,8 @@ export function pipe<A, B, C, D, E, F>(
 export function pipe(value: unknown, ...fns: Array<(arg: unknown) => unknown>): unknown {
   let result = value;
 
-  for (const fn of fns) {
-    result = fn(result);
+  for (let i = 0, len = fns.length; i < len; i++) {
+    result = fns[i](result);
   }
 
   return result;
@@ -74,12 +74,12 @@ export function resultPipe<A, B, C, D, E, F>(
 export function resultPipe<A, E>(value: A, ...fns: Array<(arg: unknown) => Result<unknown, E>>): Result<unknown, E> {
   let result: Result<unknown, E> = ResultUtils.ok(value);
 
-  for (const fn of fns) {
+  for (let i = 0, len = fns.length; i < len; i++) {
     if (ResultUtils.isError(result)) {
       break;
     }
     if (ResultUtils.isOk(result)) {
-      result = fn(result.data);
+      result = fns[i](result.data);
     } else {
       // This should never happen because of the previous check,
       // but TypeScript needs this to ensure type safety
