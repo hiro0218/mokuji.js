@@ -8,18 +8,18 @@
     "lint": "eslint --cache ./src/**/*.ts",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "benchmark": "node benchmark/index.js",
     "prepare": "npm run build && husky"
   },
   "type": "module",
   "main": "./dist/index.js",
   "exports": {
     "import": "./dist/index.js",
+    "require": "./dist/index.cjs",
     "default": "./dist/index.js"
   },
   "types": "./dist/index.d.ts",
-  "directories": {
-    "lib": "lib"
-  },
   "files": [
     "dist",
     "LICENSE",
@@ -57,6 +57,7 @@
     "@types/node": "~22.15.3",
     "@typescript-eslint/eslint-plugin": "^8.31.1",
     "@vitest/browser": "^3.1.2",
+    "@vitest/coverage-v8": "^3.1.2",
     "eslint": "^9.26.0",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-unicorn": "^59.0.0",
