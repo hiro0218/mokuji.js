@@ -1,15 +1,15 @@
 /**
- * DOM操作関連の型定義
+ * Type definitions related to DOM operations
  */
 
 import type { Effect } from './functional';
 
 /**
- * DOM操作の副作用を表す型
+ * Type representing side effects of DOM operations
  */
 export type DomEffect<T = void> = Effect<T>;
 
 /**
- * 要素ファクトリー関数の型
+ * Type for element factory functions
  */
 export type ElementFactory<K extends keyof HTMLElementTagNameMap> = () => HTMLElementTagNameMap[K];

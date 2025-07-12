@@ -1,6 +1,6 @@
 /**
- * 関数型プログラミングのユーティリティ
- * Rustライクなエラーハンドリングと型安全性を提供
+ * Utilities for functional programming
+ * Provides Rust-like error handling and type safety
  */
 
 import type { Result, Option, NonEmptyArray } from '../../types/core';
@@ -52,12 +52,12 @@ export const OptionUtils = {
 };
 
 /**
- * 汎用的な関数型プログラミングユーティリティ
+ * Generic functional programming utilities
  */
 export const FunctionalUtils = {
   /**
-   * 汎用的なパイプ関数
-   * 関数を直列につなげ、順番に適用していく
+   * Generic pipe function
+   * Connects functions in series and applies them sequentially
    */
   pipe:
     <T>(...fns: Array<(arg: T) => T>) =>
@@ -72,8 +72,8 @@ export const FunctionalUtils = {
     },
 
   /**
-   * 結果型のパイプ関数
-   * Result型の値をラップしたまま関数をチェーンする
+   * Pipe function for Result type
+   * Chains functions while keeping values wrapped in Result type
    */
   resultPipe:
     <T, E>(...fns: Array<(arg: T) => Result<T, E>>) =>
@@ -97,7 +97,7 @@ export const FunctionalUtils = {
     },
 
   /**
-   * Result<T, E>型のエラーをキャッチする
+   * Catch errors for Result<T, E> type
    */
   catchError:
     <T, E>(handler: (error: E) => Result<T, E>) =>
@@ -136,7 +136,7 @@ export const ArrayUtils = {
   flatMap: <T, U>(arr: readonly T[], fn: (item: T) => readonly U[]): U[] => arr.flatMap(fn),
 };
 
-// パイプラインとResult処理のためのユーティリティをインポート
+// Import utilities for pipeline and Result processing
 export * from './pipe';
 
 export const StringUtils = {
@@ -171,7 +171,7 @@ export const StringUtils = {
   },
 
   /**
-   * 文字列の配列を結合する
+   * Join an array of strings
    */
   join:
     (separator: string) =>

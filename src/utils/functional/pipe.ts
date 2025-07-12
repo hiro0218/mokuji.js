@@ -102,7 +102,7 @@ export function resultPipe<A, E>(value: A, ...fns: Array<(arg: unknown) => Resul
  * ```
  */
 export const mapResult = <T, U, E>(result: Result<T, E>, fn: Transform<T, U>): Result<U, E> => {
-  // インラインでmapロジックを実装して直接コールバック参照を避ける
+  // Implement map logic inline to avoid direct callback references
   if (ResultUtils.isOk(result)) {
     return ResultUtils.ok(fn(result.data));
   }
@@ -120,7 +120,7 @@ export const mapResult = <T, U, E>(result: Result<T, E>, fn: Transform<T, U>): R
  * ```
  */
 export const flatMapResult = <T, U, E>(result: Result<T, E>, fn: Transform<T, Result<U, E>>): Result<U, E> => {
-  // インラインでflatMapロジックを実装して直接コールバック参照を避ける
+  // Implement flatMap logic inline to avoid direct callback references
   if (ResultUtils.isOk(result)) {
     return fn(result.data);
   }
@@ -128,7 +128,7 @@ export const flatMapResult = <T, U, E>(result: Result<T, E>, fn: Transform<T, Re
 };
 
 /**
- * エラーを捕捉して処理する関数
+ * Function to catch and process errors
  * @example
  * ```
  * const result = catchResultError(

@@ -1,16 +1,16 @@
 /**
- * DOM要素選択の抽象化層
- * テスト時のモック対象となる副作用を集約
+ * Abstraction layer for DOM element selection
+ * Centralizes side effects that become mock targets during testing
  *
- * @deprecated 代わりに ../core の DomCore を使用してください
+ * @deprecated Use DomCore from ../core instead
  */
 
 import { DomCore } from '../core';
 
-// 後方互換性のために従来のインターフェースを維持しつつ、
-// 新しいDomCoreを内部で使用するようにリファクタリング
+// Maintain the traditional interface for backward compatibility,
+// while refactoring to use the new DomCore internally
 export const ElementSelectors = {
-  // 新しい実装を利用
+  // Using the new implementation
   getAllHeadings: (container: Element): readonly HTMLHeadingElement[] => {
     return DomCore.selector.getAllHeadings(container);
   },

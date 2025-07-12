@@ -1,11 +1,11 @@
 /**
- * テスト/ベンチマーク共通のDOMユーティリティ関数
+ * DOM utility functions common to tests and benchmarks
  */
 
 import { JSDOM } from 'jsdom';
 
 /**
- * 空のDOMドキュメントを作成
+ * Create an empty DOM document
  */
 export const createEmptyDocument = (): { document: Document; body: HTMLElement } => {
   const dom = new JSDOM(`<!DOCTYPE html><html><body></body></html>`);
@@ -14,23 +14,23 @@ export const createEmptyDocument = (): { document: Document; body: HTMLElement }
 };
 
 /**
- * 指定された数と階層の見出しを持つテストドキュメントを生成
- * ベンチマーク用にカスタマイズ可能な複雑なDOM構造を生成
+ * Generate a test document with a specified number and hierarchy of headings
+ * Creates customizable complex DOM structure for benchmarking
  *
- * @param headingsCount 生成する見出しの総数
- * @param nestedDepth 見出しの最大階層レベル (デフォルト: 3)
- * @returns 生成されたbody要素
+ * @param headingsCount Total number of headings to generate
+ * @param nestedDepth Maximum nesting level for headings (default: 3)
+ * @returns Generated body element
  */
 export const createTestDocument = (headingsCount: number, nestedDepth = 3): HTMLElement => {
   const { document, body } = createEmptyDocument();
 
-  // 見出し要素を作成するヘルパー関数
+  // Helper function to create heading elements
   const createHeading = (level: number, text: string): HTMLHeadingElement => {
     const heading = document.createElement(`h${level}`) as HTMLHeadingElement;
     heading.textContent = text;
     body.append(heading);
 
-    // 見出しの後にいくつかの段落を追加
+    // Add some paragraphs after the heading
     const paragraphCount = Math.floor(Math.random() * 3) + 1;
     for (let i = 0; i < paragraphCount; i++) {
       const p = document.createElement('p');
@@ -42,7 +42,7 @@ export const createTestDocument = (headingsCount: number, nestedDepth = 3): HTML
 
   let headingCounter = 0;
 
-  // ネストされた見出し構造を再帰的に生成
+  // Recursively generate nested heading structure
   const createNestedHeadings = (currentLevel: number, maxLevel: number, parentPrefix = ''): void => {
     if (currentLevel > maxLevel || headingCounter >= headingsCount) return;
 
@@ -56,7 +56,7 @@ export const createTestDocument = (headingsCount: number, nestedDepth = 3): HTML
 
       if (headingCounter >= headingsCount) return;
 
-      // 子見出しを再帰的に作成
+      // Recursively create child headings
       createNestedHeadings(currentLevel + 1, maxLevel, prefix);
     }
   };
@@ -66,7 +66,7 @@ export const createTestDocument = (headingsCount: number, nestedDepth = 3): HTML
 };
 
 /**
- * HTMLテキストから要素を作成（単純なテスト用）
+ * Create element from HTML text (for simple tests)
  */
 export const createElementFromHTML = (html: string): HTMLElement => {
   const { document } = createEmptyDocument();

@@ -1,6 +1,6 @@
 /**
- * 見出し処理のビジネスロジック
- * Wikipediaスタイルとの互換性保持が重要な設計要件
+ * Business logic for heading processing
+ * Maintaining compatibility with Wikipedia style is an important design requirement
  */
 
 import type { HeadingInfo, HeadingLevel } from '../../types/core';
@@ -8,7 +8,7 @@ import { REGEX_PATTERNS } from '../../constants';
 import { generateUniqueId } from '../../utils/id-generator';
 
 /**
- * 見出し抽出オプションの型定義
+ * Type definition for heading extraction options
  */
 type HeadingExtractOptions = {
   filterByLevel?: boolean;
@@ -20,8 +20,8 @@ type HeadingExtractOptions = {
 };
 
 /**
- * 見出し要素から情報を抽出する拡張関数
- * オプションによって様々なモードでの抽出をサポート
+ * Enhanced function to extract information from heading elements
+ * Supports various extraction modes based on options
  */
 export const extractHeadingInfo = (
   element: HTMLHeadingElement,
@@ -29,7 +29,7 @@ export const extractHeadingInfo = (
 ): HeadingInfo | undefined => {
   const level = Number(element.tagName.charAt(1)) as HeadingLevel;
 
-  // レベルフィルタリングが有効な場合
+  // If level filtering is enabled
   if (options?.filterByLevel && (level < (options.minLevel || 1) || level > (options.maxLevel || 6))) {
     return undefined;
   }
@@ -37,7 +37,7 @@ export const extractHeadingInfo = (
   const text = (element.textContent || '').trim();
   let id = element.id || '';
 
-  // ID生成が必要な場合
+  // If ID generation is needed
   if (options?.generateId && options?.usedIds) {
     const baseId = generateAnchorText(text, options.anchorType || false);
     id = generateUniqueId(baseId, options.usedIds);
@@ -47,7 +47,7 @@ export const extractHeadingInfo = (
 };
 
 /**
- * 単純な見出し情報の抽出（以前のバージョン互換用）
+ * Simple heading information extraction (for backward compatibility)
  */
 export const extractSimpleHeadingInfo = (element: HTMLHeadingElement): HeadingInfo => {
   const level = Number(element.tagName.charAt(1)) as HeadingLevel;
@@ -71,9 +71,9 @@ export const filterHeadingsByLevel = (
 };
 
 /**
- * Wikipediaのアンカー生成ルールを実装
- * マルチバイト文字は%エンコードし、%を.に変換する
- * 通常スタイルでは&文字と空白を除去する
+ * Implements Wikipedia's anchor generation rules
+ * Multibyte characters are % encoded and % is converted to .
+ * In normal style, & characters and whitespace are removed
  */
 export const generateAnchorText = (text: string, useWikipediaStyle: boolean): string => {
   if (text.length === 0) {
@@ -102,9 +102,9 @@ export const assignUniqueIds = (
   const usedIds = new Set<string>();
 
   return headings.map((heading) => {
-    // 既存のIDがある場合と無い場合で分岐
+    // Branch based on whether an existing ID exists
     if (heading.id.trim()) {
-      usedIds.add(heading.id); // 既存IDをセットに追加
+      usedIds.add(heading.id); // Add existing ID to the set
       return heading;
     }
 

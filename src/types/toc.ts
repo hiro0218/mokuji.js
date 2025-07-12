@@ -1,130 +1,130 @@
 /**
- * 目次関連の型定義
+ * Type definitions related to table of contents
  */
 
 import type { HeadingInfo, HeadingLevel } from './heading';
 
 /**
- * コンテナ要素のタグ名
+ * Container element tag name
  */
 export type ContainerTagName = 'ul' | 'ol';
 
 /**
- * アンカーリンクの位置
+ * Anchor link position
  */
 export type AnchorPosition = 'before' | 'after';
 
 /**
- * 目次項目の定義
+ * Definition of TOC item
  */
 export type TocItem = {
   /**
-   * 項目のID
+   * Item ID
    */
   readonly id: string;
 
   /**
-   * 表示テキスト
+   * Display text
    */
   readonly text: string;
 
   /**
-   * リンク先URL（通常は #id 形式）
+   * Link destination URL (usually #id format)
    */
   readonly href: string;
 
   /**
-   * 見出しレベル
+   * Heading level
    */
   readonly level: HeadingLevel;
 
   /**
-   * 子項目
+   * Child items
    */
   readonly children: readonly TocItem[];
 };
 
 /**
- * 目次構造全体を表す型
+ * Type representing the entire TOC structure
  */
 export type TocStructure = {
   /**
-   * 階層化された目次項目
+   * Hierarchical TOC items
    */
   readonly items: readonly TocItem[];
 
   /**
-   * 元となった見出し情報
+   * Source heading information
    */
   readonly headings: readonly HeadingInfo[];
 };
 
 /**
- * 目次設定オプション
+ * TOC configuration options
  */
 export type MokujiConfig = {
   /**
-   * Wikipediaスタイルのアンカーを使用するか
+   * Whether to use Wikipedia style anchors
    */
   readonly anchorType?: boolean;
 
   /**
-   * アンカーリンクを追加するか
+   * Whether to add anchor links
    */
   readonly anchorLink?: boolean;
 
   /**
-   * アンカーリンクのシンボル
+   * Anchor link symbol
    */
   readonly anchorLinkSymbol?: string;
 
   /**
-   * アンカーリンクの位置
+   * Anchor link position
    */
   readonly anchorLinkPosition?: AnchorPosition;
 
   /**
-   * アンカーリンクのクラス名
+   * Anchor link class name
    */
   readonly anchorLinkClassName?: string;
 
   /**
-   * コンテナ要素のタグ名
+   * Container element tag name
    */
   readonly containerTagName?: ContainerTagName;
 
   /**
-   * 最小見出しレベル
+   * Minimum heading level
    */
   readonly minLevel?: HeadingLevel;
 
   /**
-   * 最大見出しレベル
+   * Maximum heading level
    */
   readonly maxLevel?: HeadingLevel;
 };
 
 /**
- * 必須フィールドを含む設定オプション
+ * Configuration options with required fields
  */
 export type RequiredMokujiConfig = Required<MokujiConfig>;
 
 /**
- * 目次生成の結果
+ * Result of TOC generation
  */
 export type MokujiResult<T extends HTMLElement = HTMLElement> = {
   /**
-   * 対象要素
+   * Target element
    */
   readonly targetElement: T;
 
   /**
-   * 生成された目次リスト要素
+   * Generated TOC list element
    */
   readonly listElement: HTMLUListElement | HTMLOListElement;
 
   /**
-   * 目次構造
+   * TOC structure
    */
   readonly structure: TocStructure;
 };

@@ -118,7 +118,7 @@ export const createMokuji = <T extends HTMLElement>(
     >;
   }
 
-  // 型ガードを追加して、dataプロパティにアクセスできることを保証
+  // Add type guard to ensure data property can be accessed
   if (!ResultUtils.isOk(elementResult)) {
     return ResultUtils.error(new Error('Unexpected state: element result is neither success nor error')) as Result<
       { targetElement: T; listElement: HTMLUListElement | HTMLOListElement; structure: TocStructure },
@@ -135,7 +135,7 @@ export const createMokuji = <T extends HTMLElement>(
     >;
   }
 
-  // 型ガードを追加
+  // Add type guard
   if (!ResultUtils.isOk(configResult)) {
     return ResultUtils.error(new Error('Unexpected state: config result is neither success nor error')) as Result<
       { targetElement: T; listElement: HTMLUListElement | HTMLOListElement; structure: TocStructure },

@@ -1,68 +1,68 @@
 /**
- * 見出し要素関連の型定義
+ * Type definitions related to heading elements
  */
 
 /**
- * 見出しのレベル（h1-h6）
+ * Heading level (h1-h6)
  */
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 
 /**
- * 見出しの情報
+ * Heading information
  */
 export type HeadingInfo = {
   /**
-   * 見出しのID (アンカーリンクのターゲット)
+   * Heading ID (target for anchor links)
    */
   readonly id: string;
 
   /**
-   * 見出しのテキスト内容
+   * Heading text content
    */
   readonly text: string;
 
   /**
-   * 見出しのレベル (h1=1, h2=2, etc.)
+   * Heading level (h1=1, h2=2, etc.)
    */
   readonly level: HeadingLevel;
 
   /**
-   * 対応するDOM要素への参照
+   * Reference to the corresponding DOM element
    */
   readonly element: HTMLHeadingElement;
 };
 
 /**
- * 見出し抽出オプション
+ * Heading extraction options
  */
 export type HeadingExtractOptions = {
   /**
-   * レベルによるフィルタリングを行うか
+   * Whether to filter by level
    */
   filterByLevel?: boolean;
 
   /**
-   * 最小レベル (例: 2 = h2以上)
+   * Minimum level (e.g., 2 = h2 and above)
    */
   minLevel?: HeadingLevel;
 
   /**
-   * 最大レベル (例: 4 = h4以下)
+   * Maximum level (e.g., 4 = h4 and below)
    */
   maxLevel?: HeadingLevel;
 
   /**
-   * IDを生成するか
+   * Whether to generate ID
    */
   generateId?: boolean;
 
   /**
-   * 使用済みIDの集合
+   * Set of used IDs
    */
   usedIds?: Set<string>;
 
   /**
-   * Wikipediaスタイルのアンカーを使用するか
+   * Whether to use Wikipedia style anchors
    */
   anchorType?: boolean;
 };

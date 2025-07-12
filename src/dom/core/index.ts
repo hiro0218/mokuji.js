@@ -1,101 +1,101 @@
 /**
- * 拡張されたDOM操作のコアモジュール
- * すべてのDOM操作の共通インターフェースと抽象化層を提供
+ * Core module for enhanced DOM operations
+ * Provides common interfaces and abstraction layer for all DOM operations
  */
 
 import type { ContainerTagName } from '../../types/core';
 
 /**
- * DOM要素を作成するためのファクトリーインターフェース
+ * Factory interface for creating DOM elements
  */
 export interface ElementCreator {
   /**
-   * リスト要素 (ul/ol) を作成
+   * Create list element (ul/ol)
    */
   createList(tagName: ContainerTagName): HTMLUListElement | HTMLOListElement;
 
   /**
-   * リストアイテム (li) を作成
+   * Create list item (li)
    */
   createListItem(): HTMLLIElement;
 
   /**
-   * アンカー要素 (a) を作成
+   * Create anchor element (a)
    */
   createAnchor(): HTMLAnchorElement;
 
   /**
-   * 見出し要素 (h1-h6) を作成
+   * Create heading element (h1-h6)
    */
   createHeading(level: 1 | 2 | 3 | 4 | 5 | 6): HTMLHeadingElement;
 
   /**
-   * 任意の要素を作成
+   * Create any element
    */
   createElement<K extends keyof HTMLElementTagNameMap>(tagName: K): HTMLElementTagNameMap[K];
 }
 
 /**
- * DOM要素を検索するためのセレクターインターフェース
+ * Selector interface for finding DOM elements
  */
 export interface ElementSelector {
   /**
-   * すべての見出し要素 (h1-h6) を取得
+   * Get all heading elements (h1-h6)
    */
   getAllHeadings(container: Element): readonly HTMLHeadingElement[];
 
   /**
-   * データ属性によって要素を検索
+   * Find elements by data attribute
    */
   findByDataAttribute(container: Document | Element, attribute: string): readonly HTMLElement[];
 
   /**
-   * タグとデータ属性の組み合わせで要素を検索
+   * Find element by tag and data attribute combination
    */
   findByTagAndAttribute(container: Document | Element, tagName: string, attribute: string): HTMLElement | null;
 
   /**
-   * セレクターによって要素を検索
+   * Find element by selector
    */
   querySelector<E extends Element = Element>(container: Document | Element, selector: string): E | null;
 
   /**
-   * セレクターによって複数の要素を検索
+   * Find multiple elements by selector
    */
   querySelectorAll<E extends Element = Element>(container: Document | Element, selector: string): readonly E[];
 }
 
 /**
- * DOM操作のためのユーティリティインターフェース
+ * Utility interface for DOM manipulation
  */
 export interface DomManipulator {
   /**
-   * 要素の属性を設定
+   * Set element attribute
    */
   setAttribute(element: Element, name: string, value: string): void;
 
   /**
-   * 要素のクラスを追加
+   * Add class to element
    */
   addClass(element: Element, className: string): void;
 
   /**
-   * 子要素を追加
+   * Add child element
    */
   appendChild<T extends Node>(parent: Element | Document | DocumentFragment, child: T): T;
 
   /**
-   * 要素のテキスト内容を設定
+   * Set element text content
    */
   setTextContent(element: Node, text: string): void;
 }
 
 /**
- * 標準のDOM実装
- * ブラウザ環境で使用されるデフォルト実装
+ * Standard DOM implementation
+ * Default implementation used in browser environments
  */
 class StandardDomImplementation implements ElementCreator, ElementSelector, DomManipulator {
-  // ElementCreator の実装
+  // Implementation of ElementCreator
   createList(tagName: ContainerTagName): HTMLUListElement | HTMLOListElement {
     return document.createElement(tagName);
   }
@@ -116,7 +116,7 @@ class StandardDomImplementation implements ElementCreator, ElementSelector, DomM
     return document.createElement(tagName);
   }
 
-  // ElementSelector の実装
+  // Implementation of ElementSelector
   getAllHeadings(container: Element): readonly HTMLHeadingElement[] {
     const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
     return [...headings] as HTMLHeadingElement[];
@@ -139,7 +139,7 @@ class StandardDomImplementation implements ElementCreator, ElementSelector, DomM
     return [...container.querySelectorAll(selector)] as E[];
   }
 
-  // DomManipulator の実装
+  // Implementation of DomManipulator
   setAttribute(element: Element, name: string, value: string): void {
     element.setAttribute(name, value);
   }
@@ -158,19 +158,19 @@ class StandardDomImplementation implements ElementCreator, ElementSelector, DomM
   }
 }
 
-// シングルトンインスタンスの作成
+// Create singleton instance
 const standardDomImpl = new StandardDomImplementation();
 
 /**
- * DOM操作のユーティリティを提供するファサード
+ * Facade providing utilities for DOM operations
  */
 export const DomCore = {
-  // 個別のインターフェースへのアクセス
+  // Access to individual interfaces
   creator: standardDomImpl as ElementCreator,
   selector: standardDomImpl as ElementSelector,
   manipulator: standardDomImpl as DomManipulator,
 
-  // 便利なショートカットメソッド
+  // Convenient shortcut methods
   createElement<K extends keyof HTMLElementTagNameMap>(tagName: K): HTMLElementTagNameMap[K] {
     return standardDomImpl.createElement(tagName);
   },
@@ -188,7 +188,7 @@ export const DomCore = {
     return standardDomImpl.getAllHeadings(container);
   },
 
-  // テスト用のモック実装を設定するためのメソッド
+  // Method for setting mock implementation for testing
   setImplementation(impl: Partial<ElementCreator & ElementSelector & DomManipulator>): void {
     Object.assign(standardDomImpl, impl);
   },

@@ -1,15 +1,15 @@
 /**
- * DOM要素ファクトリー
- * DOMアクセスを抽象化し、テストを容易にする
+ * DOM element factory
+ * Abstracts DOM access to make testing easier
  *
- * @deprecated 代わりに ../core の DomCore を使用してください
+ * @deprecated Use DomCore from ../core instead
  */
 
 import type { ContainerTagName, ElementFactory } from '../../types/core';
 import { DomCore } from '../core';
 
-// 後方互換性のために従来のインターフェースを維持しつつ、
-// 新しいDomCoreを内部で使用するようにリファクタリング
+// Maintain the traditional interface for backward compatibility,
+// while refactoring to use the new DomCore internally
 const createListItem = () => DomCore.creator.createListItem();
 const createAnchor = () => DomCore.creator.createAnchor();
 

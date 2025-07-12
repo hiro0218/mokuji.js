@@ -1,15 +1,15 @@
 /**
- * 型安全性の中核定義
- * 各カテゴリの型定義をインポートしエクスポートする中央モジュール
+ * Core definitions for type safety
+ * Central module that imports and exports type definitions from all categories
  */
 
-// 関数型プログラミング関連の型定義
+// Type definitions for functional programming
 import type { Result, Option, NonEmptyArray, Transform, ErrorHandler, Predicate, Effect } from './functional';
 
-// 見出し関連の型定義
+// Type definitions for headings
 import type { HeadingLevel, HeadingInfo, HeadingExtractOptions } from './heading';
 
-// 目次関連の型定義
+// Type definitions for table of contents
 import type {
   ContainerTagName,
   AnchorPosition,
@@ -20,12 +20,12 @@ import type {
   MokujiResult,
 } from './toc';
 
-// DOM操作関連の型定義
+// Type definitions for DOM operations
 import type { DomEffect, ElementFactory } from './dom';
 
-// すべての型を再エクスポート
+// Re-export all types
 export type {
-  // 関数型
+  // Functional types
   Result,
   Option,
   NonEmptyArray,
@@ -34,12 +34,12 @@ export type {
   Predicate,
   Effect,
 
-  // 見出し
+  // Heading types
   HeadingLevel,
   HeadingInfo,
   HeadingExtractOptions,
 
-  // 目次
+  // TOC types
   ContainerTagName,
   AnchorPosition,
   TocItem,
@@ -48,7 +48,7 @@ export type {
   RequiredMokujiConfig,
   MokujiResult,
 
-  // DOM
+  // DOM types
   DomEffect,
   ElementFactory,
 };
