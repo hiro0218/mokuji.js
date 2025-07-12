@@ -41,8 +41,7 @@ const buildTocListElement = (
 };
 
 /**
- * 目次構造全体からDOM要素を構築する主要関数
- * パフォーマンス最適化: 直接DOM操作で副作用関数の呼び出しを削減
+ * Builds a complete TOC DOM element from the structure
  */
 export const buildTocElement = (
   structure: TocStructure,

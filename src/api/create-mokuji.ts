@@ -53,7 +53,7 @@ const processHeadings = (element: HTMLElement, config: ReturnType<typeof createC
 };
 
 /**
- * 目次生成のメイン関数
+ * Main function for generating table of contents
  */
 export const createMokuji = <T extends HTMLElement>(
   element: Option<T>,
@@ -136,8 +136,8 @@ export const getMokujiDebugInfo = <T extends HTMLElement>(element: Option<T>, co
 };
 
 /**
- * DOM要素のクリーンアップ
- * WARNING: 全ページの目次要素を削除するため、複数インスタンス使用時は注意
+ * Cleans up all TOC DOM elements
+ * WARNING: Removes all TOC elements from the page - use with caution when using multiple instances
  */
 export const destroyMokuji = (containerId?: string): void => {
   const selector = containerId

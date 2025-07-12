@@ -1,11 +1,5 @@
 /**
- * ID生成とユニーク性保証のユーティリティ関数群
- * 関数型アプローチによる純粋関数の集合
- */
-
-/**
- * 一意なIDを生成する純粋関数
- * 既存のIDセットを変更し、副作用を明示的に管理する
+ * ID generation and uniqueness utilities
  */
 export const generateUniqueId = (baseId: string, usedIds: Set<string>): string => {
   let uniqueId = baseId;
@@ -17,9 +11,6 @@ export const generateUniqueId = (baseId: string, usedIds: Set<string>): string =
   return uniqueId;
 };
 
-/**
- * IDセットを管理するファクトリー関数
- */
 export const createIdTracker = () => {
   const usedIds = new Set<string>();
 

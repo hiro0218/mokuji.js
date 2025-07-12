@@ -91,7 +91,6 @@ export const StringUtils = {
 
   isNonEmpty: (str: string): boolean => str.length > 0,
 
-  // try-catch内でのURL decodeエラーをResult型で安全に処理するため
   safeDecodeURIComponent: (encoded: string): Result<string, Error> => {
     try {
       return ResultUtils.ok(decodeURIComponent(encoded));
@@ -100,7 +99,6 @@ export const StringUtils = {
     }
   },
 
-  // 文字列変換の関数合成でパイプラインパターンを実現するため
   pipe:
     (...fns: Array<(str: string) => string>) =>
     (str: string): string => {
@@ -111,7 +109,6 @@ export const StringUtils = {
       return result;
     },
 
-  // splitの結果が空配列になる場合の型安全性を保証するため
   safeSplit: (str: string, separator: string | RegExp): NonEmptyArray<string> | [] => {
     const result = str.split(separator);
     return ArrayUtils.isNonEmpty(result) ? result : [];

@@ -4,9 +4,7 @@
  */
 
 export const ElementSelectors = {
-  /**
-   * IE11対応のため古い配列作成手法を使用
-   */
+  // IE11 compatibility
   getAllHeadings: (container: Element): readonly HTMLHeadingElement[] => {
     const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
     const result: HTMLHeadingElement[] = Array.from({ length: headings.length });
@@ -18,9 +16,6 @@ export const ElementSelectors = {
     return result;
   },
 
-  /**
-   * 特定のデータ属性を持つ要素を検索する
-   */
   findByDataAttribute: (container: Document | Element, attribute: string): readonly HTMLElement[] => {
     const elements = container.querySelectorAll(`[${attribute}]`);
     const result: HTMLElement[] = Array.from({ length: elements.length });
@@ -32,9 +27,6 @@ export const ElementSelectors = {
     return result;
   },
 
-  /**
-   * 特定のタグ名とデータ属性を持つ要素を検索する
-   */
   findByTagAndAttribute: (container: Document | Element, tagName: string, attribute: string): HTMLElement | null => {
     return container.querySelector(`${tagName}[${attribute}]`) as HTMLElement | null;
   },

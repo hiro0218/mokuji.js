@@ -44,7 +44,7 @@ export const buildTocHierarchy = (headings: readonly HeadingInfo[]): readonly To
 };
 
 /**
- * 目次構造全体を作成する純粋関数
+ * Creates a complete table of contents structure
  */
 export const createTocStructure = (headings: readonly HeadingInfo[]): TocStructure => {
   const items = buildTocHierarchy(headings);
@@ -55,32 +55,18 @@ export const createTocStructure = (headings: readonly HeadingInfo[]): TocStructu
   };
 };
 
-/**
- * 目次構造が空かどうかを判定する純粋関数
- */
 export const isTocStructureEmpty = (structure: TocStructure): boolean => {
   return structure.items.length === 0;
 };
 
-/**
- * 目次構造から平坦なアイテムリストを取得する純粋関数
- */
 export const flattenTocItems = (items: readonly TocItem[]): readonly TocItem[] => {
   return items.flatMap((item) => [item, ...flattenTocItems(item.children)]);
 };
 
-/**
- * 特定のIDの目次アイテムを検索する純粋関数
- * 関数型アプローチを採用し、認知的複雑度を低減
- */
 export const findTocItemById = (items: readonly TocItem[], id: string): TocItem | undefined => {
   return flattenTocItems(items).find((item) => item.id === id);
 };
 
-/**
- * 目次構造の統計情報を取得する純粋関数
- * 関数型アプローチを採用し、認知的複雑度を低減
- */
 export const getTocStatistics = (structure: TocStructure) => {
   const flatItems = flattenTocItems(structure.items);
   const levels = flatItems.map((item) => item.level);
