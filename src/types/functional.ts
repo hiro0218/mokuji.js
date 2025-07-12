@@ -1,42 +1,42 @@
 /**
- * 関数型プログラミングのための型定義
+ * Type definitions for functional programming
  */
 
 /**
- * 成功または失敗を表す結果型
- * Rustの`Result`型に着想を得たパターン
+ * Result type representing success or failure
+ * Pattern inspired by Rust's `Result` type
  */
 export type Result<T, E = Error> =
   | { readonly success: true; readonly data: T }
   | { readonly success: false; readonly error: E };
 
 /**
- * 値が存在するかもしれないし、しないかもしれないことを表す型
- * Rustの`Option`型に相当
+ * Type representing a value that may or may not exist
+ * Equivalent to Rust's `Option` type
  */
 export type Option<T> = T | null | undefined;
 
 /**
- * 少なくとも1つの要素を持つ配列型
+ * Array type with at least one element
  */
 export type NonEmptyArray<T> = readonly [T, ...T[]];
 
 /**
- * パイプラインで使用する変換関数の型
+ * Type for transformation functions used in pipelines
  */
 export type Transform<T, U> = (input: T) => U;
 
 /**
- * エラーハンドラの型
+ * Type for error handlers
  */
 export type ErrorHandler<T, E> = (error: E) => Result<T, E>;
 
 /**
- * 条件式の型
+ * Type for predicates
  */
 export type Predicate<T> = (value: T) => boolean;
 
 /**
- * 副作用の管理用
+ * For managing side effects
  */
 export type Effect<T = void> = () => T;
