@@ -47,6 +47,16 @@ const createAnchorTemplate = (options: Required<MokujiOption>): HTMLAnchorElemen
 };
 
 /**
+ * 既存の目次アンカーを見出しから取り除き、重複挿入を防ぐ
+ */
+const removeExistingAnchors = (heading: HTMLHeadingElement): void => {
+  const existingAnchors = heading.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
+  for (let i = 0; i < existingAnchors.length; i++) {
+    existingAnchors[i].remove();
+  }
+};
+
+/**
  * 見出し要素内の指定した位置にアンカー要素を挿入する
  */
 const placeAnchorInHeading = (
@@ -147,6 +157,7 @@ export const insertAnchorToHeadings = (
 
   for (let i = 0; i < headings.length; i++) {
     const heading = headings[i];
+    removeExistingAnchors(heading);
     const pair = createHeadingAnchorPair(heading, anchorMap, anchorTemplate, options);
     if (!pair || !pair.heading.parentNode) continue;
 

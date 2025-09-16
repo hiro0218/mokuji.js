@@ -40,6 +40,12 @@ export const assignInitialIdToHeading = (
   heading: HTMLHeadingElement,
   isConvertToWikipediaStyleAnchor: boolean,
 ): string => {
+  const existingId = heading.getAttribute('id')?.trim();
+  if (existingId) {
+    heading.id = existingId;
+    return existingId;
+  }
+
   const baseHeadingId = (heading.textContent || '').trim();
   const anchorText = generateAnchorText(baseHeadingId, isConvertToWikipediaStyleAnchor);
   heading.id = anchorText;
@@ -71,51 +77,37 @@ export const getFilteredHeadings = (
 /**
  * アンカー要素をhrefのハッシュ値（デコード済み）ごとにグループ化する
  */
-const groupAnchorsByHeadingId = (anchors: HTMLAnchorElement[]): Map<string, HTMLAnchorElement[]> => {
-  const idToAnchorsMap = new Map<string, HTMLAnchorElement[]>();
-
-  for (let i = 0; i < anchors.length; i++) {
-    const anchor = anchors[i];
-    if (anchor.hash && anchor.hash.length > 1) {
-      const rawHeadingId = anchor.hash.slice(1);
-      const headingId = safeDecodeURIComponent(rawHeadingId);
-
-      const anchorsForId = idToAnchorsMap.get(headingId) || [];
-      anchorsForId.push(anchor);
-      idToAnchorsMap.set(headingId, anchorsForId);
-    }
-  }
-
-  return idToAnchorsMap;
-};
+const HEADING_DUPLICATE_SUFFIX_PATTERN = /_\d+$/;
 
 /**
  * 見出し要素のIDが重複している場合に一意になるよう修正し、関連する目次アンカーのhrefも更新する
  */
 export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: HTMLAnchorElement[]) => {
+  const anchorList = [...anchors];
   const headingIdOccurrenceMap = new Map<string, number>();
-  const idToAnchorsMap = groupAnchorsByHeadingId(anchors);
 
   for (let i = 0; i < headings.length; i++) {
     const heading = headings[i];
+    const anchor = anchorList[i];
+
     const currentHeadingId = heading.id;
-    const occurrenceCount = headingIdOccurrenceMap.get(currentHeadingId) || 0;
+    const decodedHeadingId = safeDecodeURIComponent(currentHeadingId);
+    const baseHeadingId = decodedHeadingId.replace(HEADING_DUPLICATE_SUFFIX_PATTERN, '') || decodedHeadingId;
+    const normalizedBase = baseHeadingId || `mokuji-heading-${i}`;
 
-    if (occurrenceCount > 0) {
-      const uniqueHeadingId = `${currentHeadingId}_${occurrenceCount}`;
-      heading.id = uniqueHeadingId;
+    const occurrenceCount = headingIdOccurrenceMap.get(normalizedBase) || 0;
 
-      const originalIdDecoded = safeDecodeURIComponent(currentHeadingId);
+    let resolvedId = currentHeadingId;
 
-      if (originalIdDecoded) {
-        const matchingAnchors = idToAnchorsMap.get(originalIdDecoded) || [];
-        for (let j = 0; j < matchingAnchors.length; j++) {
-          const anchor = matchingAnchors[j];
-          anchor.href = `#${uniqueHeadingId}`;
-        }
-      }
+    if (occurrenceCount > 0 || !resolvedId) {
+      resolvedId = `${normalizedBase}_${occurrenceCount}`;
+      heading.id = resolvedId;
     }
 
-    headingIdOccurrenceMap.set(heading.id, occurrenceCount + 1);
+    if (anchor) {
+      anchor.href = `#${resolvedId}`;
+    }
+
+    headingIdOccurrenceMap.set(normalizedBase, occurrenceCount + 1);
   }
 };
