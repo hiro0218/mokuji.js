@@ -98,8 +98,9 @@ export const Destroy = (): void => {
     anchor.remove();
   }
 
-  const tableOfContentsList = document.querySelector(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`);
-  if (tableOfContentsList) {
-    tableOfContentsList.remove();
+  const tableOfContentsLists = document.querySelectorAll(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`);
+  for (let i = 0; i < tableOfContentsLists.length; i++) {
+    const list = tableOfContentsLists[i];
+    list.remove();
   }
 };

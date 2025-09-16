@@ -136,4 +136,39 @@ describe('Mokuji.js', () => {
     expect(result).toBeUndefined();
     expect(consoleSpy).toHaveBeenCalledWith('Mokuji: Target element not found.');
   });
+
+  it('removes all table of contents lists when Destroy is called with multiple lists', () => {
+    // 複数の目次リストを手動でDOMに追加
+    const list1 = document.createElement('ol');
+    list1.setAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE, '');
+    document.body.append(list1);
+
+    const list2 = document.createElement('ul');
+    list2.setAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE, '');
+    document.body.append(list2);
+
+    const list3 = document.createElement('ol');
+    list3.setAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE, '');
+    container.append(list3);
+
+    // 複数のアンカーも追加
+    const anchor1 = document.createElement('a');
+    anchor1.setAttribute(ANCHOR_DATASET_ATTRIBUTE, '');
+    container.append(anchor1);
+
+    const anchor2 = document.createElement('a');
+    anchor2.setAttribute(ANCHOR_DATASET_ATTRIBUTE, '');
+    document.body.append(anchor2);
+
+    // 削除前の確認
+    expect(document.querySelectorAll(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`).length).toBe(3);
+    expect(document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`).length).toBe(2);
+
+    // Destroy関数を呼び出す
+    Destroy();
+
+    // 完了条件の検証: 全ての目次リストが削除されていること
+    expect(document.querySelectorAll(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`).length).toBe(0);
+    expect(document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`).length).toBe(0);
+  });
 });
