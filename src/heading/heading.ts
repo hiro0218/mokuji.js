@@ -63,8 +63,7 @@ export const getFilteredHeadings = (
   const filteredHeadings: HTMLHeadingElement[] = [];
   const allHeadings = getAllHeadingElements(element);
 
-  for (let i = 0; i < allHeadings.length; i++) {
-    const heading = allHeadings[i];
+  for (const heading of allHeadings) {
     const level = Number(heading.tagName.at(1)) as HeadingLevel;
     if (level >= minLevel && level <= maxLevel) {
       filteredHeadings.push(heading);
@@ -86,8 +85,7 @@ export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: 
   const anchorList = [...anchors];
   const headingIdOccurrenceMap = new Map<string, number>();
 
-  for (let i = 0; i < headings.length; i++) {
-    const heading = headings[i];
+  for (const [i, heading] of headings.entries()) {
     const anchor = anchorList[i];
 
     const currentHeadingId = heading.id;

@@ -12,8 +12,7 @@ import type { MokujiOption, AnchorLinkPosition } from '../common/types';
 export const generateAnchorsMap = (anchors: HTMLAnchorElement[]): Map<string, HTMLAnchorElement> => {
   const result = new Map<string, HTMLAnchorElement>();
 
-  for (let i = 0; i < anchors.length; i++) {
-    const anchor = anchors[i];
+  for (const anchor of anchors) {
     if (anchor.hash && anchor.hash.length > 1) {
       result.set(anchor.hash.slice(1), anchor);
     }
@@ -153,8 +152,7 @@ export const insertAnchorToHeadings = (
 
   const headingsByParent = new Map<Node, HeadingAnchorPair[]>();
 
-  for (let i = 0; i < headings.length; i++) {
-    const heading = headings[i];
+  for (const heading of headings) {
     removeExistingAnchors(heading);
     const pair = createHeadingAnchorPair(heading, anchorMap, anchorTemplate, options);
     if (!pair || !pair.heading.parentNode) continue;
@@ -166,8 +164,7 @@ export const insertAnchorToHeadings = (
   }
 
   for (const [, headingsWithAnchors] of headingsByParent.entries()) {
-    for (let j = 0; j < headingsWithAnchors.length; j++) {
-      const { heading, anchor } = headingsWithAnchors[j];
+    for (const { heading, anchor } of headingsWithAnchors) {
       placeAnchorInHeading(heading, anchor, options.anchorLinkPosition);
     }
   }

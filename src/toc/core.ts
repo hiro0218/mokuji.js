@@ -35,9 +35,7 @@ export const generateTableOfContents = (
   const levelStack: { level: number; items: TocItem[] }[] = [];
   levelStack.push({ level: 0, items: rootLevelItems });
 
-  const headingsLength = headings.length;
-  for (let i = 0; i < headingsLength; i++) {
-    const heading = headings[i];
+  for (const heading of headings) {
     const currentHeadingLevel = Number(heading.tagName[1]);
     const anchorText = assignInitialIdToHeading(heading, isConvertToWikipediaStyleAnchor);
 
@@ -67,8 +65,7 @@ export const generateTableOfContents = (
   const childListTemplate = createElement(childListTagName);
 
   const buildListRecursive = (parentListElement: HTMLElement, items: TocItem[]): void => {
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
+    for (const item of items) {
       const elementList = listItemTemplate.cloneNode(false) as HTMLLIElement;
       const elementAnchor = anchorTemplate.cloneNode(false) as HTMLAnchorElement;
 
