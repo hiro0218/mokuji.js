@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { getAllHeadingElements, createElement } from './dom';
+import { getAllHeadingElements, createElement, removeAllElements } from './dom';
 
 describe('common/dom', () => {
   let container: HTMLElement;
@@ -63,6 +63,55 @@ describe('common/dom', () => {
 
       expect(button).toBeInstanceOf(HTMLButtonElement);
       expect(button.type).toBe('button');
+    });
+  });
+
+  describe('removeAllElements', () => {
+    it('removes all elements from NodeListOf<Element>', () => {
+      container.innerHTML = `
+        <div data-test="1"></div>
+        <div data-test="2"></div>
+        <div data-test="3"></div>
+      `;
+
+      const elements = container.querySelectorAll('[data-test]');
+      expect(elements).toHaveLength(3);
+
+      removeAllElements(elements);
+
+      const remaining = container.querySelectorAll('[data-test]');
+      expect(remaining).toHaveLength(0);
+    });
+
+    it('removes all elements from an array', () => {
+      container.innerHTML = `
+        <span class="remove">1</span>
+        <span class="remove">2</span>
+        <span class="keep">3</span>
+      `;
+
+      const elementsArray = [...container.querySelectorAll('.remove')];
+      expect(elementsArray).toHaveLength(2);
+
+      removeAllElements(elementsArray);
+
+      expect(container.querySelectorAll('.remove')).toHaveLength(0);
+      expect(container.querySelectorAll('.keep')).toHaveLength(1);
+    });
+
+    it('handles empty NodeListOf gracefully', () => {
+      const emptyList = container.querySelectorAll('.non-existent');
+      expect(emptyList).toHaveLength(0);
+
+      // Should not throw
+      expect(() => removeAllElements(emptyList)).not.toThrow();
+    });
+
+    it('handles empty array gracefully', () => {
+      const emptyArray: Element[] = [];
+
+      // Should not throw
+      expect(() => removeAllElements(emptyArray)).not.toThrow();
     });
   });
 });

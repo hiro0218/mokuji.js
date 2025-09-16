@@ -24,3 +24,13 @@ export const createElement = <T extends keyof HTMLElementTagNameMap>(tagName: T)
 
   return cachedElement.cloneNode(false) as HTMLElementTagNameMap[T];
 };
+
+/**
+ * 指定された全ての要素をDOMから削除する
+ */
+export const removeAllElements = (elements: NodeListOf<Element> | Element[]): void => {
+  // NodeListOfの場合もfor...ofで反復可能
+  for (const element of elements) {
+    element.remove();
+  }
+};

@@ -1,7 +1,7 @@
 /**
  * 目次（もくじ）生成ライブラリのメインエントリーポイント
  */
-import { createElement } from './common/dom';
+import { createElement, removeAllElements } from './common/dom';
 import type { MokujiOption, HeadingLevel } from './common/types';
 import { getFilteredHeadings, ensureUniqueHeadingIds } from './heading/heading';
 import { generateAnchorsMap, insertAnchorToHeadings } from './anchor/anchor';
@@ -93,14 +93,8 @@ export const Mokuji = <T extends HTMLElement>(
  */
 export const Destroy = (): void => {
   const mokujiAnchors = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
-  for (let i = 0; i < mokujiAnchors.length; i++) {
-    const anchor = mokujiAnchors[i];
-    anchor.remove();
-  }
+  removeAllElements(mokujiAnchors);
 
   const tableOfContentsLists = document.querySelectorAll(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`);
-  for (let i = 0; i < tableOfContentsLists.length; i++) {
-    const list = tableOfContentsLists[i];
-    list.remove();
-  }
+  removeAllElements(tableOfContentsLists);
 };

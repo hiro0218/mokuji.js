@@ -2,7 +2,7 @@
  * 見出し横へのアンカーリンク挿入に関する処理を提供するモジュール
  */
 
-import { createElement } from '../common/dom';
+import { createElement, removeAllElements } from '../common/dom';
 import { ANCHOR_DATASET_ATTRIBUTE } from '../common/constants';
 import type { MokujiOption, AnchorLinkPosition } from '../common/types';
 
@@ -51,9 +51,7 @@ const createAnchorTemplate = (options: Required<MokujiOption>): HTMLAnchorElemen
  */
 const removeExistingAnchors = (heading: HTMLHeadingElement): void => {
   const existingAnchors = heading.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
-  for (let i = 0; i < existingAnchors.length; i++) {
-    existingAnchors[i].remove();
-  }
+  removeAllElements(existingAnchors);
 };
 
 /**
