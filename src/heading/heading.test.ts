@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { assignInitialIdToHeading, getFilteredHeadings, ensureUniqueHeadingIds } from './heading';
+import { assignInitialIdToHeading, getFilteredHeadings, ensureUniqueHeadingIds, getHeadingLevel } from './heading';
 
 const createHeading = (level: number, text?: string): HTMLHeadingElement => {
   const heading = document.createElement(`h${level}`) as HTMLHeadingElement;
@@ -39,6 +39,20 @@ describe('heading utilities', () => {
 
       expect(assignedId).toBe('Generated_Heading');
       expect(heading.id).toBe('Generated_Heading');
+    });
+  });
+
+  describe('getHeadingLevel', () => {
+    it('extracts the numeric level for standard heading elements', () => {
+      const heading = createHeading(4, 'Heading');
+
+      expect(getHeadingLevel(heading)).toBe(4);
+    });
+
+    it('falls back to level 6 for unexpected tag names', () => {
+      const invalidHeading = document.createElement('h7') as HTMLHeadingElement;
+
+      expect(getHeadingLevel(invalidHeading)).toBe(6);
     });
   });
 

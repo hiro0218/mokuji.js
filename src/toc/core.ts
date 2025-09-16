@@ -2,7 +2,7 @@
  * 目次（もくじ）生成の中核ロジックを提供するモジュール (パフォーマンス改善版)
  */
 import { createElement } from '../common/dom';
-import { assignInitialIdToHeading } from '../heading/heading';
+import { assignInitialIdToHeading, getHeadingLevel } from '../heading/heading';
 
 /**
  * 目次アイテムの中間データ構造
@@ -36,7 +36,7 @@ export const generateTableOfContents = (
   levelStack.push({ level: 0, items: rootLevelItems });
 
   for (const heading of headings) {
-    const currentHeadingLevel = Number(heading.tagName[1]);
+    const currentHeadingLevel = getHeadingLevel(heading);
     const anchorText = assignInitialIdToHeading(heading, isConvertToWikipediaStyleAnchor);
 
     const newItem: TocItem = {

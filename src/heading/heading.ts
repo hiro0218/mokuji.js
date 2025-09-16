@@ -32,6 +32,22 @@ const safeDecodeURIComponent = (encoded: string): string => {
   }
 };
 
+// h1〜h6 に対応する許容範囲と、範囲外タグに対するフォールバック
+const MIN_HEADING_LEVEL: HeadingLevel = 1;
+const MAX_HEADING_LEVEL: HeadingLevel = 6;
+const FALLBACK_HEADING_LEVEL = MAX_HEADING_LEVEL;
+
+/**
+ * 見出し要素のレベルを数値として取得する
+ */
+export const getHeadingLevel = (heading: HTMLHeadingElement): HeadingLevel => {
+  const numericLevel = Number.parseInt(heading.tagName.slice(1), 10);
+  if (numericLevel >= MIN_HEADING_LEVEL && numericLevel <= MAX_HEADING_LEVEL) {
+    return numericLevel as HeadingLevel;
+  }
+  return FALLBACK_HEADING_LEVEL;
+};
+
 /**
  * 見出し要素に初期ID（アンカーテキスト）を割り当てる
  * この時点ではIDの重複可能性があるため、後続の ensureUniqueHeadingIds で解決される。
@@ -64,7 +80,7 @@ export const getFilteredHeadings = (
   const allHeadings = getAllHeadingElements(element);
 
   for (const heading of allHeadings) {
-    const level = Number(heading.tagName.at(1)) as HeadingLevel;
+    const level = getHeadingLevel(heading);
     if (level >= minLevel && level <= maxLevel) {
       filteredHeadings.push(heading);
     }
