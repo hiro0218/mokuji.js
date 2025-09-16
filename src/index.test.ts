@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { Mokuji, Destroy } from '../src/index';
-import { MOKUJI_LIST_DATASET_ATTRIBUTE, ANCHOR_DATASET_ATTRIBUTE } from '../src/common/constants';
+import { Mokuji, Destroy } from './index';
+import { MOKUJI_LIST_DATASET_ATTRIBUTE, ANCHOR_DATASET_ATTRIBUTE } from './common/constants';
 
 describe('Mokuji.js', () => {
   let container: HTMLElement;
@@ -128,10 +128,10 @@ describe('Mokuji.js', () => {
     expect(anchorLinksAfter.length).toBe(0);
   });
 
-  it('outputs a warning and returns undefined when element is null', () => {
+  it('outputs a warning and returns undefined when element is falsy', () => {
     const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    const result = Mokuji();
+    const result = Mokuji(undefined as unknown as HTMLElement);
 
     expect(result).toBeUndefined();
     expect(consoleSpy).toHaveBeenCalledWith('Mokuji: Target element not found.');
