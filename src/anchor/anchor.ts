@@ -69,6 +69,45 @@ const placeAnchorInHeading = (
 };
 
 /**
+ * アンカーマップから直接IDで検索
+ */
+const findAnchorById = (anchorMap: Map<string, HTMLAnchorElement>, id: string): HTMLAnchorElement | undefined => {
+  return anchorMap.get(id);
+};
+
+/**
+ * 数字サフィックスを除去したIDで検索
+ */
+const findAnchorByIdWithoutSuffix = (
+  anchorMap: Map<string, HTMLAnchorElement>,
+  id: string,
+): HTMLAnchorElement | undefined => {
+  // IDが「ID_数字」の形式かチェックする（重複により変更されたIDの場合）
+  const idWithoutSuffix = id.replace(/_\d+$/, '');
+  if (idWithoutSuffix !== id) {
+    // サフィックスを取り除いた元のIDでアンカーを検索
+    return anchorMap.get(idWithoutSuffix);
+  }
+  return undefined;
+};
+
+/**
+ * テキスト内容で検索
+ */
+const findAnchorByText = (anchorMap: Map<string, HTMLAnchorElement>, text: string): HTMLAnchorElement | undefined => {
+  const trimmedText = text.trim();
+  if (!trimmedText) return undefined;
+
+  // アンカーマップ内をテキスト内容で検索
+  for (const [, anchor] of anchorMap.entries()) {
+    if (anchor.textContent?.trim() === trimmedText) {
+      return anchor;
+    }
+  }
+  return undefined;
+};
+
+/**
  * ある見出し要素に対応するアンカー要素を作成する
  */
 const createAnchorForHeading = (
@@ -78,66 +117,24 @@ const createAnchorForHeading = (
   options: Required<MokujiOption>,
 ): HTMLAnchorElement | undefined => {
   const headingId = heading.id;
-  let matchedTocAnchor = anchorMap.get(headingId);
 
-  // headingIdから直接対応するアンカーが見つからない場合
+  // 3段階のフォールバックで対応するアンカーを検索
+  // 1. 直接ID検索 → 2. サフィックス除去後の検索 → 3. テキスト内容での検索
+  const matchedTocAnchor =
+    findAnchorById(anchorMap, headingId) ||
+    findAnchorByIdWithoutSuffix(anchorMap, headingId) ||
+    findAnchorByText(anchorMap, heading.textContent || '');
+
+  // 最終的にもマッチするアンカーが見つからなかった場合
   if (!matchedTocAnchor) {
-    // IDが「ID_数字」の形式かチェックする（重複により変更されたIDの場合）
-    const idWithoutSuffix = headingId.replace(/_\d+$/, '');
-    if (idWithoutSuffix !== headingId) {
-      // サフィックスを取り除いた元のIDでアンカーを検索
-      matchedTocAnchor = anchorMap.get(idWithoutSuffix);
-    }
-
-    // それでも見つからない場合はテキスト内容をベースに検索
-    if (!matchedTocAnchor) {
-      const headingText = heading.textContent?.trim() || '';
-      // アンカーマップ内をテキスト内容で検索
-      for (const [, anchor] of anchorMap.entries()) {
-        if (anchor.textContent?.trim() === headingText) {
-          matchedTocAnchor = anchor;
-          break;
-        }
-      }
-    }
-
-    // 最終的にもマッチするアンカーが見つからなかった場合
-    if (!matchedTocAnchor) {
-      return undefined;
-    }
+    return undefined;
   }
 
   const anchorElement = anchorTemplate.cloneNode(false) as HTMLAnchorElement;
   anchorElement.href = matchedTocAnchor.hash;
-
   anchorElement.textContent = options.anchorLinkSymbol;
 
   return anchorElement;
-};
-
-/**
- * 見出しと、それに対応する見出し横アンカーのペア
- */
-type HeadingAnchorPair = {
-  heading: HTMLHeadingElement;
-  anchor: HTMLAnchorElement;
-};
-
-/**
- * 有効な見出しとアンカーのペアを作成する
- */
-const createHeadingAnchorPair = (
-  heading: HTMLHeadingElement,
-  anchorMap: Map<string, HTMLAnchorElement>,
-  anchorTemplate: HTMLAnchorElement,
-  options: Required<MokujiOption>,
-): HeadingAnchorPair | undefined => {
-  if (!heading.parentNode) return undefined;
-
-  const anchor = createAnchorForHeading(heading, anchorMap, anchorTemplate, options);
-  if (!anchor) return undefined;
-
-  return { heading, anchor };
 };
 
 /**
@@ -149,23 +146,11 @@ export const insertAnchorToHeadings = (
   options: Required<MokujiOption>,
 ): void => {
   const anchorTemplate = createAnchorTemplate(options);
-
-  const headingsByParent = new Map<Node, HeadingAnchorPair[]>();
-
   for (const heading of headings) {
     removeExistingAnchors(heading);
-    const pair = createHeadingAnchorPair(heading, anchorMap, anchorTemplate, options);
-    if (!pair || !pair.heading.parentNode) continue;
+    const anchor = createAnchorForHeading(heading, anchorMap, anchorTemplate, options);
+    if (!anchor) continue;
 
-    const parent = pair.heading.parentNode;
-    const existingPairs = headingsByParent.get(parent) || [];
-    existingPairs.push(pair);
-    headingsByParent.set(parent, existingPairs);
-  }
-
-  for (const [, headingsWithAnchors] of headingsByParent.entries()) {
-    for (const { heading, anchor } of headingsWithAnchors) {
-      placeAnchorInHeading(heading, anchor, options.anchorLinkPosition);
-    }
+    placeAnchorInHeading(heading, anchor, options.anchorLinkPosition);
   }
 };
