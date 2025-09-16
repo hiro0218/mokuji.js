@@ -171,4 +171,69 @@ describe('Mokuji.js', () => {
     expect(document.querySelectorAll(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`).length).toBe(0);
     expect(document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`).length).toBe(0);
   });
+
+  it('does not duplicate anchors when called twice on duplicate headings', () => {
+    // 同じテキストの見出しを複数作成（重複見出し）
+    container.innerHTML = `
+      <h2>Section</h2>
+      <p>Paragraph 1</p>
+      <h2>Section</h2>
+      <p>Paragraph 2</p>
+      <h2>Section</h2>
+      <h3>Another Section</h3>
+      <h2>Different</h2>
+    `;
+
+    // 1回目の呼び出し
+    const result1 = Mokuji(container, { anchorLink: true });
+
+    expect(result1).toBeDefined();
+
+    // 見出しのIDが一意であることを確認
+    const headings = container.querySelectorAll('h2, h3');
+    const ids = new Set<string>();
+    for (const h of headings) {
+      expect(h.id).toBeTruthy();
+      ids.add(h.id);
+    }
+    expect(ids.size).toBe(headings.length); // IDが全て一意
+
+    // アンカーの数を確認（1回目の後）
+    const anchorsAfterFirst = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
+    expect(anchorsAfterFirst.length).toBe(5); // 5つの見出しにアンカー
+
+    // 2回目の呼び出し（重複呼び出し）
+    const result2 = Mokuji(container, { anchorLink: true });
+
+    expect(result2).toBeDefined();
+
+    // アンカーが増殖していないことを確認
+    const anchorsAfterSecond = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
+    expect(anchorsAfterSecond.length).toBe(5); // まだ5つのまま（増殖していない）
+
+    // 各見出しには1つのアンカーしかないことを確認
+    for (const h of headings) {
+      const headingAnchors = h.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
+      expect(headingAnchors.length).toBe(1);
+    }
+
+    // 目次のリンクが一意なhrefを持つことを確認
+    const tocLinks1 = result1?.list.querySelectorAll('a');
+    const hrefs1 = new Set<string>();
+    if (tocLinks1) {
+      for (const link of tocLinks1) {
+        hrefs1.add(link.getAttribute('href') || '');
+      }
+    }
+    expect(hrefs1.size).toBe(tocLinks1?.length); // 1回目のhrefが全て一意
+
+    const tocLinks2 = result2?.list.querySelectorAll('a');
+    const hrefs2 = new Set<string>();
+    if (tocLinks2) {
+      for (const link of tocLinks2) {
+        hrefs2.add(link.getAttribute('href') || '');
+      }
+    }
+    expect(hrefs2.size).toBe(tocLinks2?.length); // 2回目のhrefも全て一意
+  });
 });
