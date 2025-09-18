@@ -133,10 +133,10 @@ describe('heading', () => {
 
       ensureUniqueHeadingIds([headingOne, headingTwo], [anchorOne, anchorTwo]);
 
-      expect(headingOne.id).toBe('mokuji-heading-0_0');
-      expect(headingTwo.id).toBe('mokuji-heading-1_0');
-      expect(anchorOne.href.endsWith('#mokuji-heading-0_0')).toBe(true);
-      expect(anchorTwo.href.endsWith('#mokuji-heading-1_0')).toBe(true);
+      expect(headingOne.id).toBe('mokuji-heading-0');
+      expect(headingTwo.id).toBe('mokuji-heading-1');
+      expect(anchorOne.href.endsWith('#mokuji-heading-0')).toBe(true);
+      expect(anchorTwo.href.endsWith('#mokuji-heading-1')).toBe(true);
     });
 
     it('handles percent-encoded ids by decoding only when safe', () => {
@@ -168,6 +168,93 @@ describe('heading', () => {
 
       expect(headingOne.id).toBe('section');
       expect(headingTwo.id).toBe('section_1');
+    });
+
+    it('should preserve original IDs like "aaa_2" when handling duplicates', () => {
+      const heading1 = document.createElement('h2');
+      heading1.textContent = 'aaa';
+      heading1.id = 'aaa';
+
+      const heading2 = document.createElement('h2');
+      heading2.textContent = 'aaa';
+      heading2.id = 'aaa';
+
+      const heading3 = document.createElement('h2');
+      heading3.textContent = 'aaa';
+      heading3.id = 'aaa';
+
+      const heading4 = document.createElement('h2');
+      heading4.textContent = 'aaa_2';
+      heading4.id = 'aaa_2';
+
+      const anchors = [
+        document.createElement('a'),
+        document.createElement('a'),
+        document.createElement('a'),
+        document.createElement('a'),
+      ];
+
+      ensureUniqueHeadingIds([heading1, heading2, heading3, heading4], anchors);
+
+      // The expected behavior: preserve original "aaa_2" and adjust others
+      expect(heading1.id).toBe('aaa');
+      expect(heading2.id).toBe('aaa_1');
+      expect(heading3.id).toBe('aaa_3'); // Skip aaa_2 since it's reserved for the original
+      expect(heading4.id).toBe('aaa_2'); // Original aaa_2 should be preserved as is
+    });
+
+    it('should handle complex cases where original IDs appear in different orders', () => {
+      // Case 1: Original ID appears first
+      const h1 = document.createElement('h2');
+      h1.textContent = 'aaa_2';
+      h1.id = 'aaa_2';
+
+      const h2 = document.createElement('h2');
+      h2.textContent = 'aaa';
+      h2.id = 'aaa';
+
+      const h3 = document.createElement('h2');
+      h3.textContent = 'aaa';
+      h3.id = 'aaa';
+
+      const anchors1 = [document.createElement('a'), document.createElement('a'), document.createElement('a')];
+
+      ensureUniqueHeadingIds([h1, h2, h3], anchors1);
+
+      expect(h1.id).toBe('aaa_2'); // Original preserved
+      expect(h2.id).toBe('aaa'); // First aaa gets base
+      expect(h3.id).toBe('aaa_1'); // Second aaa gets _1
+
+      // Case 2: Multiple original IDs with same text
+      const h4 = document.createElement('h2');
+      h4.textContent = 'aaa';
+      h4.id = 'aaa';
+
+      const h5 = document.createElement('h2');
+      h5.textContent = 'aaa_2';
+      h5.id = 'aaa_2';
+
+      const h6 = document.createElement('h2');
+      h6.textContent = 'aaa';
+      h6.id = 'aaa';
+
+      const h7 = document.createElement('h2');
+      h7.textContent = 'aaa_2';
+      h7.id = 'aaa_2';
+
+      const anchors2 = [
+        document.createElement('a'),
+        document.createElement('a'),
+        document.createElement('a'),
+        document.createElement('a'),
+      ];
+
+      ensureUniqueHeadingIds([h4, h5, h6, h7], anchors2);
+
+      expect(h4.id).toBe('aaa'); // First aaa
+      expect(h5.id).toBe('aaa_2'); // First aaa_2 preserved
+      expect(h6.id).toBe('aaa_1'); // Second aaa gets _1
+      expect(h7.id).toBe('aaa_3'); // Second aaa_2 gets _3 (skip _2 since it's taken)
     });
   });
 });

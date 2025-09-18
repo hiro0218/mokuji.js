@@ -115,30 +115,60 @@ export const assignInitialIdToHeading = (
  */
 export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: HTMLAnchorElement[]) => {
   const anchorList = [...anchors];
-  const headingIdOccurrenceMap = new Map<string, number>();
+
+  // First pass: collect all original IDs
+  const originalIds = new Set<string>();
+  const headingData: Array<{ heading: HTMLHeadingElement; originalId: string; index: number }> = [];
 
   for (const [i, heading] of headings.entries()) {
-    const anchor = anchorList[i];
+    const originalId = heading.id || `mokuji-heading-${i}`;
+    const decodedId = safeDecodeURIComponent(originalId);
+    originalIds.add(decodedId);
+    headingData.push({ heading, originalId, index: i });
+  }
 
-    const currentHeadingId = heading.id;
-    const decodedHeadingId = safeDecodeURIComponent(currentHeadingId);
-    const baseHeadingId = decodedHeadingId.replace(HEADING_DUPLICATE_SUFFIX_PATTERN, '') || decodedHeadingId;
-    const normalizedBase = baseHeadingId || `mokuji-heading-${i}`;
+  // Second pass: resolve duplicates while preserving original IDs
+  const usedIds = new Set<string>();
+  const idCounts = new Map<string, number>();
 
-    const occurrenceCount = headingIdOccurrenceMap.get(normalizedBase) || 0;
+  for (const { heading, originalId, index } of headingData) {
+    const anchor = anchorList[index];
+    const decodedId = safeDecodeURIComponent(originalId);
 
-    let resolvedId = currentHeadingId;
+    // If this ID is not used yet, keep it as is
+    if (!usedIds.has(decodedId)) {
+      heading.id = originalId;
+      usedIds.add(decodedId);
 
-    if (occurrenceCount > 0 || !resolvedId) {
-      resolvedId = `${normalizedBase}_${occurrenceCount}`;
-      heading.id = resolvedId;
+      if (anchor) {
+        anchor.href = `#${originalId}`;
+      }
+      continue;
     }
+
+    // ID is already used, need to find a unique variant
+    const baseId = decodedId.replace(HEADING_DUPLICATE_SUFFIX_PATTERN, '') || decodedId;
+    let counter = (idCounts.get(baseId) || 0) + 1;
+    let candidateId: string;
+
+    // Find the next available suffix, skipping those reserved for original IDs
+    do {
+      candidateId = `${baseId}_${counter}`;
+      counter++;
+      // Skip if this ID is reserved for an original ID that comes later
+      while (originalIds.has(candidateId) && !usedIds.has(candidateId)) {
+        candidateId = `${baseId}_${counter}`;
+        counter++;
+      }
+    } while (usedIds.has(candidateId));
+
+    idCounts.set(baseId, counter - 1);
+    heading.id = candidateId;
+    usedIds.add(candidateId);
 
     if (anchor) {
-      anchor.href = `#${resolvedId}`;
+      anchor.href = `#${candidateId}`;
     }
-
-    headingIdOccurrenceMap.set(normalizedBase, occurrenceCount + 1);
   }
 };
 
