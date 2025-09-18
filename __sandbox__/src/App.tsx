@@ -168,10 +168,14 @@ function App() {
             <h2 id="dup">duplicate id</h2>
             <h2 id="dup">duplicate id</h2>
 
+            <h2 id="test">has duplicate id → test</h2>
+            <h2>test</h2>
+
             <h2>aaa</h2>
             <h2>aaa</h2>
             <h2>aaa</h2>
             <h2>aaa_2</h2>
+            <h3>aaa</h3>
 
             <h2>two</h2>
             <h5>five</h5>
