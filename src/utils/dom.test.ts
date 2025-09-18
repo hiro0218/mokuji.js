@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { getAllHeadingElements, createElement, removeAllElements } from './dom';
 
-describe('common/dom', () => {
+describe('utils/dom', () => {
   let container: HTMLElement;
 
   beforeEach(() => {

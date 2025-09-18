@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { generateTableOfContents } from './core';
+import { buildMokujiHierarchy } from './mokuji-core';
 
 const createHeading = (level: number, text: string): HTMLHeadingElement => {
   const heading = document.createElement(`h${level}`) as HTMLHeadingElement;
@@ -7,7 +7,7 @@ const createHeading = (level: number, text: string): HTMLHeadingElement => {
   return heading;
 };
 
-describe('generateTableOfContents', () => {
+describe('buildMokujiHierarchy', () => {
   let container: HTMLElement;
 
   beforeEach(() => {
@@ -22,7 +22,7 @@ describe('generateTableOfContents', () => {
   it('returns an empty list when no headings are provided', () => {
     const listContainer = document.createElement('ol');
 
-    generateTableOfContents([], listContainer, false);
+    buildMokujiHierarchy([], listContainer, false);
 
     expect(listContainer.children).toHaveLength(0);
   });
@@ -32,7 +32,7 @@ describe('generateTableOfContents', () => {
     container.append(heading);
     const listContainer = document.createElement('ol');
 
-    generateTableOfContents([heading], listContainer, false);
+    buildMokujiHierarchy([heading], listContainer, false);
 
     const firstItem = listContainer.children[0] as HTMLLIElement;
     expect(firstItem.tagName).toBe('LI');
@@ -47,7 +47,7 @@ describe('generateTableOfContents', () => {
     container.append(headingOne, headingTwo);
     const listContainer = document.createElement('ol');
 
-    generateTableOfContents([headingOne, headingTwo], listContainer, false);
+    buildMokujiHierarchy([headingOne, headingTwo], listContainer, false);
 
     const anchors = [...listContainer.querySelectorAll('a')].map((node) => ({
       text: node.textContent,
@@ -67,7 +67,7 @@ describe('generateTableOfContents', () => {
     container.append(h1, h2, h3);
     const listContainer = document.createElement('ol');
 
-    generateTableOfContents([h1, h2, h3], listContainer, false);
+    buildMokujiHierarchy([h1, h2, h3], listContainer, false);
 
     const mainItem = listContainer.children[0] as HTMLLIElement;
     expect(mainItem.querySelector('a')?.textContent).toBe('Main Title');
@@ -87,7 +87,7 @@ describe('generateTableOfContents', () => {
     container.append(heading);
     const listContainer = document.createElement('ol');
 
-    generateTableOfContents([heading], listContainer, true);
+    buildMokujiHierarchy([heading], listContainer, true);
 
     const anchor = listContainer.querySelector('a');
     expect(anchor?.getAttribute('href')).toContain('.E3.81.93');
@@ -100,7 +100,7 @@ describe('generateTableOfContents', () => {
     container.append(heading);
     const listContainer = document.createElement('ol');
 
-    generateTableOfContents([heading], listContainer, false);
+    buildMokujiHierarchy([heading], listContainer, false);
 
     const anchor = listContainer.querySelector('a');
     expect(anchor?.getAttribute('href')).toBe('#custom-id');
@@ -114,7 +114,7 @@ describe('generateTableOfContents', () => {
     container.append(h1, h3, h2);
     const listContainer = document.createElement('ol');
 
-    generateTableOfContents([h1, h3, h2], listContainer, false);
+    buildMokujiHierarchy([h1, h3, h2], listContainer, false);
 
     const nestedList = listContainer.querySelector('ol');
     expect(nestedList?.children).toHaveLength(2);
@@ -129,7 +129,7 @@ describe('generateTableOfContents', () => {
     container.append(h1, h2);
     const listContainer = document.createElement('ul');
 
-    generateTableOfContents([h1, h2], listContainer, false);
+    buildMokujiHierarchy([h1, h2], listContainer, false);
 
     const nestedList = listContainer.querySelector('ul');
     expect(nestedList?.tagName).toBe('UL');
@@ -140,7 +140,7 @@ describe('generateTableOfContents', () => {
     container.append(heading);
     const listContainer = document.createElement('ol');
 
-    generateTableOfContents([heading], listContainer, false);
+    buildMokujiHierarchy([heading], listContainer, false);
 
     const anchor = listContainer.querySelector('a');
     expect(anchor?.textContent).toBe('  Test & Special: Characters  ');
@@ -158,7 +158,7 @@ describe('generateTableOfContents', () => {
     container.append(h1One, h2One, h3One, h3Two, h2Two, h1Two);
     const listContainer = document.createElement('ol');
 
-    generateTableOfContents([h1One, h2One, h3One, h3Two, h2Two, h1Two], listContainer, false);
+    buildMokujiHierarchy([h1One, h2One, h3One, h3Two, h2Two, h1Two], listContainer, false);
 
     expect(listContainer.children).toHaveLength(2);
 

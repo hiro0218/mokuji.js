@@ -1,12 +1,12 @@
 /**
  * 目次（もくじ）生成ライブラリのメインエントリーポイント
  */
-import { createElement, removeAllElements } from './common/dom';
-import type { MokujiOption, HeadingLevel } from './common/types';
-import { getFilteredHeadings, ensureUniqueHeadingIds } from './heading/heading';
-import { generateAnchorsMap, insertAnchorToHeadings } from './anchor/anchor';
-import { generateTableOfContents } from './toc/core';
-import { MOKUJI_LIST_DATASET_ATTRIBUTE, ANCHOR_DATASET_ATTRIBUTE, defaultOptions } from './common/constants';
+import { createElement } from './utils/dom';
+import type { MokujiOption, HeadingLevel } from './types';
+import { getFilteredHeadings, ensureUniqueHeadingIds } from './heading';
+import { createAnchorMap, insertAnchorsIntoHeadings } from './anchor';
+import { buildMokujiHierarchy } from './mokuji-core';
+import { MOKUJI_LIST_DATASET_ATTRIBUTE, defaultOptions } from './utils/constants';
 
 /**
  * 目次生成の結果型定義
@@ -14,6 +14,7 @@ import { MOKUJI_LIST_DATASET_ATTRIBUTE, ANCHOR_DATASET_ATTRIBUTE, defaultOptions
 export type MokujiResult<T extends HTMLElement = HTMLElement> = {
   element?: T;
   list: HTMLUListElement | HTMLOListElement;
+  destroy: () => void;
 };
 
 // 型エクスポート
@@ -44,7 +45,7 @@ const generateTocAndAnchorsInternal = (
   const listContainer = createElement(options.anchorContainerTagName);
   listContainer.setAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE, '');
 
-  generateTableOfContents(filteredHeadings, listContainer, options.anchorType);
+  buildMokujiHierarchy(filteredHeadings, listContainer, options.anchorType);
 
   const anchors = [...listContainer.querySelectorAll('a')];
 
@@ -80,21 +81,24 @@ export const Mokuji = <T extends HTMLElement>(
 
   ensureUniqueHeadingIds(filteredHeadings, anchors);
 
+  // このインスタンスで生成したアンカー要素を追跡する
+  const insertedAnchors: HTMLAnchorElement[] = [];
+
   if (options.anchorLink) {
-    const anchorsMap = generateAnchorsMap(anchors);
-    insertAnchorToHeadings(filteredHeadings, anchorsMap, options);
+    const anchorsMap = createAnchorMap(anchors);
+    const anchorElements = insertAnchorsIntoHeadings(filteredHeadings, anchorsMap, options);
+    insertedAnchors.push(...anchorElements);
   }
 
-  return { element, list: listContainer };
-};
+  const destroy = () => {
+    // このインスタンスで生成した目次リストを削除
+    listContainer.remove();
 
-/**
- * 生成された目次とアンカーリンクを破棄（削除）する
- */
-export const Destroy = (): void => {
-  const mokujiAnchors = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
-  removeAllElements(mokujiAnchors);
+    // このインスタンスで生成したアンカー要素を削除
+    for (const anchor of insertedAnchors) {
+      anchor.remove();
+    }
+  };
 
-  const tableOfContentsLists = document.querySelectorAll(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`);
-  removeAllElements(tableOfContentsLists);
+  return { element, list: listContainer, destroy };
 };

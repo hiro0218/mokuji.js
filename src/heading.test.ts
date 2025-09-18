@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { assignInitialIdToHeading, getFilteredHeadings, ensureUniqueHeadingIds, getHeadingLevel } from './heading';
+import { assignInitialIdToHeading, ensureUniqueHeadingIds, getFilteredHeadings, getHeadingLevel } from './heading';
 
 const createHeading = (level: number, text?: string): HTMLHeadingElement => {
   const heading = document.createElement(`h${level}`) as HTMLHeadingElement;
@@ -9,7 +9,7 @@ const createHeading = (level: number, text?: string): HTMLHeadingElement => {
   return heading;
 };
 
-describe('heading utilities', () => {
+describe('heading', () => {
   let container: HTMLElement;
 
   beforeEach(() => {
@@ -20,6 +20,10 @@ describe('heading utilities', () => {
   afterEach(() => {
     container.remove();
   });
+
+  // ========================================
+  // Heading ID Management Tests
+  // ========================================
 
   describe('assignInitialIdToHeading', () => {
     it('retains and normalizes an existing id so anchors stay stable', () => {
@@ -42,6 +46,10 @@ describe('heading utilities', () => {
     });
   });
 
+  // ========================================
+  // Heading Level Tests
+  // ========================================
+
   describe('getHeadingLevel', () => {
     it('extracts the numeric level for standard heading elements', () => {
       const heading = createHeading(4, 'Heading');
@@ -55,6 +63,10 @@ describe('heading utilities', () => {
       expect(getHeadingLevel(invalidHeading)).toBe(6);
     });
   });
+
+  // ========================================
+  // Heading Filtering Tests
+  // ========================================
 
   describe('getFilteredHeadings', () => {
     it('returns headings within the requested level range, preserving their order', () => {
@@ -79,6 +91,10 @@ describe('heading utilities', () => {
       expect(filtered).toEqual([]);
     });
   });
+
+  // ========================================
+  // Heading ID Uniqueness Tests
+  // ========================================
 
   describe('ensureUniqueHeadingIds', () => {
     it('deduplicates conflicting ids and updates matching anchors to keep navigation working', () => {

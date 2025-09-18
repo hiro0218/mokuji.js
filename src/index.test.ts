@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { Mokuji, Destroy } from './index';
-import { MOKUJI_LIST_DATASET_ATTRIBUTE, ANCHOR_DATASET_ATTRIBUTE } from './common/constants';
+import { Mokuji } from './index';
+import { MOKUJI_LIST_DATASET_ATTRIBUTE, ANCHOR_DATASET_ATTRIBUTE } from './utils/constants';
 
 describe('Mokuji.js', () => {
   let container: HTMLElement;
@@ -13,7 +13,6 @@ describe('Mokuji.js', () => {
 
   afterEach(() => {
     // テスト後にクリーンアップする
-    Destroy();
     container.remove();
     vi.restoreAllMocks();
   });
@@ -97,7 +96,7 @@ describe('Mokuji.js', () => {
     expect(anchorLinks.length).toBe(2); // 2つの見出しにアンカーが追加される
   });
 
-  it('removes table of contents and anchor links when Destroy function is called', () => {
+  it('removes table of contents and anchor links when destroy method is called', () => {
     container.innerHTML = `
       <h1>Title</h1>
       <h2>Section 1</h2>
@@ -106,6 +105,7 @@ describe('Mokuji.js', () => {
     // 目次を生成する
     const result = Mokuji(container, { anchorLink: true });
     expect(result).toBeDefined();
+    expect(result?.destroy).toBeInstanceOf(Function);
 
     // 生成された目次を明示的にドキュメントに追加する
     if (result && result.list) {
@@ -118,8 +118,8 @@ describe('Mokuji.js', () => {
     expect(tocList).not.toBeNull();
     expect(anchorLinks.length).toBe(2);
 
-    // Destroy関数を呼び出す
-    Destroy();
+    // インスタンスのdestroy()メソッドを呼び出す
+    result?.destroy();
 
     // 目次とアンカーリンクが削除されていることを確認する
     const tocListAfter = document.querySelector(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`);
@@ -137,39 +137,51 @@ describe('Mokuji.js', () => {
     expect(consoleSpy).toHaveBeenCalledWith('Mokuji: Target element not found.');
   });
 
-  it('removes all table of contents lists when Destroy is called with multiple lists', () => {
-    // 複数の目次リストを手動でDOMに追加
-    const list1 = document.createElement('ol');
-    list1.setAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE, '');
-    document.body.append(list1);
+  it('scoped destroy only affects its own instance', () => {
+    // 第1のコンテナと目次
+    const container1 = document.createElement('div');
+    container1.innerHTML = '<h1>Container1</h1><h2>Section1</h2>';
+    document.body.append(container1);
 
-    const list2 = document.createElement('ul');
-    list2.setAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE, '');
-    document.body.append(list2);
+    // 第2のコンテナと目次
+    const container2 = document.createElement('div');
+    container2.innerHTML = '<h1>Container2</h1><h2>Section2</h2>';
+    document.body.append(container2);
 
-    const list3 = document.createElement('ol');
-    list3.setAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE, '');
-    container.append(list3);
+    const result1 = Mokuji(container1, { anchorLink: true });
+    const result2 = Mokuji(container2, { anchorLink: true });
 
-    // 複数のアンカーも追加
-    const anchor1 = document.createElement('a');
-    anchor1.setAttribute(ANCHOR_DATASET_ATTRIBUTE, '');
-    container.append(anchor1);
+    expect(result1).toBeDefined();
+    expect(result2).toBeDefined();
 
-    const anchor2 = document.createElement('a');
-    anchor2.setAttribute(ANCHOR_DATASET_ATTRIBUTE, '');
-    document.body.append(anchor2);
+    // 両方の目次をドキュメントに追加
+    if (result1?.list) document.body.append(result1.list);
+    if (result2?.list) document.body.append(result2.list);
 
-    // 削除前の確認
-    expect(document.querySelectorAll(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`).length).toBe(3);
-    expect(document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`).length).toBe(2);
+    // 両方の目次とアンカーが存在することを確認
+    expect(document.querySelectorAll(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`).length).toBe(2);
+    expect(document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`).length).toBe(4);
 
-    // Destroy関数を呼び出す
-    Destroy();
+    // 第1のインスタンスのみを削除
+    result1?.destroy();
 
-    // 完了条件の検証: 全ての目次リストが削除されていること
+    // 第1のインスタンスの要素が削除され、第2のインスタンスの要素が残っていることを確認
+    const remainingLists = document.querySelectorAll(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`);
+    const remainingAnchors = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
+
+    expect(remainingLists.length).toBe(1);
+    expect(remainingAnchors.length).toBe(2);
+
+    // 第2のインスタンスも削除
+    result2?.destroy();
+
+    // すべての要素が削除されたことを確認
     expect(document.querySelectorAll(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`).length).toBe(0);
     expect(document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`).length).toBe(0);
+
+    // クリーンアップ
+    container1.remove();
+    container2.remove();
   });
 
   it('does not duplicate anchors when called twice on duplicate headings', () => {

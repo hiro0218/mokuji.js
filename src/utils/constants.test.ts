@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { MOKUJI_LIST_DATASET_ATTRIBUTE, ANCHOR_DATASET_ATTRIBUTE, defaultOptions } from './constants';
 
-describe('common/constants', () => {
+describe('utils/constants', () => {
   let container: HTMLElement;
 
   beforeEach(() => {

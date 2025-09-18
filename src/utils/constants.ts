@@ -2,7 +2,7 @@
  * 目次生成で使用する定数を提供するモジュール
  */
 
-import type { MokujiOption } from './types';
+import type { MokujiOption } from '../types';
 
 /**
  * 目次関連の要素を識別するためのデータ属性

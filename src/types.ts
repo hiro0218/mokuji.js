@@ -1,6 +1,11 @@
 /**
- * 目次生成のための型定義を提供するモジュール
+ * 型定義の統合モジュール
+ * 全ての型定義を一元管理する
  */
+
+// ========================================
+// Basic Types
+// ========================================
 
 /**
  * 目次コンテナとして使用可能なHTML要素タグ名
@@ -16,6 +21,10 @@ export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
  * アンカーリンクの配置位置
  */
 export type AnchorLinkPosition = 'before' | 'after';
+
+// ========================================
+// Option Types
+// ========================================
 
 /**
  * 目次生成のオプション設定
@@ -70,3 +79,45 @@ export type MokujiOption = {
    */
   maxLevel?: HeadingLevel;
 };
+
+// ========================================
+// Data Model Types
+// ========================================
+
+/**
+ * 見出しのデータモデル
+ */
+export interface HeadingModel {
+  /** 見出しレベル (1-6) */
+  level: HeadingLevel;
+  /** 見出しのテキスト内容 */
+  text: string;
+  /** 見出しのID（ユニークな識別子） */
+  id: string;
+  /** 元のID（重複解決前） */
+  originalId?: string;
+}
+
+/**
+ * 目次項目のデータモデル
+ */
+export interface TocItemModel {
+  /** 対応する見出しのID */
+  headingId: string;
+  /** 表示テキスト */
+  text: string;
+  /** 見出しレベル */
+  level: HeadingLevel;
+  /** 子項目 */
+  children: TocItemModel[];
+}
+
+/**
+ * 目次全体のデータモデル
+ */
+export interface TocModel {
+  /** ルートレベルの項目リスト */
+  items: TocItemModel[];
+  /** 全見出しのフラットなリスト */
+  headings: HeadingModel[];
+}

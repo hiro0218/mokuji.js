@@ -12,6 +12,7 @@ export const getAllHeadingElements = (containerElement: Element): HTMLHeadingEle
 
 /**
  * 指定したタグ名の新しいHTML要素を作成する
+ * キャッシュを使用して効率化している
  */
 const elementCache = new Map<string, HTMLElement>();
 
@@ -21,7 +22,6 @@ export const createElement = <T extends keyof HTMLElementTagNameMap>(tagName: T)
   }
 
   const cachedElement = elementCache.get(tagName)!;
-
   return cachedElement.cloneNode(false) as HTMLElementTagNameMap[T];
 };
 
