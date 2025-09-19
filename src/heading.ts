@@ -12,7 +12,7 @@ const DOT_REPLACEMENT = '.';
 /**
  * Regular expressions for checking the validity of URL-encoded strings
  */
-const VALID_PERCENT_ENCODING = /%[0-9A-F]{2}/gi;
+const VALID_PERCENT_ENCODING = /%[0-9A-F]{2}/i;
 const INVALID_PERCENT_PATTERN = /%[^0-9A-F]|%[0-9A-F][^0-9A-F]|%$/i;
 
 const HEADING_DUPLICATE_SUFFIX_PATTERN = /_\d+$/;
@@ -95,18 +95,23 @@ export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: 
   const usedIds = new Set<string>();
   const idCounts = new Map<string, number>();
 
-  // First, collect all original IDs to preserve them
+  // Cache decoded IDs to avoid recomputation
+  const decodedIdCache = new Map<number, { originalId: string; decodedId: string }>();
   const originalIds = new Set<string>();
+
+  // First pass: collect and cache all IDs
   for (const [i, heading] of headings.entries()) {
     const originalId = heading.id || `mokuji-heading-${i}`;
     const decodedId = safeDecodeURIComponent(originalId);
+    decodedIdCache.set(i, { originalId, decodedId });
     originalIds.add(decodedId);
   }
 
+  // Second pass: resolve duplicates using cached values
   for (const [i, heading] of headings.entries()) {
     const anchor = anchorList[i];
-    const originalId = heading.id || `mokuji-heading-${i}`;
-    const decodedId = safeDecodeURIComponent(originalId);
+    const cached = decodedIdCache.get(i)!;
+    const { originalId, decodedId } = cached;
 
     // If this ID is not used yet, keep it as is
     if (!usedIds.has(decodedId)) {

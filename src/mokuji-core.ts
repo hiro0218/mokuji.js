@@ -29,12 +29,13 @@ const buildTocHierarchy = (headings: HTMLHeadingElement[], isConvertToWikipediaS
     };
 
     // Find appropriate parent level
-    while (levelStack.length > 1 && currentHeadingLevel <= levelStack.at(-1)!.level) {
+    let topLevel = levelStack.at(-1)!;
+    while (levelStack.length > 1 && currentHeadingLevel <= topLevel.level) {
       levelStack.pop();
+      topLevel = levelStack.at(-1)!;
     }
 
-    const currentLevel = levelStack.at(-1)!;
-    currentLevel.items.push(newItem);
+    topLevel.items.push(newItem);
     levelStack.push({ level: currentHeadingLevel, items: newItem.children });
   }
 
