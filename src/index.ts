@@ -29,23 +29,6 @@ const processOptions = (externalOptions?: MokujiOption): Required<MokujiOption> 
 };
 
 /**
- * Main logic for table of contents generation (internal function)
- */
-const generateTocAndAnchorsInternal = (
-  filteredHeadings: HTMLHeadingElement[],
-  options: Required<MokujiOption>,
-): { listContainer: HTMLUListElement | HTMLOListElement; anchors: HTMLAnchorElement[] } => {
-  const listContainer = createElement(options.anchorContainerTagName);
-  listContainer.setAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE, '');
-
-  buildMokujiHierarchy(filteredHeadings, listContainer, options.anchorType);
-
-  const anchors = [...listContainer.querySelectorAll('a')];
-
-  return { listContainer, anchors };
-};
-
-/**
  * Generate table of contents from headings within the given element (public API)
  */
 export const Mokuji = <T extends HTMLElement>(
@@ -66,7 +49,13 @@ export const Mokuji = <T extends HTMLElement>(
     return undefined;
   }
 
-  const { listContainer, anchors } = generateTocAndAnchorsInternal(filteredHeadings, options);
+  // Generate table of contents
+  const listContainer = createElement(options.anchorContainerTagName);
+  listContainer.setAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE, '');
+
+  buildMokujiHierarchy(filteredHeadings, listContainer, options.anchorType);
+
+  const anchors = [...listContainer.querySelectorAll('a')];
 
   if (anchors.length === 0) {
     return undefined;
