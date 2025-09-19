@@ -152,17 +152,27 @@ export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: 
     let candidateId: string;
 
     // Find the next available suffix, skipping those reserved for original IDs
-    do {
-      candidateId = `${baseId}_${counter}`;
-      counter++;
-      // Skip if this ID is reserved for an original ID that comes later
-      while (originalIds.has(candidateId) && !usedIds.has(candidateId)) {
-        candidateId = `${baseId}_${counter}`;
-        counter++;
-      }
-    } while (usedIds.has(candidateId));
+    let startingCounter = counter;
+    while (true) {
+      candidateId = `${baseId}_${startingCounter}`;
 
-    idCounts.set(baseId, counter - 1);
+      // Available if not used and not reserved for original IDs
+      if (!usedIds.has(candidateId) && !originalIds.has(candidateId)) {
+        counter = startingCounter;
+        break;
+      }
+
+      // If reserved for original ID but not used yet, skip this counter
+      if (originalIds.has(candidateId) && !usedIds.has(candidateId)) {
+        startingCounter++;
+        continue;
+      }
+
+      // If already used, try next counter
+      startingCounter++;
+    }
+
+    idCounts.set(baseId, counter);
     heading.id = candidateId;
     usedIds.add(candidateId);
 
