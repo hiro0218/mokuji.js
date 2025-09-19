@@ -6,8 +6,6 @@ import type { HeadingLevel } from './types';
  */
 const WHITESPACE_PATTERN = /\s+/g;
 const COLON_CHARACTER = ':';
-const AMPERSAND_PATTERN = /&+/g;
-const AMPERSAND_ENTITY_PATTERN = /&amp;+/g;
 const PERCENT_ENCODING_PATTERN = /%+/g;
 const DOT_REPLACEMENT = '.';
 
@@ -41,17 +39,14 @@ const convertToWikipediaStyleAnchor = (anchor: string): string => {
  * Generate anchor text
  */
 export const generateAnchorText = (baseId: string, isConvertToWikipediaStyleAnchor: boolean): string => {
-  let anchorText = replaceSpacesWithUnderscores(baseId);
-
   if (isConvertToWikipediaStyleAnchor) {
-    anchorText = convertToWikipediaStyleAnchor(anchorText);
+    // Wikipedia style: Replace spaces with underscores, encode, then replace % with dots
+    const anchorText = replaceSpacesWithUnderscores(baseId);
+    return convertToWikipediaStyleAnchor(anchorText);
+  } else {
+    // RFC 3986 compliant: Use encodeURIComponent for proper fragment identifier encoding
+    return encodeURIComponent(baseId.trim());
   }
-
-  if (!isConvertToWikipediaStyleAnchor && anchorText.includes('&')) {
-    anchorText = anchorText.replaceAll(AMPERSAND_PATTERN, '').replaceAll(AMPERSAND_ENTITY_PATTERN, '');
-  }
-
-  return anchorText;
 };
 
 /**

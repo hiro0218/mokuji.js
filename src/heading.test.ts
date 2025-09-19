@@ -41,8 +41,8 @@ describe('heading', () => {
 
       const assignedId = assignInitialIdToHeading(heading, false);
 
-      expect(assignedId).toBe('Generated_Heading');
-      expect(heading.id).toBe('Generated_Heading');
+      expect(assignedId).toBe('Generated%20Heading');
+      expect(heading.id).toBe('Generated%20Heading');
     });
   });
 

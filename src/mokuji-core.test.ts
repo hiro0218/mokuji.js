@@ -38,7 +38,7 @@ describe('buildMokujiHierarchy', () => {
     expect(firstItem.tagName).toBe('LI');
     const anchor = firstItem.querySelector('a');
     expect(anchor?.textContent).toBe('Test Heading');
-    expect(anchor?.getAttribute('href')).toBe('#Test_Heading');
+    expect(anchor?.getAttribute('href')).toBe('#Test%20Heading');
   });
 
   it('renders multiple top-level headings in the order they appear', () => {
@@ -55,8 +55,8 @@ describe('buildMokujiHierarchy', () => {
     }));
 
     expect(anchors).toEqual([
-      { text: 'First Heading', href: '#First_Heading' },
-      { text: 'Second Heading', href: '#Second_Heading' },
+      { text: 'First Heading', href: '#First%20Heading' },
+      { text: 'Second Heading', href: '#Second%20Heading' },
     ]);
   });
 
@@ -144,8 +144,8 @@ describe('buildMokujiHierarchy', () => {
 
     const anchor = listContainer.querySelector('a');
     expect(anchor?.textContent).toBe('  Test & Special: Characters  ');
-    expect(anchor?.getAttribute('href')).toBe('#Test__Special_Characters');
-    expect(heading.id).toBe('Test__Special_Characters');
+    expect(anchor?.getAttribute('href')).toBe('#Test%20%26%20Special%3A%20Characters');
+    expect(heading.id).toBe('Test%20%26%20Special%3A%20Characters');
   });
 
   it('builds nested lists for multiple chapters and sections', () => {
