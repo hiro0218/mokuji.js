@@ -30,13 +30,13 @@ describe('anchor', () => {
   // ========================================
 
   describe('createAnchorMap', () => {
-    it('空の配列から空のMapを生成する', () => {
+    it('generates empty Map from empty array', () => {
       const result = createAnchorMap([]);
       expect(result).toBeInstanceOf(Map);
       expect(result.size).toBe(0);
     });
 
-    it('アンカー要素からhashをキーとするMapを作成する', () => {
+    it('creates Map with hash as key from anchor elements', () => {
       const anchor1 = document.createElement('a');
       anchor1.href = '#heading-1';
       const anchor2 = document.createElement('a');
@@ -49,7 +49,7 @@ describe('anchor', () => {
       expect(result.get('heading-2')).toBe(anchor2);
     });
 
-    it('hashが空のアンカーは無視する', () => {
+    it('ignores anchors with empty hash', () => {
       const anchor1 = document.createElement('a');
       anchor1.href = '#';
       const anchor2 = document.createElement('a');
@@ -62,7 +62,7 @@ describe('anchor', () => {
       expect(result.get('heading-1')).toBe(anchor2);
     });
 
-    it('同じhashを持つ複数のアンカーがある場合、最後のものを保持する', () => {
+    it('retains the last one when multiple anchors have the same hash', () => {
       const anchor1 = document.createElement('a');
       anchor1.href = '#duplicate';
       anchor1.textContent = 'First';
@@ -82,7 +82,7 @@ describe('anchor', () => {
   // ========================================
 
   describe('findAnchorById', () => {
-    it('直接IDが一致するアンカーを検索する', () => {
+    it('searches for anchor with matching ID directly', () => {
       const anchor1 = document.createElement('a');
       const anchor2 = document.createElement('a');
       const anchorMap = new Map([
@@ -97,7 +97,7 @@ describe('anchor', () => {
   });
 
   describe('findAnchorByIdWithoutSuffix', () => {
-    it('数字サフィックスを除去してIDを検索する', () => {
+    it('searches for ID after removing numeric suffix', () => {
       const anchor1 = document.createElement('a');
       const anchor2 = document.createElement('a');
       const anchorMap = new Map([
@@ -105,33 +105,33 @@ describe('anchor', () => {
         ['installation', anchor2],
       ]);
 
-      // サフィックス付きIDから検索
+      // Search from ID with suffix
       expect(findAnchorByIdWithoutSuffix(anchorMap, 'overview_1')).toBe(anchor1);
       expect(findAnchorByIdWithoutSuffix(anchorMap, 'overview_2')).toBe(anchor1);
       expect(findAnchorByIdWithoutSuffix(anchorMap, 'installation_10')).toBe(anchor2);
     });
 
-    it('サフィックスがないIDの場合はundefinedを返す', () => {
+    it('returns undefined when ID has no suffix', () => {
       const anchorMap = new Map([['overview', document.createElement('a')]]);
 
-      // サフィックスがない場合はundefined
+      // undefined when no suffix
       expect(findAnchorByIdWithoutSuffix(anchorMap, 'overview')).toBeUndefined();
       expect(findAnchorByIdWithoutSuffix(anchorMap, 'not_exist')).toBeUndefined();
     });
 
-    it('アンダースコアが含まれるがサフィックスではない場合', () => {
+    it('contains underscore but is not a suffix', () => {
       const anchor = document.createElement('a');
       const anchorMap = new Map([['user_profile', anchor]]);
 
-      // user_profileはサフィックスではない
+      // user_profile is not a suffix
       expect(findAnchorByIdWithoutSuffix(anchorMap, 'user_profile')).toBeUndefined();
-      // user_profile_1はサフィックス付き
+      // user_profile_1 has a suffix
       expect(findAnchorByIdWithoutSuffix(anchorMap, 'user_profile_1')).toBe(anchor);
     });
   });
 
   describe('findAnchorByText', () => {
-    it('テキスト内容でアンカーを検索する', () => {
+    it('searches for anchor by text content', () => {
       const anchor1 = document.createElement('a');
       anchor1.textContent = 'Introduction';
       const anchor2 = document.createElement('a');
@@ -146,7 +146,7 @@ describe('anchor', () => {
       expect(findAnchorByText(anchorMap, 'Not Found')).toBeUndefined();
     });
 
-    it('前後の空白を無視して検索する', () => {
+    it('searches ignoring leading/trailing whitespace', () => {
       const anchor = document.createElement('a');
       anchor.textContent = '  Trimmed Text  ';
       const anchorMap = new Map([['trimmed', anchor]]);
@@ -155,7 +155,7 @@ describe('anchor', () => {
       expect(findAnchorByText(anchorMap, '  Trimmed Text  ')).toBe(anchor);
     });
 
-    it('空文字列の場合はundefinedを返す', () => {
+    it('returns undefined for empty string', () => {
       const anchorMap = new Map([['test', document.createElement('a')]]);
 
       expect(findAnchorByText(anchorMap, '')).toBeUndefined();
@@ -164,7 +164,7 @@ describe('anchor', () => {
   });
 
   describe('findMatchingAnchor', () => {
-    it('優先順位1: 直接IDが一致する場合', () => {
+    it('Priority 1: when ID matches directly', () => {
       const directMatch = document.createElement('a');
       directMatch.textContent = 'Direct';
       const suffixMatch = document.createElement('a');
@@ -174,15 +174,15 @@ describe('anchor', () => {
 
       const anchorMap = new Map([
         ['heading1', directMatch],
-        ['heading', suffixMatch], // heading1_1のサフィックス除去後にマッチ
+        ['heading', suffixMatch], // Matches after removing suffix from heading1_1
         ['other', textMatch],
       ]);
 
-      // 直接IDマッチが最優先
+      // Direct ID match has highest priority
       expect(findMatchingAnchor(anchorMap, 'heading1', 'Text Match')).toBe(directMatch);
     });
 
-    it('優先順位2: サフィックス除去後にIDが一致する場合', () => {
+    it('Priority 2: when ID matches after suffix removal', () => {
       const suffixMatch = document.createElement('a');
       suffixMatch.textContent = 'Suffix Match';
       const textMatch = document.createElement('a');
@@ -193,21 +193,21 @@ describe('anchor', () => {
         ['other', textMatch],
       ]);
 
-      // 直接マッチなし、サフィックス除去でマッチ
+      // No direct match, matches with suffix removal
       expect(findMatchingAnchor(anchorMap, 'overview_2', 'Duplicate Heading')).toBe(suffixMatch);
     });
 
-    it('優先順位3: テキスト内容が一致する場合', () => {
+    it('Priority 3: when text content matches', () => {
       const textMatch = document.createElement('a');
       textMatch.textContent = 'Installation Guide';
 
       const anchorMap = new Map([['different-id', textMatch]]);
 
-      // IDマッチなし、テキストでマッチ
+      // No ID match, matches by text
       expect(findMatchingAnchor(anchorMap, 'install_3', 'Installation Guide')).toBe(textMatch);
     });
 
-    it('どのフォールバックでも見つからない場合', () => {
+    it('when not found by any fallback', () => {
       const anchor = document.createElement('a');
       anchor.textContent = 'Different Text';
 
@@ -222,14 +222,14 @@ describe('anchor', () => {
   // ========================================
 
   describe('applyClassNamesToElement', () => {
-    it('単一のクラス名を適用する', () => {
+    it('applies single class name', () => {
       const element = document.createElement('div');
       applyClassNamesToElement(element, 'test-class');
 
       expect(element.classList.contains('test-class')).toBe(true);
     });
 
-    it('複数のクラス名を適用する', () => {
+    it('applies multiple class names', () => {
       const element = document.createElement('div');
       applyClassNamesToElement(element, 'class1 class2 class3');
 
@@ -238,7 +238,7 @@ describe('anchor', () => {
       expect(element.classList.contains('class3')).toBe(true);
     });
 
-    it('空文字の場合はクラスを追加しない', () => {
+    it('does not add classes for empty string', () => {
       const element = document.createElement('div');
       const originalClassListLength = element.classList.length;
       applyClassNamesToElement(element, '');
@@ -246,7 +246,7 @@ describe('anchor', () => {
       expect(element.classList.length).toBe(originalClassListLength);
     });
 
-    it('既存のクラスを保持しつつ新しいクラスを追加する', () => {
+    it('adds new classes while preserving existing ones', () => {
       const element = document.createElement('div');
       element.classList.add('existing-class');
       applyClassNamesToElement(element, 'new-class');
@@ -257,23 +257,23 @@ describe('anchor', () => {
   });
 
   describe('createAnchorElement', () => {
-    it('基本的なアンカーテンプレートを作成する', () => {
+    it('creates basic anchor template', () => {
       const anchor = createAnchorElement(defaultOptions);
 
       expect(anchor).toBeInstanceOf(HTMLAnchorElement);
       expect(anchor.dataset.mokujiAnchor).toBe('');
-      // テンプレートはtextContentを持たない（clone時に設定される）
+      // Template does not have textContent (set during clone)
       expect(anchor.textContent).toBe('');
     });
 
-    it('デフォルトオプションでクラス名が空の場合', () => {
+    it('when class name is empty with default options', () => {
       const anchor = createAnchorElement(defaultOptions);
 
-      // デフォルトでは anchorLinkClassName が空なのでクラスは追加されない
+      // By default anchorLinkClassName is empty so no class is added
       expect(anchor.classList.length).toBe(0);
     });
 
-    it('カスタムクラス名を適用する', () => {
+    it('applies custom class name', () => {
       const options = { ...defaultOptions, anchorLinkClassName: 'custom-anchor-class' };
       const anchor = createAnchorElement(options);
 
@@ -282,7 +282,7 @@ describe('anchor', () => {
   });
 
   describe('createAnchorForHeading', () => {
-    it('見出しのtextContentがnullの場合でも安全に処理する', () => {
+    it('handles safely even when heading textContent is null', () => {
       const heading = document.createElement('h2');
       heading.id = 'test-heading';
       Object.defineProperty(heading, 'textContent', {
@@ -303,14 +303,14 @@ describe('anchor', () => {
       expect(result?.href).toContain('#test-heading');
     });
 
-    it('マッチするアンカーが見つからない場合はundefinedを返す', () => {
+    it('returns undefined when no matching anchor is found', () => {
       const heading = document.createElement('h2');
       heading.id = 'no-match';
       heading.textContent = 'No Match';
 
       const anchorTemplate = createAnchorElement(defaultOptions);
       const anchorMap = new Map<string, HTMLAnchorElement>();
-      // anchorMapに対応するエントリがない
+      // No corresponding entry in anchorMap
 
       const result = createAnchorForHeading(heading, anchorMap, anchorTemplate, defaultOptions);
 
@@ -323,7 +323,7 @@ describe('anchor', () => {
   // ========================================
 
   describe('insertAnchorsIntoHeadings', () => {
-    it('見出しにアンカーリンクを挿入する', () => {
+    it('inserts anchor links into headings', () => {
       const heading = document.createElement('h2');
       heading.id = 'test-heading';
       heading.textContent = 'Test Heading';
@@ -352,7 +352,7 @@ describe('anchor', () => {
       expect(insertedAnchor?.textContent).toBe('#');
     });
 
-    it('anchorLinkPosition="after"の場合、見出しの最後にアンカーを配置する', () => {
+    it('places anchor at the end of heading when anchorLinkPosition="after"', () => {
       const heading = document.createElement('h2');
       heading.id = 'test-heading';
       heading.textContent = 'Test Heading';
@@ -382,12 +382,12 @@ describe('anchor', () => {
       expect(insertedAnchor?.textContent).toBe('🔗');
     });
 
-    it('既存のアンカーを削除してから新しいアンカーを挿入する', () => {
+    it('removes existing anchors before inserting new ones', () => {
       const heading = document.createElement('h2');
       heading.id = 'test-heading';
       heading.textContent = 'Test Heading';
 
-      // 既存のアンカーを追加
+      // Add existing anchor
       const existingAnchor = document.createElement('a');
       existingAnchor.setAttribute(ANCHOR_DATASET_ATTRIBUTE, '');
       existingAnchor.textContent = 'old';
@@ -417,13 +417,13 @@ describe('anchor', () => {
       expect(anchors[0].textContent).toBe('new');
     });
 
-    it('対応するアンカーが見つからない見出しはスキップする', () => {
+    it('skips headings with no corresponding anchor', () => {
       const heading = document.createElement('h2');
       heading.id = 'test-heading';
       heading.textContent = 'Test Heading';
       container.append(heading);
 
-      const anchorMap = new Map(); // 空のMap
+      const anchorMap = new Map(); // Empty Map
 
       const options = {
         anchorType: true,
@@ -437,7 +437,7 @@ describe('anchor', () => {
       } satisfies Required<MokujiOption>;
 
       const insertedAnchors = insertAnchorsIntoHeadings([heading], anchorMap, options);
-      expect(insertedAnchors).toHaveLength(0); // 空のMapなので挿入されない
+      expect(insertedAnchors).toHaveLength(0); // No insertion because Map is empty
 
       const insertedAnchor = heading.querySelector(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
       expect(insertedAnchor).toBeNull();

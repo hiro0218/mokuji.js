@@ -6,19 +6,19 @@ describe('Mokuji.js', () => {
   let container: HTMLElement;
 
   beforeEach(() => {
-    // テスト用のDOM要素を作成する
+    // Create DOM element for testing
     container = document.createElement('div');
     document.body.append(container);
   });
 
   afterEach(() => {
-    // テスト後にクリーンアップする
+    // Clean up after test
     container.remove();
     vi.restoreAllMocks();
   });
 
   it('returns undefined when no headings exist', () => {
-    // 見出しを含まない要素を渡す
+    // Pass element without headings
     container.innerHTML = '<p>This is a paragraph</p>';
     const result = Mokuji(container);
 
@@ -26,7 +26,7 @@ describe('Mokuji.js', () => {
   });
 
   it('generates a table of contents from heading elements', () => {
-    // 見出し要素を含むHTMLを設定する
+    // Set HTML containing heading elements
     container.innerHTML = `
       <h1>Title</h1>
       <p>Paragraph 1</p>
@@ -40,16 +40,16 @@ describe('Mokuji.js', () => {
 
     expect(result).toBeDefined();
     expect(result?.element).toBe(container);
-    // OLまたはULのいずれかのリスト要素が生成されることを検証する
+    // Verify that either OL or UL list element is generated
     expect(result?.list).toBeInstanceOf(HTMLElement);
     expect(['OL', 'UL'].includes(result?.list.tagName || '')).toBe(true);
     expect(result?.list.getAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE)).toBe('');
 
-    // 生成された目次の構造を検証する
+    // Verify the structure of generated TOC
     const listItems = result?.list.querySelectorAll('li');
-    expect(listItems?.length).toBe(4); // 見出しの数
+    expect(listItems?.length).toBe(4); // Number of headings
 
-    // 目次のリンクが正しく生成されていることを確認する
+    // Verify that TOC links are generated correctly
     const links = result?.list.querySelectorAll('a');
     expect(links?.length).toBe(4);
   });
@@ -64,14 +64,14 @@ describe('Mokuji.js', () => {
       <h6>Minimal section</h6>
     `;
 
-    // h2からh4までの見出しのみを対象とする
+    // Target only headings from h2 to h4
     const result = Mokuji(container, { minLevel: 2, maxLevel: 4 });
 
     expect(result).toBeDefined();
     const links = result?.list.querySelectorAll('a');
-    expect(links?.length).toBe(3); // h2, h3, h4の3つの見出し
+    expect(links?.length).toBe(3); // 3 headings: h2, h3, h4
 
-    // h1とh5, h6が含まれていないことを確認する
+    // Verify that h1, h5, and h6 are not included
     const linkTexts = [...(links || [])].map((a) => a.textContent);
     expect(linkTexts).toContain('Section 1');
     expect(linkTexts).toContain('Subsection 1');
@@ -91,9 +91,9 @@ describe('Mokuji.js', () => {
 
     expect(result).toBeDefined();
 
-    // 見出しにアンカーリンクが挿入されていることを確認する
+    // Verify that anchor links are inserted into headings
     const anchorLinks = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
-    expect(anchorLinks.length).toBe(2); // 2つの見出しにアンカーが追加される
+    expect(anchorLinks.length).toBe(2); // Anchors added to 2 headings
   });
 
   it('removes table of contents and anchor links when destroy method is called', () => {
@@ -102,26 +102,26 @@ describe('Mokuji.js', () => {
       <h2>Section 1</h2>
     `;
 
-    // 目次を生成する
+    // Generate TOC
     const result = Mokuji(container, { anchorLink: true });
     expect(result).toBeDefined();
     expect(result?.destroy).toBeInstanceOf(Function);
 
-    // 生成された目次を明示的にドキュメントに追加する
+    // Explicitly add generated TOC to document
     if (result && result.list) {
       document.body.append(result.list);
     }
 
-    // 目次とアンカーリンクが存在することを確認する
+    // Verify that TOC and anchor links exist
     const tocList = document.querySelector(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`);
     const anchorLinks = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
     expect(tocList).not.toBeNull();
     expect(anchorLinks.length).toBe(2);
 
-    // インスタンスのdestroy()メソッドを呼び出す
+    // Call the instance's destroy() method
     result?.destroy();
 
-    // 目次とアンカーリンクが削除されていることを確認する
+    // Verify that TOC and anchor links have been removed
     const tocListAfter = document.querySelector(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`);
     const anchorLinksAfter = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
     expect(tocListAfter).toBeNull();
@@ -138,12 +138,12 @@ describe('Mokuji.js', () => {
   });
 
   it('scoped destroy only affects its own instance', () => {
-    // 第1のコンテナと目次
+    // First container and TOC
     const container1 = document.createElement('div');
     container1.innerHTML = '<h1>Container1</h1><h2>Section1</h2>';
     document.body.append(container1);
 
-    // 第2のコンテナと目次
+    // Second container and TOC
     const container2 = document.createElement('div');
     container2.innerHTML = '<h1>Container2</h1><h2>Section2</h2>';
     document.body.append(container2);
@@ -154,38 +154,38 @@ describe('Mokuji.js', () => {
     expect(result1).toBeDefined();
     expect(result2).toBeDefined();
 
-    // 両方の目次をドキュメントに追加
+    // Add both TOCs to document
     if (result1?.list) document.body.append(result1.list);
     if (result2?.list) document.body.append(result2.list);
 
-    // 両方の目次とアンカーが存在することを確認
+    // Verify that both TOCs and anchors exist
     expect(document.querySelectorAll(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`).length).toBe(2);
     expect(document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`).length).toBe(4);
 
-    // 第1のインスタンスのみを削除
+    // Remove only the first instance
     result1?.destroy();
 
-    // 第1のインスタンスの要素が削除され、第2のインスタンスの要素が残っていることを確認
+    // Verify that first instance elements are removed and second instance elements remain
     const remainingLists = document.querySelectorAll(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`);
     const remainingAnchors = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
 
     expect(remainingLists.length).toBe(1);
     expect(remainingAnchors.length).toBe(2);
 
-    // 第2のインスタンスも削除
+    // Remove second instance as well
     result2?.destroy();
 
-    // すべての要素が削除されたことを確認
+    // Verify that all elements have been removed
     expect(document.querySelectorAll(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`).length).toBe(0);
     expect(document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`).length).toBe(0);
 
-    // クリーンアップ
+    // Clean up
     container1.remove();
     container2.remove();
   });
 
   it('does not duplicate anchors when called twice on duplicate headings', () => {
-    // 同じテキストの見出しを複数作成（重複見出し）
+    // Create multiple headings with same text (duplicate headings)
     container.innerHTML = `
       <h2>Section</h2>
       <p>Paragraph 1</p>
@@ -196,40 +196,40 @@ describe('Mokuji.js', () => {
       <h2>Different</h2>
     `;
 
-    // 1回目の呼び出し
+    // First call
     const result1 = Mokuji(container, { anchorLink: true });
 
     expect(result1).toBeDefined();
 
-    // 見出しのIDが一意であることを確認
+    // Verify that heading IDs are unique
     const headings = container.querySelectorAll('h2, h3');
     const ids = new Set<string>();
     for (const h of headings) {
       expect(h.id).toBeTruthy();
       ids.add(h.id);
     }
-    expect(ids.size).toBe(headings.length); // IDが全て一意
+    expect(ids.size).toBe(headings.length); // All IDs are unique
 
-    // アンカーの数を確認（1回目の後）
+    // Check number of anchors (after first call)
     const anchorsAfterFirst = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
-    expect(anchorsAfterFirst.length).toBe(5); // 5つの見出しにアンカー
+    expect(anchorsAfterFirst.length).toBe(5); // Anchors on 5 headings
 
-    // 2回目の呼び出し（重複呼び出し）
+    // Second call (duplicate call)
     const result2 = Mokuji(container, { anchorLink: true });
 
     expect(result2).toBeDefined();
 
-    // アンカーが増殖していないことを確認
+    // Verify that anchors have not multiplied
     const anchorsAfterSecond = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
-    expect(anchorsAfterSecond.length).toBe(5); // まだ5つのまま（増殖していない）
+    expect(anchorsAfterSecond.length).toBe(5); // Still 5 (not multiplied)
 
-    // 各見出しには1つのアンカーしかないことを確認
+    // Verify that each heading has only one anchor
     for (const h of headings) {
       const headingAnchors = h.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
       expect(headingAnchors.length).toBe(1);
     }
 
-    // 目次のリンクが一意なhrefを持つことを確認
+    // Verify that TOC links have unique hrefs
     const tocLinks1 = result1?.list.querySelectorAll('a');
     const hrefs1 = new Set<string>();
     if (tocLinks1) {
@@ -237,7 +237,7 @@ describe('Mokuji.js', () => {
         hrefs1.add(link.getAttribute('href') || '');
       }
     }
-    expect(hrefs1.size).toBe(tocLinks1?.length); // 1回目のhrefが全て一意
+    expect(hrefs1.size).toBe(tocLinks1?.length); // All hrefs unique in first call
 
     const tocLinks2 = result2?.list.querySelectorAll('a');
     const hrefs2 = new Set<string>();
@@ -246,6 +246,6 @@ describe('Mokuji.js', () => {
         hrefs2.add(link.getAttribute('href') || '');
       }
     }
-    expect(hrefs2.size).toBe(tocLinks2?.length); // 2回目のhrefも全て一意
+    expect(hrefs2.size).toBe(tocLinks2?.length); // All hrefs also unique in second call
   });
 });
