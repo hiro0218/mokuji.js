@@ -10,5 +10,6 @@ export default defineConfig((options) => {
     treeshake: true,
     clean: true,
     dts: true,
+    exports: true,
   };
 });

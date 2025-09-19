@@ -14,9 +14,10 @@
   "type": "module",
   "main": "./dist/index.js",
   "exports": {
-    "import": "./dist/index.js",
-    "default": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
   },
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "directories": {
     "lib": "lib"
