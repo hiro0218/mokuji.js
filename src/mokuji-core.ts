@@ -1,16 +1,6 @@
-/**
- * 目次（もくじ）生成の中核ロジックを提供するモジュール
- */
 import { createElement } from './utils/dom';
 import { assignInitialIdToHeading, getHeadingLevel } from './heading';
 
-// ========================================
-// Types & Interfaces
-// ========================================
-
-/**
- * 目次アイテムの中間データ構造
- */
 type TocItem = {
   text: string | null;
   href: string;
@@ -18,21 +8,14 @@ type TocItem = {
   children: TocItem[];
 };
 
-/**
- * 目次コンテナ要素の型 (ul または ol)
- */
 type TableOfContentsContainer = HTMLUListElement | HTMLOListElement;
 
-// ========================================
-// Main Functions
-// ========================================
-
 /**
- * 見出し要素から階層構造を持つ目次データ構造を生成し、DOMを一括構築する
+ * Generate hierarchical table of contents data structure from heading elements and build DOM in bulk
  *
- * @param headings 処理対象の見出し要素配列
- * @param listContainer 目次を格納するコンテナ要素 (ul or ol)
- * @param isConvertToWikipediaStyleAnchor Wikipediaスタイルのアンカー生成を行うかどうかのフラグ
+ * @param headings Array of heading elements to process
+ * @param listContainer Container element to store the table of contents (ul or ol)
+ * @param isConvertToWikipediaStyleAnchor Flag to generate Wikipedia-style anchors
  */
 export const buildMokujiHierarchy = (
   headings: HTMLHeadingElement[],

@@ -1,123 +1,85 @@
-/**
- * 型定義の統合モジュール
- * 全ての型定義を一元管理する
- */
-
-// ========================================
-// Basic Types
-// ========================================
-
-/**
- * 目次コンテナとして使用可能なHTML要素タグ名
- */
 export type AnchorContainerTagName = 'ul' | 'ol';
 
 /**
- * 見出しレベルを表す型（h1-h6に対応する1-6の値）
+ * Type representing heading levels (values 1-6 corresponding to h1-h6)
  */
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 
 /**
- * アンカーリンクの配置位置
+ * Anchor link placement position
  */
 export type AnchorLinkPosition = 'before' | 'after';
 
-// ========================================
-// Option Types
-// ========================================
 
 /**
- * 目次生成のオプション設定
+ * Option settings for TOC generation
  */
 export type MokujiOption = {
   /**
-   * Wikipediaスタイルのアンカーを生成するかどうか
-   * デフォルト: true (例: "見出し_テキスト" -> "見出し_テキスト", "見出し:テキスト" -> "見出しテキスト")
-   * falseの場合、スペースは '_' に置換されるが、エンコードや特殊文字の変換は最小限になる
+   * Whether to generate Wikipedia-style anchors
+   * Default: true (e.g., "heading_text" -> "heading_text", "heading:text" -> "headingtext")
+   * If false, spaces are replaced with '_' but encoding and special character conversion is minimal
    */
   anchorType?: boolean;
 
   /**
-   * 見出し要素の隣に、その見出しへのアンカーリンク（例: #）を追加するかどうか
-   * デフォルト: false
+   * Whether to add anchor links (e.g., #) next to heading elements
+   * Default: false
    */
   anchorLink?: boolean;
 
   /**
-   * `anchorLink: true` の場合に表示するシンボルまたはテキスト
-   * デフォルト: '#'
+   * Symbol or text to display when `anchorLink: true`
+   * Default: '#'
    */
   anchorLinkSymbol?: string;
 
   /**
-   * `anchorLink: true` の場合のアンカーリンクの配置位置（見出しテキストの前または後）
-   * デフォルト: 'before'
+   * Anchor link placement position (before or after heading text) when `anchorLink: true`
+   * Default: 'before'
    */
   anchorLinkPosition?: AnchorLinkPosition;
 
   /**
-   * `anchorLink: true` の場合にアンカーリンク要素に適用するCSSクラス名（スペース区切りで複数指定可）
-   * デフォルト: ''
+   * CSS class names to apply to anchor link elements when `anchorLink: true` (multiple classes can be specified with space separation)
+   * Default: ''
    */
   anchorLinkClassName?: string;
 
   /**
-   * 生成される目次のリストコンテナ要素のタグ名
-   * デフォルト: 'ol' (順序付きリスト)
+   * Tag name of the generated TOC list container element
+   * Default: 'ol' (ordered list)
    */
   anchorContainerTagName?: AnchorContainerTagName;
 
   /**
-   * 目次に含める最小の見出しレベル (1 = h1, 6 = h6)
-   * デフォルト: 1
+   * Minimum heading level to include in TOC (1 = h1, 6 = h6)
+   * Default: 1
    */
   minLevel?: HeadingLevel;
 
   /**
-   * 目次に含める最大の見出しレベル (1 = h1, 6 = h6)
-   * デフォルト: 6
+   * Maximum heading level to include in TOC (1 = h1, 6 = h6)
+   * Default: 6
    */
   maxLevel?: HeadingLevel;
 };
 
-// ========================================
-// Data Model Types
-// ========================================
-
-/**
- * 見出しのデータモデル
- */
 export interface HeadingModel {
-  /** 見出しレベル (1-6) */
   level: HeadingLevel;
-  /** 見出しのテキスト内容 */
   text: string;
-  /** 見出しのID（ユニークな識別子） */
   id: string;
-  /** 元のID（重複解決前） */
   originalId?: string;
 }
 
-/**
- * 目次項目のデータモデル
- */
 export interface TocItemModel {
-  /** 対応する見出しのID */
   headingId: string;
-  /** 表示テキスト */
   text: string;
-  /** 見出しレベル */
   level: HeadingLevel;
-  /** 子項目 */
   children: TocItemModel[];
 }
 
-/**
- * 目次全体のデータモデル
- */
 export interface TocModel {
-  /** ルートレベルの項目リスト */
   items: TocItemModel[];
-  /** 全見出しのフラットなリスト */
   headings: HeadingModel[];
 }

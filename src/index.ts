@@ -1,6 +1,3 @@
-/**
- * 目次（もくじ）生成ライブラリのメインエントリーポイント
- */
 import { createElement } from './utils/dom';
 import type { MokujiOption, HeadingLevel } from './types';
 import { getFilteredHeadings, ensureUniqueHeadingIds } from './heading';
@@ -8,20 +5,16 @@ import { createAnchorMap, createTextToAnchorMap, insertAnchorsIntoHeadingsWithMa
 import { buildMokujiHierarchy } from './mokuji-core';
 import { MOKUJI_LIST_DATASET_ATTRIBUTE, defaultOptions } from './utils/constants';
 
-/**
- * 目次生成の結果型定義
- */
 export type MokujiResult<T extends HTMLElement = HTMLElement> = {
   element?: T;
   list: HTMLUListElement | HTMLOListElement;
   destroy: () => void;
 };
 
-// 型エクスポート
 export { MokujiOption, HeadingLevel };
 
 /**
- * オプション設定を処理し、デフォルト値とマージして有効な範囲内に制限する
+ * Process option settings, merge with default values, and restrict to valid range
  */
 const processOptions = (externalOptions?: MokujiOption): Required<MokujiOption> => {
   const options = {
@@ -36,7 +29,7 @@ const processOptions = (externalOptions?: MokujiOption): Required<MokujiOption> 
 };
 
 /**
- * 目次生成の主要ロジック（内部関数）
+ * Main logic for table of contents generation (internal function)
  */
 const generateTocAndAnchorsInternal = (
   filteredHeadings: HTMLHeadingElement[],
@@ -53,7 +46,7 @@ const generateTocAndAnchorsInternal = (
 };
 
 /**
- * 与えられた要素内の見出しから目次を生成する (公開API)
+ * Generate table of contents from headings within the given element (public API)
  */
 export const Mokuji = <T extends HTMLElement>(
   element: T | undefined,
@@ -81,7 +74,6 @@ export const Mokuji = <T extends HTMLElement>(
 
   ensureUniqueHeadingIds(filteredHeadings, anchors);
 
-  // このインスタンスで生成したアンカー要素を追跡する
   const insertedAnchors: HTMLAnchorElement[] = [];
 
   if (options.anchorLink) {
@@ -92,10 +84,8 @@ export const Mokuji = <T extends HTMLElement>(
   }
 
   const destroy = () => {
-    // このインスタンスで生成した目次リストを削除
     listContainer.remove();
 
-    // このインスタンスで生成したアンカー要素を削除
     for (const anchor of insertedAnchors) {
       anchor.remove();
     }

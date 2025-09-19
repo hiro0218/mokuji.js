@@ -1,18 +1,9 @@
-/**
- * アンカー機能の統合モジュール
- * 見出し横へのアンカーリンク挿入に関する全ての処理を提供する
- */
-
 import { createElement, removeAllElements } from './utils/dom';
 import { ANCHOR_DATASET_ATTRIBUTE } from './utils/constants';
 import type { MokujiOption, AnchorLinkPosition } from './types';
 
-// ========================================
-// Anchor Map Generation
-// ========================================
-
 /**
- * 目次内のアンカー要素から、そのhrefのハッシュ値をキーとするマップを作成する
+ * Creates a map from anchor elements within the table of contents, using their href hash values as keys
  */
 export const createAnchorMap = (anchors: HTMLAnchorElement[]): Map<string, HTMLAnchorElement> => {
   const result = new Map<string, HTMLAnchorElement>();
@@ -27,7 +18,7 @@ export const createAnchorMap = (anchors: HTMLAnchorElement[]): Map<string, HTMLA
 };
 
 /**
- * アンカー要素のテキスト内容をキーとするマップを作成する
+ * Creates a map with anchor element text content as keys
  */
 export const createTextToAnchorMap = (anchors: HTMLAnchorElement[]): Map<string, HTMLAnchorElement> => {
   const result = new Map<string, HTMLAnchorElement>();
@@ -42,12 +33,9 @@ export const createTextToAnchorMap = (anchors: HTMLAnchorElement[]): Map<string,
   return result;
 };
 
-// ========================================
-// Anchor Finding Functions
-// ========================================
 
 /**
- * アンカーマップから直接IDで検索
+ * Search directly by ID from the anchor map
  */
 export const findAnchorById = (
   anchorMap: Map<string, HTMLAnchorElement>,
@@ -57,23 +45,23 @@ export const findAnchorById = (
 };
 
 /**
- * 数字サフィックスを除去したIDで検索
+ * Search by ID with numeric suffix removed
  */
 export const findAnchorByIdWithoutSuffix = (
   anchorMap: Map<string, HTMLAnchorElement>,
   id: string,
 ): HTMLAnchorElement | undefined => {
-  // IDが「ID_数字」の形式かチェックする（重複により変更されたIDの場合）
+  // Check if ID is in "ID_number" format (for IDs modified due to duplication)
   const idWithoutSuffix = id.replace(/_\d+$/, '');
   if (idWithoutSuffix !== id) {
-    // サフィックスを取り除いた元のIDでアンカーを検索
+    // Search for anchor with the original ID without suffix
     return anchorMap.get(idWithoutSuffix);
   }
   return undefined;
 };
 
 /**
- * テキスト内容で検索
+ * Search by text content
  */
 export const findAnchorByText = (
   anchorMap: Map<string, HTMLAnchorElement>,
@@ -82,7 +70,7 @@ export const findAnchorByText = (
   const trimmedText = text.trim();
   if (!trimmedText) return undefined;
 
-  // アンカーマップ内をテキスト内容で検索
+  // Search within anchor map by text content
   for (const [, anchor] of anchorMap.entries()) {
     if (anchor.textContent?.trim() === trimmedText) {
       return anchor;
@@ -92,7 +80,7 @@ export const findAnchorByText = (
 };
 
 /**
- * テキストマップからアンカーを検索
+ * Search anchor from text map
  */
 export const findAnchorInTextMap = (
   textToAnchorMap: Map<string, HTMLAnchorElement>,
@@ -105,14 +93,14 @@ export const findAnchorInTextMap = (
 };
 
 /**
- * 3段階のフォールバックで対応するアンカーを検索
+ * Find matching anchor with 3-level fallback
  */
 export const findMatchingAnchor = (
   anchorMap: Map<string, HTMLAnchorElement>,
   headingId: string,
   headingText: string,
 ): HTMLAnchorElement | undefined => {
-  // 1. 直接ID検索 → 2. サフィックス除去後の検索 → 3. テキスト内容での検索
+  // 1. Direct ID search → 2. Search after suffix removal → 3. Search by text content
   return (
     findAnchorById(anchorMap, headingId) ||
     findAnchorByIdWithoutSuffix(anchorMap, headingId) ||
@@ -121,7 +109,7 @@ export const findMatchingAnchor = (
 };
 
 /**
- * マップを使用して3段階のフォールバックでアンカーを検索
+ * Find matching anchor with 3-level fallback using maps
  */
 export const findMatchingAnchorWithMaps = (
   anchorMap: Map<string, HTMLAnchorElement>,
@@ -129,7 +117,7 @@ export const findMatchingAnchorWithMaps = (
   headingId: string,
   headingText: string,
 ): HTMLAnchorElement | undefined => {
-  // 1. 直接ID検索 → 2. サフィックス除去後の検索 → 3. テキスト内容での検索
+  // 1. Direct ID search → 2. Search after suffix removal → 3. Search by text content
   return (
     findAnchorById(anchorMap, headingId) ||
     findAnchorByIdWithoutSuffix(anchorMap, headingId) ||
@@ -137,12 +125,9 @@ export const findMatchingAnchorWithMaps = (
   );
 };
 
-// ========================================
-// Anchor Factory Functions
-// ========================================
 
 /**
- * 要素に複数のクラス名を適用する
+ * Apply multiple class names to an element
  */
 export const applyClassNamesToElement = (element: HTMLElement, classNameString: string): void => {
   const trimmedClassNames = classNameString.trim();
@@ -152,21 +137,21 @@ export const applyClassNamesToElement = (element: HTMLElement, classNameString: 
 };
 
 /**
- * アンカーテンプレート要素を作成する
+ * Create anchor template element
  */
 export const createAnchorElement = (options: Required<MokujiOption>): HTMLAnchorElement => {
   const anchorTemplate = createElement('a');
   anchorTemplate.setAttribute(ANCHOR_DATASET_ATTRIBUTE, '');
 
-  // anchorLinkClassNameが空文字列の場合でもクラス名適用処理を実行する
-  // 空文字列の場合はapplyClassNamesToElement内で早期リターンされる
+  // Execute class name application even if anchorLinkClassName is empty string
+  // Early return occurs within applyClassNamesToElement for empty strings
   applyClassNamesToElement(anchorTemplate, options.anchorLinkClassName);
 
   return anchorTemplate;
 };
 
 /**
- * ある見出し要素に対応するアンカー要素を作成する
+ * Create anchor element corresponding to a heading element
  */
 export const createAnchorForHeading = (
   heading: HTMLHeadingElement,
@@ -177,7 +162,7 @@ export const createAnchorForHeading = (
   const headingId = heading.id;
   const matchedTocAnchor = findMatchingAnchor(anchorMap, headingId, heading.textContent || '');
 
-  // 最終的にもマッチするアンカーが見つからなかった場合
+  // If no matching anchor is found ultimately
   if (!matchedTocAnchor) {
     return undefined;
   }
@@ -190,7 +175,7 @@ export const createAnchorForHeading = (
 };
 
 /**
- * マップを使用して見出し要素に対応するアンカー要素を作成
+ * Create anchor element corresponding to a heading element using maps
  */
 export const createAnchorForHeadingWithMaps = (
   heading: HTMLHeadingElement,
@@ -207,7 +192,7 @@ export const createAnchorForHeadingWithMaps = (
     heading.textContent || '',
   );
 
-  // 最終的にもマッチするアンカーが見つからなかった場合
+  // If no matching anchor is found ultimately
   if (!matchedTocAnchor) {
     return undefined;
   }
@@ -219,12 +204,9 @@ export const createAnchorForHeadingWithMaps = (
   return anchorElement;
 };
 
-// ========================================
-// Anchor Insertion Functions
-// ========================================
 
 /**
- * 既存の目次アンカーを見出しから取り除き、重複挿入を防ぐ
+ * Remove existing table of contents anchors from headings to prevent duplicate insertion
  */
 const removeExistingAnchors = (heading: HTMLHeadingElement): void => {
   const existingAnchors = heading.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
@@ -232,7 +214,7 @@ const removeExistingAnchors = (heading: HTMLHeadingElement): void => {
 };
 
 /**
- * 見出し要素内の指定した位置にアンカー要素を挿入する
+ * Insert anchor element at specified position within heading element
  */
 const placeAnchorInHeading = (
   heading: HTMLHeadingElement,
@@ -247,8 +229,8 @@ const placeAnchorInHeading = (
 };
 
 /**
- * 見出し要素にアンカーリンクを追加する
- * @returns 挿入されたアンカー要素の配列
+ * Add anchor links to heading elements
+ * @returns Array of inserted anchor elements
  */
 export const insertAnchorsIntoHeadings = (
   headings: HTMLHeadingElement[],
@@ -271,8 +253,8 @@ export const insertAnchorsIntoHeadings = (
 };
 
 /**
- * マップを使用して見出し要素にアンカーリンクを追加
- * @returns 挿入されたアンカー要素の配列
+ * Add anchor links to heading elements using maps
+ * @returns Array of inserted anchor elements
  */
 export const insertAnchorsIntoHeadingsWithMaps = (
   headings: HTMLHeadingElement[],

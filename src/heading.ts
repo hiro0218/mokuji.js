@@ -1,17 +1,8 @@
-/**
- * 見出し処理の統合モジュール
- * フィルタリング、ID管理、テキスト変換を一元化する
- */
-
 import { getAllHeadingElements } from './utils/dom';
 import type { HeadingLevel } from './types';
 
-// ========================================
-// Constants & Patterns
-// ========================================
-
 /**
- * テキスト処理とアンカーテキスト生成に使用する正規表現・記号
+ * Regular expressions and symbols used for text processing and anchor text generation
  */
 const WHITESPACE_PATTERN = /\s+/g;
 const COLON_CHARACTER = ':';
@@ -21,38 +12,33 @@ const PERCENT_ENCODING_PATTERN = /%+/g;
 const DOT_REPLACEMENT = '.';
 
 /**
- * URLエンコード文字列の妥当性をチェックする正規表現
+ * Regular expressions for checking the validity of URL-encoded strings
  */
 const VALID_PERCENT_ENCODING = /%[0-9A-F]{2}/gi;
 const INVALID_PERCENT_PATTERN = /%[^0-9A-F]|%[0-9A-F][^0-9A-F]|%$/i;
 
 const HEADING_DUPLICATE_SUFFIX_PATTERN = /_\d+$/;
 
-// h1、h6 の許容範囲とフォールバックレベル
 const MIN_HEADING_LEVEL: HeadingLevel = 1;
 const MAX_HEADING_LEVEL: HeadingLevel = 6;
 const FALLBACK_HEADING_LEVEL = MAX_HEADING_LEVEL;
 
-// ========================================
-// Text Processing Functions
-// ========================================
-
 /**
- * テキスト内のスペースをアンダースコアに置換し、コロンを除去する
+ * Replace spaces with underscores and remove colons in text
  */
 const replaceSpacesWithUnderscores = (text: string): string => {
   return text.replaceAll(WHITESPACE_PATTERN, '_').replace(COLON_CHARACTER, '');
 };
 
 /**
- * テキストをWikipediaスタイルのアンカー形式に変換する
+ * Convert text to Wikipedia-style anchor format
  */
 const convertToWikipediaStyleAnchor = (anchor: string): string => {
   return encodeURIComponent(anchor).replaceAll(PERCENT_ENCODING_PATTERN, DOT_REPLACEMENT);
 };
 
 /**
- * アンカーテキストを生成する
+ * Generate anchor text
  */
 export const generateAnchorText = (baseId: string, isConvertToWikipediaStyleAnchor: boolean): string => {
   let anchorText = replaceSpacesWithUnderscores(baseId);
@@ -69,7 +55,7 @@ export const generateAnchorText = (baseId: string, isConvertToWikipediaStyleAnch
 };
 
 /**
- * URIコンポーネントを安全にデコードする
+ * Safely decode URI component
  */
 const safeDecodeURIComponent = (encoded: string): string => {
   if (!VALID_PERCENT_ENCODING.test(encoded)) {
@@ -87,12 +73,9 @@ const safeDecodeURIComponent = (encoded: string): string => {
   }
 };
 
-// ========================================
-// Heading ID Management
-// ========================================
 
 /**
- * 見出し要素にIDを割り当てる
+ * Assign ID to heading element
  */
 export const assignInitialIdToHeading = (
   heading: HTMLHeadingElement,
@@ -111,7 +94,7 @@ export const assignInitialIdToHeading = (
 };
 
 /**
- * 見出し要素のID重複を解決してアンカーを更新する
+ * Resolve duplicate heading IDs and update anchors
  */
 export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: HTMLAnchorElement[]) => {
   const anchorList = [...anchors];
@@ -182,12 +165,9 @@ export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: 
   }
 };
 
-// ========================================
-// Heading Level Functions
-// ========================================
 
 /**
- * 見出し要素のレベルを数値として取得する
+ * Get heading element level as a numeric value
  */
 export const getHeadingLevel = (heading: HTMLHeadingElement): HeadingLevel => {
   const numericLevel = Number.parseInt(heading.tagName.slice(1), 10);
@@ -197,12 +177,9 @@ export const getHeadingLevel = (heading: HTMLHeadingElement): HeadingLevel => {
   return FALLBACK_HEADING_LEVEL;
 };
 
-// ========================================
-// Heading Filtering Functions
-// ========================================
 
 /**
- * 指定したレベル範囲内の見出し要素を取得する
+ * Get heading elements within the specified level range
  */
 export const getFilteredHeadings = (
   element: Element,
