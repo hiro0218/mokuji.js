@@ -4,7 +4,7 @@
 import { createElement } from './utils/dom';
 import type { MokujiOption, HeadingLevel } from './types';
 import { getFilteredHeadings, ensureUniqueHeadingIds } from './heading';
-import { createAnchorMap, insertAnchorsIntoHeadings } from './anchor';
+import { createAnchorMap, createTextToAnchorMap, insertAnchorsIntoHeadingsWithMaps } from './anchor';
 import { buildMokujiHierarchy } from './mokuji-core';
 import { MOKUJI_LIST_DATASET_ATTRIBUTE, defaultOptions } from './utils/constants';
 
@@ -86,7 +86,8 @@ export const Mokuji = <T extends HTMLElement>(
 
   if (options.anchorLink) {
     const anchorsMap = createAnchorMap(anchors);
-    const anchorElements = insertAnchorsIntoHeadings(filteredHeadings, anchorsMap, options);
+    const textToAnchorMap = createTextToAnchorMap(anchors);
+    const anchorElements = insertAnchorsIntoHeadingsWithMaps(filteredHeadings, anchorsMap, textToAnchorMap, options);
     insertedAnchors.push(...anchorElements);
   }
 
