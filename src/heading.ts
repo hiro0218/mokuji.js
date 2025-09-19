@@ -73,7 +73,6 @@ const safeDecodeURIComponent = (encoded: string): string => {
   }
 };
 
-
 /**
  * Assign ID to heading element
  */
@@ -98,24 +97,20 @@ export const assignInitialIdToHeading = (
  */
 export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: HTMLAnchorElement[]) => {
   const anchorList = [...anchors];
+  const usedIds = new Set<string>();
+  const idCounts = new Map<string, number>();
 
-  // First pass: collect all original IDs
+  // First, collect all original IDs to preserve them
   const originalIds = new Set<string>();
-  const headingData: Array<{ heading: HTMLHeadingElement; originalId: string; index: number }> = [];
-
   for (const [i, heading] of headings.entries()) {
     const originalId = heading.id || `mokuji-heading-${i}`;
     const decodedId = safeDecodeURIComponent(originalId);
     originalIds.add(decodedId);
-    headingData.push({ heading, originalId, index: i });
   }
 
-  // Second pass: resolve duplicates while preserving original IDs
-  const usedIds = new Set<string>();
-  const idCounts = new Map<string, number>();
-
-  for (const { heading, originalId, index } of headingData) {
-    const anchor = anchorList[index];
+  for (const [i, heading] of headings.entries()) {
+    const anchor = anchorList[i];
+    const originalId = heading.id || `mokuji-heading-${i}`;
     const decodedId = safeDecodeURIComponent(originalId);
 
     // If this ID is not used yet, keep it as is
@@ -165,7 +160,6 @@ export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: 
   }
 };
 
-
 /**
  * Get heading element level as a numeric value
  */
@@ -176,7 +170,6 @@ export const getHeadingLevel = (heading: HTMLHeadingElement): HeadingLevel => {
   }
   return FALLBACK_HEADING_LEVEL;
 };
-
 
 /**
  * Get heading elements within the specified level range
