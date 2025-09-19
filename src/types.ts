@@ -10,7 +10,6 @@ export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
  */
 export type AnchorLinkPosition = 'before' | 'after';
 
-
 /**
  * Option settings for TOC generation
  */
@@ -64,22 +63,3 @@ export type MokujiOption = {
    */
   maxLevel?: HeadingLevel;
 };
-
-export interface HeadingModel {
-  level: HeadingLevel;
-  text: string;
-  id: string;
-  originalId?: string;
-}
-
-export interface TocItemModel {
-  headingId: string;
-  text: string;
-  level: HeadingLevel;
-  children: TocItemModel[];
-}
-
-export interface TocModel {
-  items: TocItemModel[];
-  headings: HeadingModel[];
-}
