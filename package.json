@@ -1,21 +1,31 @@
 {
   "name": "mokuji.js",
-  "version": "4.8.0",
+  "version": "5.0.0",
   "description": "A table of content JavaScript Library",
-  "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "lint": "eslint --cache ./src/**/*.ts",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "prepare": "npm run build && husky"
+  "keywords": [
+    "table of content",
+    "toc",
+    "contents",
+    "index"
+  ],
+  "homepage": "https://github.com/hiro0218/mokuji.js",
+  "bugs": {
+    "url": "https://github.com/hiro0218/mokuji.js/issues"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hiro0218/mokuji.js.git"
+  },
+  "license": "MIT",
+  "author": "hiro",
+  "sideEffects": false,
   "type": "module",
-  "main": "./dist/index.js",
   "exports": {
-    "import": "./dist/index.js",
-    "default": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
   },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "directories": {
     "lib": "lib"
@@ -26,6 +36,14 @@
     "package.json",
     "README.md"
   ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "lint": "eslint --cache ./src/**/*.ts",
+    "prepare": "npm run build && husky",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
   "lint-staged": {
     "*.{js,ts,tsx}": [
       "eslint --fix --cache",
@@ -36,22 +54,6 @@
       "bash -c 'tsc --noEmit --skipLibCheck'"
     ]
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/hiro0218/mokuji.js.git"
-  },
-  "keywords": [
-    "table of content",
-    "toc",
-    "contents",
-    "index"
-  ],
-  "author": "hiro",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/hiro0218/mokuji.js/issues"
-  },
-  "homepage": "https://github.com/hiro0218/mokuji.js",
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",
     "@types/node": "~22.15.3",
@@ -64,7 +66,7 @@
     "jsdom": "^26.1.0",
     "lint-staged": "^15.5.1",
     "prettier": "^3.5.3",
-    "tsup": "^8.4.0",
+    "tsdown": "^0.15.2",
     "typescript": "~5.8.3",
     "vitest": "^3.1.2"
   }

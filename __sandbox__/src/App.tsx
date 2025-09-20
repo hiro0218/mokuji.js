@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Mokuji, Destroy, type HeadingLevel } from 'mokuji.js';
+import { Mokuji, type HeadingLevel } from 'mokuji.js';
 
 function App() {
   const ref = useRef<HTMLDivElement>(null);
   const refMokuji = useRef<HTMLDivElement>(null);
   const [minLevel, setMinLevel] = useState<HeadingLevel>(1);
   const [maxLevel, setMaxLevel] = useState<HeadingLevel>(6);
+  const mokujiInstanceRef = useRef<ReturnType<typeof Mokuji> | null>(null);
 
   // オプションを関数外で参照できるようにする
   const mokujiOptionsRef = useRef({
@@ -24,6 +25,12 @@ function App() {
 
   // create関数の依存配列から状態変数を除去
   const create = useCallback(() => {
+    // 既存のインスタンスがあれば破棄
+    if (mokujiInstanceRef.current) {
+      mokujiInstanceRef.current.destroy();
+      mokujiInstanceRef.current = null;
+    }
+
     // 現在の設定値を参照
     const { minLevel, maxLevel } = mokujiOptionsRef.current;
 
@@ -43,6 +50,7 @@ function App() {
     });
 
     if (result) {
+      mokujiInstanceRef.current = result;
       if (refMokuji.current) {
         refMokuji.current.innerHTML = ''; // 既存コンテンツをクリア
         refMokuji.current.append(result.list);
@@ -57,16 +65,16 @@ function App() {
     create();
 
     return () => {
-      Destroy();
+      if (mokujiInstanceRef.current) {
+        mokujiInstanceRef.current.destroy();
+        mokujiInstanceRef.current = null;
+      }
     };
   }, []);
 
   // レベル変更時の処理を共通化
   const handleLevelChange = useCallback(() => {
-    // 目次を再生成する（Destroyで内容をクリアしてからcreateで再生成）
-    if (document.querySelector('[data-mokuji-list]')) {
-      Destroy();
-    }
+    // 目次を再生成する
     create();
   }, [create]);
 
@@ -122,7 +130,18 @@ function App() {
       <button type="button" onClick={() => create()}>
         Create
       </button>
-      <button type="button" onClick={() => Destroy()}>
+      <button
+        type="button"
+        onClick={() => {
+          if (mokujiInstanceRef.current) {
+            mokujiInstanceRef.current.destroy();
+            mokujiInstanceRef.current = null;
+            if (refMokuji.current) {
+              refMokuji.current.innerHTML = '';
+            }
+          }
+        }}
+      >
         Destroy
       </button>
       <div className="grid">
@@ -149,9 +168,14 @@ function App() {
             <h2 id="dup">duplicate id</h2>
             <h2 id="dup">duplicate id</h2>
 
+            <h2 id="test">has duplicate id → test</h2>
+            <h2>test</h2>
+
+            <h2>aaa</h2>
             <h2>aaa</h2>
             <h2>aaa</h2>
             <h2>aaa_2</h2>
+            <h3>aaa</h3>
 
             <h2>two</h2>
             <h5>five</h5>

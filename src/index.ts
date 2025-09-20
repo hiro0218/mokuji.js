@@ -1,26 +1,20 @@
-/**
- * 目次（もくじ）生成ライブラリのメインエントリーポイント
- */
-import { createElement } from './common/dom';
-import type { MokujiOption, HeadingLevel } from './common/types';
-import { getFilteredHeadings, ensureUniqueHeadingIds } from './heading/heading';
-import { generateAnchorsMap, insertAnchorToHeadings } from './anchor/anchor';
-import { generateTableOfContents } from './toc/core';
-import { MOKUJI_LIST_DATASET_ATTRIBUTE, ANCHOR_DATASET_ATTRIBUTE, defaultOptions } from './common/constants';
+import { createElement } from './utils/dom';
+import type { MokujiOption, HeadingLevel } from './types';
+import { getFilteredHeadings, ensureUniqueHeadingIds } from './heading';
+import { createAnchorMap, createTextToAnchorMap, insertAnchorsIntoHeadingsWithMaps } from './anchor';
+import { buildMokujiHierarchy } from './mokuji-core';
+import { MOKUJI_LIST_DATASET_ATTRIBUTE, defaultOptions } from './utils/constants';
 
-/**
- * 目次生成の結果型定義
- */
 export type MokujiResult<T extends HTMLElement = HTMLElement> = {
   element?: T;
   list: HTMLUListElement | HTMLOListElement;
+  destroy: () => void;
 };
 
-// 型エクスポート
 export { MokujiOption, HeadingLevel };
 
 /**
- * オプション設定を処理し、デフォルト値とマージして有効な範囲内に制限する
+ * Process option settings, merge with default values, and restrict to valid range
  */
 const processOptions = (externalOptions?: MokujiOption): Required<MokujiOption> => {
   const options = {
@@ -35,24 +29,7 @@ const processOptions = (externalOptions?: MokujiOption): Required<MokujiOption> 
 };
 
 /**
- * 目次生成の主要ロジック（内部関数）
- */
-const generateTocAndAnchorsInternal = (
-  filteredHeadings: HTMLHeadingElement[],
-  options: Required<MokujiOption>,
-): { listContainer: HTMLUListElement | HTMLOListElement; anchors: HTMLAnchorElement[] } => {
-  const listContainer = createElement(options.anchorContainerTagName);
-  listContainer.setAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE, '');
-
-  generateTableOfContents(filteredHeadings, listContainer, options.anchorType);
-
-  const anchors = [...listContainer.querySelectorAll('a')];
-
-  return { listContainer, anchors };
-};
-
-/**
- * 与えられた要素内の見出しから目次を生成する (公開API)
+ * Generate table of contents from headings within the given element (public API)
  */
 export const Mokuji = <T extends HTMLElement>(
   element: T | undefined,
@@ -72,7 +49,13 @@ export const Mokuji = <T extends HTMLElement>(
     return undefined;
   }
 
-  const { listContainer, anchors } = generateTocAndAnchorsInternal(filteredHeadings, options);
+  // Generate table of contents
+  const listContainer = createElement(options.anchorContainerTagName);
+  listContainer.setAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE, '');
+
+  buildMokujiHierarchy(filteredHeadings, listContainer, options.anchorType);
+
+  const anchors = [...listContainer.querySelectorAll('a')];
 
   if (anchors.length === 0) {
     return undefined;
@@ -80,26 +63,22 @@ export const Mokuji = <T extends HTMLElement>(
 
   ensureUniqueHeadingIds(filteredHeadings, anchors);
 
+  const insertedAnchors: HTMLAnchorElement[] = [];
+
   if (options.anchorLink) {
-    const anchorsMap = generateAnchorsMap(anchors);
-    insertAnchorToHeadings(filteredHeadings, anchorsMap, options);
+    const anchorsMap = createAnchorMap(anchors);
+    const textToAnchorMap = createTextToAnchorMap(anchors);
+    const anchorElements = insertAnchorsIntoHeadingsWithMaps(filteredHeadings, anchorsMap, textToAnchorMap, options);
+    insertedAnchors.push(...anchorElements);
   }
 
-  return { element, list: listContainer };
-};
+  const destroy = () => {
+    listContainer.remove();
 
-/**
- * 生成された目次とアンカーリンクを破棄（削除）する
- */
-export const Destroy = (): void => {
-  const mokujiAnchors = document.querySelectorAll(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
-  for (let i = 0; i < mokujiAnchors.length; i++) {
-    const anchor = mokujiAnchors[i];
-    anchor.remove();
-  }
+    for (const anchor of insertedAnchors) {
+      anchor.remove();
+    }
+  };
 
-  const tableOfContentsList = document.querySelector(`[${MOKUJI_LIST_DATASET_ATTRIBUTE}]`);
-  if (tableOfContentsList) {
-    tableOfContentsList.remove();
-  }
+  return { element, list: listContainer, destroy };
 };
