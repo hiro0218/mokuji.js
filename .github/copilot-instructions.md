@@ -164,6 +164,7 @@ Following principles from industry leaders:
 - **Refactoring Pattern**: Core functions use internal `*Core` suffix pattern to consolidate logic while maintaining backward compatibility
 - **Coverage Strategy**: Type-only files (`types.ts`) and test files are excluded from coverage metrics
 - **Build Tool Migration**: Moved from tsup to tsdown for better ESM support and build performance
+- **Blockquote Heading Exclusion**: Headings inside `<blockquote>` elements are excluded from TOC by default (`includeBlockquoteHeadings: false`), configurable via option
 
 ## Important Notes
 
@@ -175,6 +176,7 @@ Following principles from industry leaders:
 - **Performance Focus**: Minimize DOM operations, optimize critical rendering path
 - **Unique Heading IDs**: The library ensures heading IDs are unique by preserving original IDs when possible and appending numeric suffixes to duplicates
 - **Instance-scoped Cleanup**: Each `Mokuji()` call returns its own cleanup function, preventing memory leaks and conflicts between multiple TOC instances
+- **Blockquote Heading Exclusion**: Headings inside `<blockquote>` are excluded from TOC by default. Use `includeBlockquoteHeadings: true` to include them. Filtering uses `Element.closest('blockquote')` in `getFilteredHeadings`
 - **Clean Code**: Follow Clean Code principles - minimal comments, self-explanatory code, single responsibility functions
 - **Test Philosophy**: Test user behavior, not implementation details
 

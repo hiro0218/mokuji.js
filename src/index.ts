@@ -42,8 +42,8 @@ export const Mokuji = <T extends HTMLElement>(
 
   const options = processOptions(externalOptions);
 
-  const { minLevel, maxLevel } = options;
-  const filteredHeadings = getFilteredHeadings(element, minLevel, maxLevel);
+  const { minLevel, maxLevel, includeBlockquoteHeadings } = options;
+  const filteredHeadings = getFilteredHeadings(element, minLevel, maxLevel, { includeBlockquoteHeadings });
 
   if (filteredHeadings.length === 0) {
     return undefined;

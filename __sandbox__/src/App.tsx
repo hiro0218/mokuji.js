@@ -7,12 +7,14 @@ function App() {
   const refMokuji = useRef<HTMLDivElement>(null);
   const [minLevel, setMinLevel] = useState<HeadingLevel>(1);
   const [maxLevel, setMaxLevel] = useState<HeadingLevel>(6);
-  const mokujiInstanceRef = useRef<ReturnType<typeof Mokuji> | null>(null);
+  const [includeBlockquoteHeadings, setIncludeBlockquoteHeadings] = useState(false);
+  const mokujiInstanceRef = useRef<ReturnType<typeof Mokuji> | undefined>(undefined);
 
   // オプションを関数外で参照できるようにする
   const mokujiOptionsRef = useRef({
     minLevel,
     maxLevel,
+    includeBlockquoteHeadings,
   });
 
   // オプションの変更を反映
@@ -20,19 +22,20 @@ function App() {
     mokujiOptionsRef.current = {
       minLevel,
       maxLevel,
+      includeBlockquoteHeadings,
     };
-  }, [minLevel, maxLevel]);
+  }, [minLevel, maxLevel, includeBlockquoteHeadings]);
 
   // create関数の依存配列から状態変数を除去
   const create = useCallback(() => {
     // 既存のインスタンスがあれば破棄
     if (mokujiInstanceRef.current) {
       mokujiInstanceRef.current.destroy();
-      mokujiInstanceRef.current = null;
+      mokujiInstanceRef.current = undefined;
     }
 
     // 現在の設定値を参照
-    const { minLevel, maxLevel } = mokujiOptionsRef.current;
+    const { minLevel, maxLevel, includeBlockquoteHeadings } = mokujiOptionsRef.current;
 
     if (!ref.current) {
       return;
@@ -47,6 +50,7 @@ function App() {
       anchorContainerTagName: 'ol',
       minLevel,
       maxLevel,
+      includeBlockquoteHeadings,
     });
 
     if (result) {
@@ -67,7 +71,7 @@ function App() {
     return () => {
       if (mokujiInstanceRef.current) {
         mokujiInstanceRef.current.destroy();
-        mokujiInstanceRef.current = null;
+        mokujiInstanceRef.current = undefined;
       }
     };
   }, []);
@@ -98,10 +102,10 @@ function App() {
     [minLevel],
   );
 
-  // レベル変更時に目次を更新
+  // オプション変更時に目次を更新
   useEffect(() => {
     handleLevelChange();
-  }, [minLevel, maxLevel, handleLevelChange]);
+  }, [minLevel, maxLevel, includeBlockquoteHeadings, handleLevelChange]);
 
   return (
     <main className="container">
@@ -126,6 +130,16 @@ function App() {
             ))}
           </select>
         </div>
+        <div>
+          <label>
+            <input
+              type="checkbox"
+              checked={includeBlockquoteHeadings}
+              onChange={(e) => setIncludeBlockquoteHeadings(e.target.checked)}
+            />
+            includeBlockquoteHeadings
+          </label>
+        </div>
       </div>
       <button type="button" onClick={() => create()}>
         Create
@@ -135,7 +149,7 @@ function App() {
         onClick={() => {
           if (mokujiInstanceRef.current) {
             mokujiInstanceRef.current.destroy();
-            mokujiInstanceRef.current = null;
+            mokujiInstanceRef.current = undefined;
             if (refMokuji.current) {
               refMokuji.current.innerHTML = '';
             }
@@ -190,6 +204,17 @@ function App() {
             <hr />
 
             <h2>😌</h2>
+
+            <hr />
+
+            <h2>blockquote テスト</h2>
+            <blockquote>
+              <h3>引用内の見出し</h3>
+              <p>この見出しはデフォルトでは目次に含まれない</p>
+              <blockquote>
+                <h4>ネストされた引用内の見出し</h4>
+              </blockquote>
+            </blockquote>
 
             <hr />
 

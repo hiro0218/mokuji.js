@@ -90,6 +90,51 @@ describe('heading', () => {
 
       expect(filtered).toEqual([]);
     });
+
+    it('excludes headings inside blockquote elements by default', () => {
+      container.innerHTML = `
+        <h2>Normal heading</h2>
+        <blockquote>
+          <h3>Quoted heading</h3>
+        </blockquote>
+        <h2>Another heading</h2>
+      `;
+
+      const filtered = getFilteredHeadings(container, 1, 6);
+
+      expect(filtered.map((h) => h.textContent)).toEqual(['Normal heading', 'Another heading']);
+    });
+
+    it('includes headings inside blockquote when includeBlockquoteHeadings is true', () => {
+      container.innerHTML = `
+        <h2>Normal heading</h2>
+        <blockquote>
+          <h3>Quoted heading</h3>
+        </blockquote>
+        <h2>Another heading</h2>
+      `;
+
+      const filtered = getFilteredHeadings(container, 1, 6, { includeBlockquoteHeadings: true });
+
+      expect(filtered.map((h) => h.textContent)).toEqual(['Normal heading', 'Quoted heading', 'Another heading']);
+    });
+
+    it('excludes headings in nested blockquotes', () => {
+      container.innerHTML = `
+        <h2>Top</h2>
+        <blockquote>
+          <h3>Level 1 quote</h3>
+          <blockquote>
+            <h4>Level 2 quote</h4>
+          </blockquote>
+        </blockquote>
+        <h2>Bottom</h2>
+      `;
+
+      const filtered = getFilteredHeadings(container, 1, 6);
+
+      expect(filtered.map((h) => h.textContent)).toEqual(['Top', 'Bottom']);
+    });
   });
 
   // ========================================

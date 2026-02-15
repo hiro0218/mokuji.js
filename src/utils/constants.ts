@@ -12,4 +12,5 @@ export const defaultOptions: Required<MokujiOption> = {
   anchorContainerTagName: 'ol',
   minLevel: 1,
   maxLevel: 6,
+  includeBlockquoteHeadings: false,
 } as const;

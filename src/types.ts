@@ -62,4 +62,10 @@ export type MokujiOption = {
    * Default: 6
    */
   maxLevel?: HeadingLevel;
+
+  /**
+   * Whether to include headings inside blockquote elements in TOC
+   * Default: false (blockquote headings are excluded)
+   */
+  includeBlockquoteHeadings?: boolean;
 };
