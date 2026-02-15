@@ -342,6 +342,7 @@ describe('anchor', () => {
         anchorContainerTagName: 'ol' as const,
         minLevel: 1 as const,
         maxLevel: 6 as const,
+        includeBlockquoteHeadings: false,
       } satisfies Required<MokujiOption>;
 
       const insertedAnchors = insertAnchorsIntoHeadings([heading], anchorMap, options);
@@ -371,6 +372,7 @@ describe('anchor', () => {
         anchorContainerTagName: 'ol' as const,
         minLevel: 1 as const,
         maxLevel: 6 as const,
+        includeBlockquoteHeadings: false,
       } satisfies Required<MokujiOption>;
 
       const insertedAnchors = insertAnchorsIntoHeadings([heading], anchorMap, options);
@@ -407,6 +409,7 @@ describe('anchor', () => {
         anchorContainerTagName: 'ol' as const,
         minLevel: 1 as const,
         maxLevel: 6 as const,
+        includeBlockquoteHeadings: false,
       } satisfies Required<MokujiOption>;
 
       const insertedAnchors = insertAnchorsIntoHeadings([heading], anchorMap, options);
@@ -434,6 +437,7 @@ describe('anchor', () => {
         anchorContainerTagName: 'ol' as const,
         minLevel: 1 as const,
         maxLevel: 6 as const,
+        includeBlockquoteHeadings: false,
       } satisfies Required<MokujiOption>;
 
       const insertedAnchors = insertAnchorsIntoHeadings([heading], anchorMap, options);

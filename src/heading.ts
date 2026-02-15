@@ -178,15 +178,21 @@ export const getFilteredHeadings = (
   element: Element,
   minLevel: HeadingLevel,
   maxLevel: HeadingLevel,
+  options?: { includeBlockquoteHeadings?: boolean },
 ): HTMLHeadingElement[] => {
+  const includeBlockquoteHeadings = options?.includeBlockquoteHeadings ?? false;
   const filteredHeadings: HTMLHeadingElement[] = [];
   const allHeadings = getAllHeadingElements(element);
 
   for (const heading of allHeadings) {
     const level = getHeadingLevel(heading);
-    if (level >= minLevel && level <= maxLevel) {
-      filteredHeadings.push(heading);
+    if (level < minLevel || level > maxLevel) {
+      continue;
     }
+    if (!includeBlockquoteHeadings && heading.closest('blockquote')) {
+      continue;
+    }
+    filteredHeadings.push(heading);
   }
 
   return filteredHeadings;
