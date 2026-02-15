@@ -174,6 +174,7 @@ Returns `undefined` if no headings are found.
   anchorContainerTagName: 'ol',
   minLevel: 1,
   maxLevel: 6,
+  includeBlockquoteHeadings: false,
 }
 ```
 
@@ -239,6 +240,24 @@ set the minimum heading level to include in the table of contents (1 means h1).
 (default: `6`)
 
 set the maximum heading level to include in the table of contents (6 means h6).
+
+### `includeBlockquoteHeadings`
+
+(default: `false`)
+
+Whether to include headings inside `<blockquote>` elements in the table of contents.
+
+By default, headings within blockquotes are excluded from the TOC since they typically represent quoted content rather than the document's own structure.
+
+```javascript
+// Default: blockquote headings are excluded
+const result = Mokuji(element);
+
+// Include blockquote headings
+const result = Mokuji(element, {
+  includeBlockquoteHeadings: true,
+});
+```
 
 ## License
 
