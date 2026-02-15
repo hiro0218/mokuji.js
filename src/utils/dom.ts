@@ -1,5 +1,16 @@
-export const getAllHeadingElements = (containerElement: Element): HTMLHeadingElement[] => {
-  const headings = containerElement.querySelectorAll('h1, h2, h3, h4, h5, h6');
+import type { HeadingLevel } from '../types';
+
+export const getAllHeadingElements = (
+  containerElement: Element,
+  minLevel: HeadingLevel = 1,
+  maxLevel: HeadingLevel = 6,
+): HTMLHeadingElement[] => {
+  if (minLevel > maxLevel) {
+    return [];
+  }
+
+  const selector = Array.from({ length: maxLevel - minLevel + 1 }, (_, i) => `h${minLevel + i}`).join(', ');
+  const headings = containerElement.querySelectorAll(selector);
   return [...headings] as HTMLHeadingElement[];
 };
 
