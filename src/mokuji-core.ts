@@ -74,10 +74,6 @@ const buildTocDom = (items: TocItem[], listContainer: TableOfContentsContainer):
 
 /**
  * Generate hierarchical table of contents data structure from heading elements and build DOM
- *
- * @param headings Array of heading elements to process
- * @param listContainer Container element to store the table of contents (ul or ol)
- * @param isConvertToWikipediaStyleAnchor Flag to generate Wikipedia-style anchors
  */
 export const buildMokujiHierarchy = (
   headings: HTMLHeadingElement[],

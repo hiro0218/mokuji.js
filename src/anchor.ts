@@ -50,10 +50,8 @@ export const findAnchorByIdWithoutSuffix = (
   anchorMap: Map<string, HTMLAnchorElement>,
   id: string,
 ): HTMLAnchorElement | undefined => {
-  // Check if ID is in "ID_number" format (for IDs modified due to duplication)
   const idWithoutSuffix = id.replace(/_\d+$/, '');
   if (idWithoutSuffix !== id) {
-    // Search for anchor with the original ID without suffix
     return anchorMap.get(idWithoutSuffix);
   }
   return undefined;
@@ -69,8 +67,7 @@ export const findAnchorByText = (
   const trimmedText = text.trim();
   if (!trimmedText) return undefined;
 
-  // Search within anchor map by text content
-  for (const [, anchor] of anchorMap.entries()) {
+  for (const anchor of anchorMap.values()) {
     if (anchor.textContent?.trim() === trimmedText) {
       return anchor;
     }
@@ -78,10 +75,7 @@ export const findAnchorByText = (
   return undefined;
 };
 
-/**
- * Search anchor from text map
- */
-export const findAnchorInTextMap = (
+const findAnchorInTextMap = (
   textToAnchorMap: Map<string, HTMLAnchorElement>,
   text: string,
 ): HTMLAnchorElement | undefined => {
@@ -107,21 +101,11 @@ const findMatchingAnchorCore = (
   const suffixMatch = findAnchorByIdWithoutSuffix(anchorMap, headingId);
   if (suffixMatch) return suffixMatch;
 
-  // Use optimized text map if available, otherwise fallback to linear search
   if (textToAnchorMap) {
     return findAnchorInTextMap(textToAnchorMap, headingText);
-  } else {
-    // Fallback: linear search through anchor map
-    const trimmedText = headingText.trim();
-    if (!trimmedText) return undefined;
-
-    for (const [, anchor] of anchorMap.entries()) {
-      if (anchor.textContent?.trim() === trimmedText) {
-        return anchor;
-      }
-    }
-    return undefined;
   }
+
+  return findAnchorByText(anchorMap, headingText);
 };
 
 /**
@@ -133,18 +117,6 @@ export const findMatchingAnchor = (
   headingText: string,
 ): HTMLAnchorElement | undefined => {
   return findMatchingAnchorCore(anchorMap, headingId, headingText);
-};
-
-/**
- * Find matching anchor with 3-level fallback using maps
- */
-export const findMatchingAnchorWithMaps = (
-  anchorMap: Map<string, HTMLAnchorElement>,
-  textToAnchorMap: Map<string, HTMLAnchorElement>,
-  headingId: string,
-  headingText: string,
-): HTMLAnchorElement | undefined => {
-  return findMatchingAnchorCore(anchorMap, headingId, headingText, textToAnchorMap);
 };
 
 /**
@@ -164,8 +136,6 @@ export const createAnchorElement = (options: Required<MokujiOption>): HTMLAnchor
   const anchorTemplate = createElement('a');
   anchorTemplate.setAttribute(ANCHOR_DATASET_ATTRIBUTE, '');
 
-  // Execute class name application even if anchorLinkClassName is empty string
-  // Early return occurs within applyClassNamesToElement for empty strings
   applyClassNamesToElement(anchorTemplate, options.anchorLinkClassName);
 
   return anchorTemplate;
@@ -184,7 +154,6 @@ const createAnchorForHeadingCore = (
   const headingId = heading.id;
   const matchedTocAnchor = findMatchingAnchorCore(anchorMap, headingId, heading.textContent || '', textToAnchorMap);
 
-  // If no matching anchor is found ultimately
   if (!matchedTocAnchor) {
     return undefined;
   }
@@ -206,19 +175,6 @@ export const createAnchorForHeading = (
   options: Required<MokujiOption>,
 ): HTMLAnchorElement | undefined => {
   return createAnchorForHeadingCore(heading, anchorMap, anchorTemplate, options);
-};
-
-/**
- * Create anchor element corresponding to a heading element using maps
- */
-export const createAnchorForHeadingWithMaps = (
-  heading: HTMLHeadingElement,
-  anchorMap: Map<string, HTMLAnchorElement>,
-  textToAnchorMap: Map<string, HTMLAnchorElement>,
-  anchorTemplate: HTMLAnchorElement,
-  options: Required<MokujiOption>,
-): HTMLAnchorElement | undefined => {
-  return createAnchorForHeadingCore(heading, anchorMap, anchorTemplate, options, textToAnchorMap);
 };
 
 /**

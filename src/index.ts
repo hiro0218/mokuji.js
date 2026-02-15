@@ -17,15 +17,15 @@ export { MokujiOption, HeadingLevel };
  * Process option settings, merge with default values, and restrict to valid range
  */
 const processOptions = (externalOptions?: MokujiOption): Required<MokujiOption> => {
-  const options = {
+  const merged = {
     ...defaultOptions,
     ...externalOptions,
   };
 
-  options.minLevel = Math.max(1, Math.min(options.minLevel, 6)) as HeadingLevel;
-  options.maxLevel = Math.max(options.minLevel, Math.min(options.maxLevel, 6)) as HeadingLevel;
+  const minLevel = Math.max(1, Math.min(merged.minLevel, 6)) as HeadingLevel;
+  const maxLevel = Math.max(minLevel, Math.min(merged.maxLevel, 6)) as HeadingLevel;
 
-  return options;
+  return { ...merged, minLevel, maxLevel };
 };
 
 /**
@@ -49,7 +49,6 @@ export const Mokuji = <T extends HTMLElement>(
     return undefined;
   }
 
-  // Generate table of contents
   const listContainer = createElement(options.anchorContainerTagName);
   listContainer.setAttribute(MOKUJI_LIST_DATASET_ATTRIBUTE, '');
 
@@ -63,14 +62,14 @@ export const Mokuji = <T extends HTMLElement>(
 
   ensureUniqueHeadingIds(filteredHeadings, anchors);
 
-  const insertedAnchors: HTMLAnchorElement[] = [];
-
-  if (options.anchorLink) {
-    const anchorsMap = createAnchorMap(anchors);
-    const textToAnchorMap = createTextToAnchorMap(anchors);
-    const anchorElements = insertAnchorsIntoHeadingsWithMaps(filteredHeadings, anchorsMap, textToAnchorMap, options);
-    insertedAnchors.push(...anchorElements);
-  }
+  const insertedAnchors = options.anchorLink
+    ? insertAnchorsIntoHeadingsWithMaps(
+        filteredHeadings,
+        createAnchorMap(anchors),
+        createTextToAnchorMap(anchors),
+        options,
+      )
+    : [];
 
   const destroy = () => {
     listContainer.remove();

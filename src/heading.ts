@@ -40,13 +40,11 @@ const convertToWikipediaStyleAnchor = (anchor: string): string => {
  */
 export const generateAnchorText = (baseId: string, isConvertToWikipediaStyleAnchor: boolean): string => {
   if (isConvertToWikipediaStyleAnchor) {
-    // Wikipedia style: Replace spaces with underscores, encode, then replace % with dots
     const anchorText = replaceSpacesWithUnderscores(baseId);
     return convertToWikipediaStyleAnchor(anchorText);
-  } else {
-    // RFC 3986 compliant: Use encodeURIComponent for proper fragment identifier encoding
-    return encodeURIComponent(baseId.trim());
   }
+
+  return encodeURIComponent(baseId.trim());
 };
 
 /**
@@ -91,15 +89,12 @@ export const assignInitialIdToHeading = (
  * Resolve duplicate heading IDs and update anchors
  */
 export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: HTMLAnchorElement[]) => {
-  const anchorList = [...anchors];
   const usedIds = new Set<string>();
   const idCounts = new Map<string, number>();
 
-  // Cache decoded IDs to avoid recomputation
   const decodedIdCache = new Map<number, { originalId: string; decodedId: string }>();
   const originalIds = new Set<string>();
 
-  // First pass: collect and cache all IDs
   for (const [i, heading] of headings.entries()) {
     const originalId = heading.id || `mokuji-heading-${i}`;
     const decodedId = safeDecodeURIComponent(originalId);
@@ -107,13 +102,11 @@ export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: 
     originalIds.add(decodedId);
   }
 
-  // Second pass: resolve duplicates using cached values
   for (const [i, heading] of headings.entries()) {
-    const anchor = anchorList[i];
+    const anchor = anchors[i];
     const cached = decodedIdCache.get(i)!;
     const { originalId, decodedId } = cached;
 
-    // If this ID is not used yet, keep it as is
     if (!usedIds.has(decodedId)) {
       heading.id = originalId;
       usedIds.add(decodedId);
@@ -124,32 +117,14 @@ export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: 
       continue;
     }
 
-    // ID is already used, need to find a unique variant
     const baseId = decodedId.replace(HEADING_DUPLICATE_SUFFIX_PATTERN, '') || decodedId;
     let counter = (idCounts.get(baseId) || 0) + 1;
-    let candidateId: string;
 
-    // Find the next available suffix, skipping those reserved for original IDs
-    let startingCounter = counter;
-    while (true) {
-      candidateId = `${baseId}_${startingCounter}`;
-
-      // Available if not used and not reserved for original IDs
-      if (!usedIds.has(candidateId) && !originalIds.has(candidateId)) {
-        counter = startingCounter;
-        break;
-      }
-
-      // If reserved for original ID but not used yet, skip this counter
-      if (originalIds.has(candidateId) && !usedIds.has(candidateId)) {
-        startingCounter++;
-        continue;
-      }
-
-      // If already used, try next counter
-      startingCounter++;
+    while (usedIds.has(`${baseId}_${counter}`) || originalIds.has(`${baseId}_${counter}`)) {
+      counter++;
     }
 
+    const candidateId = `${baseId}_${counter}`;
     idCounts.set(baseId, counter);
     heading.id = candidateId;
     usedIds.add(candidateId);
