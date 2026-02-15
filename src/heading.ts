@@ -91,21 +91,17 @@ export const assignInitialIdToHeading = (
 export const ensureUniqueHeadingIds = (headings: HTMLHeadingElement[], anchors: HTMLAnchorElement[]) => {
   const usedIds = new Set<string>();
   const idCounts = new Map<string, number>();
-
-  const decodedIdCache = new Map<number, { originalId: string; decodedId: string }>();
   const originalIds = new Set<string>();
 
   for (const [i, heading] of headings.entries()) {
     const originalId = heading.id || `mokuji-heading-${i}`;
-    const decodedId = safeDecodeURIComponent(originalId);
-    decodedIdCache.set(i, { originalId, decodedId });
-    originalIds.add(decodedId);
+    originalIds.add(safeDecodeURIComponent(originalId));
   }
 
   for (const [i, heading] of headings.entries()) {
     const anchor = anchors[i];
-    const cached = decodedIdCache.get(i)!;
-    const { originalId, decodedId } = cached;
+    const originalId = heading.id || `mokuji-heading-${i}`;
+    const decodedId = safeDecodeURIComponent(originalId);
 
     if (!usedIds.has(decodedId)) {
       heading.id = originalId;
@@ -156,19 +152,11 @@ export const getFilteredHeadings = (
   options?: { includeBlockquoteHeadings?: boolean },
 ): HTMLHeadingElement[] => {
   const includeBlockquoteHeadings = options?.includeBlockquoteHeadings ?? false;
-  const filteredHeadings: HTMLHeadingElement[] = [];
-  const allHeadings = getAllHeadingElements(element);
+  const allHeadings = getAllHeadingElements(element, minLevel, maxLevel);
 
-  for (const heading of allHeadings) {
-    const level = getHeadingLevel(heading);
-    if (level < minLevel || level > maxLevel) {
-      continue;
-    }
-    if (!includeBlockquoteHeadings && heading.closest('blockquote')) {
-      continue;
-    }
-    filteredHeadings.push(heading);
+  if (includeBlockquoteHeadings) {
+    return allHeadings;
   }
 
-  return filteredHeadings;
+  return allHeadings.filter((heading) => !heading.closest('blockquote'));
 };
