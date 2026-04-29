@@ -12,6 +12,8 @@ function App() {
   const [minLevel, setMinLevel] = useState<HeadingLevel>(1);
   const [maxLevel, setMaxLevel] = useState<HeadingLevel>(6);
   const [includeBlockquoteHeadings, setIncludeBlockquoteHeadings] = useState(false);
+  const [scrollSpy, setScrollSpy] = useState(true);
+  const [scrollSpyOffset, setScrollSpyOffset] = useState(0);
 
   const destroyMokuji = useCallback(() => {
     mokujiInstanceRef.current?.destroy();
@@ -33,13 +35,15 @@ function App() {
       minLevel,
       maxLevel,
       includeBlockquoteHeadings,
+      scrollSpy,
+      scrollSpyOffset,
     });
 
     if (result) {
       mokujiInstanceRef.current = result;
       refMokuji.current?.append(result.list);
     }
-  }, [minLevel, maxLevel, includeBlockquoteHeadings, destroyMokuji]);
+  }, [minLevel, maxLevel, includeBlockquoteHeadings, scrollSpy, scrollSpyOffset, destroyMokuji]);
 
   useEffect(() => {
     create();
@@ -88,6 +92,24 @@ function App() {
             />
             includeBlockquoteHeadings
           </label>
+        </div>
+        <div>
+          <label>
+            <input type="checkbox" checked={scrollSpy} onChange={(e) => setScrollSpy(e.target.checked)} />
+            scrollSpy
+          </label>
+        </div>
+        <div>
+          <label htmlFor="scroll-spy-offset">scrollSpyOffset:</label>
+          <input
+            id="scroll-spy-offset"
+            type="number"
+            min={0}
+            step={10}
+            value={scrollSpyOffset}
+            onChange={(e) => setScrollSpyOffset(Math.max(0, Number(e.target.value) || 0))}
+            disabled={!scrollSpy}
+          />
         </div>
       </div>
       <button type="button" onClick={create}>
