@@ -104,6 +104,14 @@ describe('resolveHeadingIdentities', () => {
     expect(r.identity).toBe('heading%20one');
   });
 
+  it('preserves the encoded original and uses a decoded-form base when percent-encoded ids collide', () => {
+    const h1 = createHeading(2, 'A', 'heading%20one');
+    const h2 = createHeading(2, 'B', 'heading%20one');
+    const resolved = resolveHeadingIdentities([h1, h2], { anchorType: false });
+    expect(resolved[0].identity).toBe('heading%20one');
+    expect(resolved[1].identity).toBe('heading one_1');
+  });
+
   it('keeps an invalid percent-encoded id as-is without throwing', () => {
     const h = createHeading(2, 'Invalid', 'heading%2');
     const [r] = resolveHeadingIdentities([h], { anchorType: false });
