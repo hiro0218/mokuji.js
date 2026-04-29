@@ -1,45 +1,27 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react';
 
 import { Mokuji, type HeadingLevel } from 'mokuji.js';
+
+type MokujiInstance = ReturnType<typeof Mokuji>;
 
 function App() {
   const ref = useRef<HTMLDivElement>(null);
   const refMokuji = useRef<HTMLDivElement>(null);
+  const mokujiInstanceRef = useRef<MokujiInstance>(undefined);
+
   const [minLevel, setMinLevel] = useState<HeadingLevel>(1);
   const [maxLevel, setMaxLevel] = useState<HeadingLevel>(6);
   const [includeBlockquoteHeadings, setIncludeBlockquoteHeadings] = useState(false);
-  const mokujiInstanceRef = useRef<ReturnType<typeof Mokuji> | undefined>(undefined);
 
-  // オプションを関数外で参照できるようにする
-  const mokujiOptionsRef = useRef({
-    minLevel,
-    maxLevel,
-    includeBlockquoteHeadings,
-  });
+  const destroyMokuji = useCallback(() => {
+    mokujiInstanceRef.current?.destroy();
+    mokujiInstanceRef.current = undefined;
+    if (refMokuji.current) refMokuji.current.innerHTML = '';
+  }, []);
 
-  // オプションの変更を反映
-  useEffect(() => {
-    mokujiOptionsRef.current = {
-      minLevel,
-      maxLevel,
-      includeBlockquoteHeadings,
-    };
-  }, [minLevel, maxLevel, includeBlockquoteHeadings]);
-
-  // create関数の依存配列から状態変数を除去
   const create = useCallback(() => {
-    // 既存のインスタンスがあれば破棄
-    if (mokujiInstanceRef.current) {
-      mokujiInstanceRef.current.destroy();
-      mokujiInstanceRef.current = undefined;
-    }
-
-    // 現在の設定値を参照
-    const { minLevel, maxLevel, includeBlockquoteHeadings } = mokujiOptionsRef.current;
-
-    if (!ref.current) {
-      return;
-    }
+    destroyMokuji();
+    if (!ref.current) return;
 
     const result = Mokuji(ref.current, {
       anchorType: true,
@@ -55,57 +37,24 @@ function App() {
 
     if (result) {
       mokujiInstanceRef.current = result;
-      if (refMokuji.current) {
-        refMokuji.current.innerHTML = ''; // 既存コンテンツをクリア
-        refMokuji.current.append(result.list);
-      }
-      if (ref.current && result.element) {
-        ref.current.innerHTML = result.element.innerHTML;
-      }
+      refMokuji.current?.append(result.list);
     }
-  }, []);
+  }, [minLevel, maxLevel, includeBlockquoteHeadings, destroyMokuji]);
 
   useEffect(() => {
     create();
+    return destroyMokuji;
+  }, [create, destroyMokuji]);
 
-    return () => {
-      if (mokujiInstanceRef.current) {
-        mokujiInstanceRef.current.destroy();
-        mokujiInstanceRef.current = undefined;
-      }
-    };
-  }, []);
+  const handleMinLevelChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const next = Number(e.target.value);
+    setMinLevel(Math.min(next, maxLevel) as HeadingLevel);
+  };
 
-  // レベル変更時の処理を共通化
-  const handleLevelChange = useCallback(() => {
-    // 目次を再生成する
-    create();
-  }, [create]);
-
-  const handleMinLevelChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const newMinLevel = Number(e.target.value);
-      // 最小レベルが最大レベルを超えないようにする
-      setMinLevel(Math.min(newMinLevel, maxLevel) as HeadingLevel);
-      // 直ちにhandleLevelChangeを呼び出さない（setStateの後に実行される）
-    },
-    [maxLevel],
-  );
-
-  const handleMaxLevelChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const newMaxLevel = Number(e.target.value);
-      // 最大レベルが最小レベル未満にならないようにする
-      setMaxLevel(Math.max(newMaxLevel, minLevel) as HeadingLevel);
-      // 直ちにhandleLevelChangeを呼び出さない（setStateの後に実行される）
-    },
-    [minLevel],
-  );
-
-  // オプション変更時に目次を更新
-  useEffect(() => {
-    handleLevelChange();
-  }, [minLevel, maxLevel, includeBlockquoteHeadings, handleLevelChange]);
+  const handleMaxLevelChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const next = Number(e.target.value);
+    setMaxLevel(Math.max(next, minLevel) as HeadingLevel);
+  };
 
   return (
     <main className="container">
@@ -141,21 +90,10 @@ function App() {
           </label>
         </div>
       </div>
-      <button type="button" onClick={() => create()}>
+      <button type="button" onClick={create}>
         Create
       </button>
-      <button
-        type="button"
-        onClick={() => {
-          if (mokujiInstanceRef.current) {
-            mokujiInstanceRef.current.destroy();
-            mokujiInstanceRef.current = undefined;
-            if (refMokuji.current) {
-              refMokuji.current.innerHTML = '';
-            }
-          }
-        }}
-      >
+      <button type="button" onClick={destroyMokuji}>
         Destroy
       </button>
       <div className="grid">
