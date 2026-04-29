@@ -21,10 +21,10 @@ const buildTocHierarchy = (resolved: ReadonlyArray<ResolvedHeading>): TocItem[] 
       children: [],
     };
 
-    let topLevel = levelStack.at(-1);
+    let topLevel = levelStack.at(-1) ?? levelStack[0];
     while (levelStack.length > 1 && r.level <= topLevel.level) {
       levelStack.pop();
-      topLevel = levelStack.at(-1);
+      topLevel = levelStack.at(-1) ?? levelStack[0];
     }
 
     topLevel.items.push(newItem);
