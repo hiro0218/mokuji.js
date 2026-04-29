@@ -56,24 +56,25 @@ npm run format
 
 ```
 src/
-├── index.ts           # Main API entry point (Mokuji function)
-├── mokuji-core.ts    # Table of contents hierarchy generation (buildTocHierarchy, buildTocDom)
-├── heading.ts        # Heading extraction, filtering, ID management, and RFC 3986 encoding
-├── anchor.ts         # Anchor link generation and insertion with Core pattern implementations
-├── types.ts          # Type definitions (MokujiOption, HeadingLevel, AnchorLinkPosition)
+├── index.ts             # Main API entry point (Mokuji function)
+├── heading.ts           # Heading filtering by level + blockquote; level extraction
+├── heading-identity.ts  # Single-pass identity resolver (pure) + DOM writer
+├── mokuji-core.ts       # TOC list DOM builder (consumes ResolvedHeading[])
+├── anchor.ts            # Per-heading anchor link insertion
+├── types.ts             # Type definitions (MokujiOption, HeadingLevel, AnchorLinkPosition)
 ├── utils/
-│   ├── constants.ts  # Default options and data attributes
-│   └── dom.ts        # DOM manipulation utilities
-└── *.test.ts         # Test files alongside source files
+│   ├── constants.ts     # Default options and data attributes
+│   └── dom.ts           # DOM manipulation utilities
+└── *.test.ts            # Test files alongside source files
 ```
+
+See `CONTEXT.md` for domain vocabulary (`heading identity`, `resolved heading`, `TOC list anchor`, `per-heading anchor`).
 
 ### Core Patterns
 
 1. **Functional Composition**: Main `Mokuji()` orchestrates smaller pure functions
-2. **Two-Phase Processing**:
-   - Phase 1: Extract headings → Filter by levels
-   - Phase 2: Build hierarchy → Generate anchors
-3. **Stack-based Hierarchy**: Uses array stack for nested list structure
+2. **Single-Pass Identity Resolution**: `resolveHeadingIdentities` decides each heading's final unique ID before any DOM is built; `commitHeadingIdentities` writes those IDs once. Downstream consumers (TOC list, per-heading anchors) all derive `href` from `ResolvedHeading.identity` directly — no map lookup or fallback search
+3. **Stack-based Hierarchy**: TOC tree built with an array stack for nested list structure
 4. **Instance-scoped Cleanup**: Each call returns its own `destroy()` function
 5. **DOM Abstraction**: All DOM operations centralized in `utils/dom.ts`
 
@@ -112,11 +113,17 @@ Following principles from industry leaders:
 - Prefer pure functions with single responsibilities
 - Avoid mutations, prefer immutable updates
 
-### DRY Pattern with Core Suffix
+### Heading Identity Pipeline
 
-- Internal implementations use `*Core` suffix (e.g., `buildMokujiHierarchy` calls `buildTocHierarchyCore`)
-- Maintains public API compatibility while consolidating logic
-- Avoids code duplication while keeping clear API boundaries
+The pipeline orchestrated by `Mokuji()`:
+
+1. `getFilteredHeadings(element, ...)` — DOM query + level / blockquote filter
+2. `resolveHeadingIdentities(headings, { anchorType })` — pure: returns `ResolvedHeading[]` with final unique identities
+3. `commitHeadingIdentities(resolved)` — side effect: writes `heading.id`
+4. `buildTocList(resolved, tag)` — pure render of nested `<ol>` / `<ul>` from resolved headings
+5. `insertPerHeadingAnchors(resolved, options)` — optional `data-mokuji-anchor` injection per heading (when `anchorLink: true`)
+
+`ResolvedHeading.identity` is the single source of truth — `heading.id`, TOC list anchor `href`, and per-heading anchor `href` all derive from it. The encoding strategy (Wikipedia-style vs RFC 3986) and dedup rules are private to `heading-identity.ts`.
 
 ### Anchor Encoding Logic
 
@@ -161,7 +168,7 @@ Following principles from industry leaders:
 ## Recent Architectural Decisions
 
 - **RFC 3986 Compliance**: Standard anchor generation (`anchorType: false`) now uses proper URL encoding via `encodeURIComponent`
-- **Refactoring Pattern**: Core functions use internal `*Core` suffix pattern to consolidate logic while maintaining backward compatibility
+- **Single-Pass Identity Resolution**: Heading identities are resolved in one pure pass (`resolveHeadingIdentities`) before any rendering, replacing the prior two-pass DOM-mutating sequence and the multi-strategy anchor matcher. The `*Core` suffix indirection and the anchor `Map`-based lookup machinery were removed.
 - **Coverage Strategy**: Type-only files (`types.ts`) and test files are excluded from coverage metrics
 - **Build Tool Migration**: Moved from tsup to tsdown for better ESM support and build performance
 - **Blockquote Heading Exclusion**: Headings inside `<blockquote>` elements are excluded from TOC by default (`includeBlockquoteHeadings: false`), configurable via option
@@ -169,7 +176,7 @@ Following principles from industry leaders:
 ## Important Notes
 
 - **No TypeScript Classes**: Avoid using TypeScript classes. Prefer functional programming patterns and object literals.
-- **DRY Principle**: Internal implementations use `*Core` suffix pattern to avoid duplication while maintaining public API compatibility.
+- **Single Source of Truth for Identity**: `ResolvedHeading.identity` is the only authority for `heading.id` and any anchor `href`. Do not reintroduce parallel anchor-matching paths (text fallback, suffix-stripped lookup).
 - **Anchor Generation**:
   - When `anchorType: true` (Wikipedia-style): Spaces become underscores, then percent-encoded with dots replacing %
   - When `anchorType: false` (RFC 3986 compliant): Uses standard `encodeURIComponent`

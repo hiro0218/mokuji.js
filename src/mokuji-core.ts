@@ -1,55 +1,47 @@
 import { createElement } from './utils/dom';
-import { assignInitialIdToHeading, getHeadingLevel } from './heading';
+import type { ResolvedHeading } from './heading-identity';
+import type { AnchorContainerTagName } from './types';
 
 type TocItem = {
   text: string | null;
   href: string;
-  level: number;
   children: TocItem[];
 };
 
 type TableOfContentsContainer = HTMLUListElement | HTMLOListElement;
 
-/**
- * Build hierarchical data structure from headings
- */
-const buildTocHierarchy = (headings: HTMLHeadingElement[], isConvertToWikipediaStyleAnchor: boolean): TocItem[] => {
+const buildTocHierarchy = (resolved: ReadonlyArray<ResolvedHeading>): TocItem[] => {
   const rootLevelItems: TocItem[] = [];
   const levelStack: { level: number; items: TocItem[] }[] = [{ level: 0, items: rootLevelItems }];
 
-  for (const heading of headings) {
-    const currentHeadingLevel = getHeadingLevel(heading);
-    const anchorText = assignInitialIdToHeading(heading, isConvertToWikipediaStyleAnchor);
-
+  for (const r of resolved) {
     const newItem: TocItem = {
-      text: heading.textContent,
-      href: `#${anchorText}`,
-      level: currentHeadingLevel,
+      text: r.heading.textContent,
+      href: `#${r.identity}`,
       children: [],
     };
 
-    // Find appropriate parent level
-    let topLevel = levelStack.at(-1)!;
-    while (levelStack.length > 1 && currentHeadingLevel <= topLevel.level) {
+    let topLevel = levelStack.at(-1) ?? levelStack[0];
+    while (levelStack.length > 1 && r.level <= topLevel.level) {
       levelStack.pop();
-      topLevel = levelStack.at(-1)!;
+      topLevel = levelStack.at(-1) ?? levelStack[0];
     }
 
     topLevel.items.push(newItem);
-    levelStack.push({ level: currentHeadingLevel, items: newItem.children });
+    levelStack.push({ level: r.level, items: newItem.children });
   }
 
   return rootLevelItems;
 };
 
-/**
- * Generate DOM elements from TOC hierarchy
- */
-const buildTocDom = (items: TocItem[], listContainer: TableOfContentsContainer): void => {
+const buildTocDom = (
+  items: TocItem[],
+  listContainer: TableOfContentsContainer,
+  containerTag: AnchorContainerTagName,
+): void => {
   const listItemTemplate = createElement('li');
   const anchorTemplate = createElement('a');
-  const childListTagName = listContainer.tagName.toLowerCase() as 'ul' | 'ol';
-  const childListTemplate = createElement(childListTagName);
+  const childListTemplate = createElement(containerTag);
 
   const buildListRecursive = (parentListElement: HTMLElement, tocItems: TocItem[]): void => {
     for (const item of tocItems) {
@@ -72,14 +64,12 @@ const buildTocDom = (items: TocItem[], listContainer: TableOfContentsContainer):
   buildListRecursive(listContainer, items);
 };
 
-/**
- * Generate hierarchical table of contents data structure from heading elements and build DOM
- */
-export const buildMokujiHierarchy = (
-  headings: HTMLHeadingElement[],
-  listContainer: TableOfContentsContainer,
-  isConvertToWikipediaStyleAnchor: boolean,
-): void => {
-  const tocItems = buildTocHierarchy(headings, isConvertToWikipediaStyleAnchor);
-  buildTocDom(tocItems, listContainer);
+export const buildTocList = (
+  resolved: ReadonlyArray<ResolvedHeading>,
+  containerTag: AnchorContainerTagName,
+): TableOfContentsContainer => {
+  const container = createElement(containerTag);
+  const tocItems = buildTocHierarchy(resolved);
+  buildTocDom(tocItems, container, containerTag);
+  return container;
 };
