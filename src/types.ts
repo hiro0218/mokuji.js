@@ -68,4 +68,19 @@ export type MokujiOption = {
    * Default: false (blockquote headings are excluded)
    */
   includeBlockquoteHeadings?: boolean;
+
+  /**
+   * Whether to track which heading is closest above the viewport top and mark its
+   * TOC list anchor with `data-mokuji-active="true"` and `aria-current="true"`.
+   * Cleanup is handled by the result's `destroy()` method.
+   * Default: false
+   */
+  scrollSpy?: boolean;
+
+  /**
+   * Pixel offset from the viewport top used as the active boundary, useful when a
+   * sticky header occupies the top of the viewport. Only applies when `scrollSpy: true`.
+   * Default: 0
+   */
+  scrollSpyOffset?: number;
 };

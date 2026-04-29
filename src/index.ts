@@ -3,6 +3,7 @@ import { getFilteredHeadings } from './heading';
 import { resolveHeadingIdentities, commitHeadingIdentities } from './heading-identity';
 import { buildTocList } from './mokuji-core';
 import { insertPerHeadingAnchors } from './anchor';
+import { setupScrollSpy } from './scroll-spy';
 import { MOKUJI_LIST_DATASET_ATTRIBUTE, defaultOptions } from './utils/constants';
 
 export type MokujiResult<T extends HTMLElement = HTMLElement> = {
@@ -45,7 +46,12 @@ export const Mokuji = <T extends HTMLElement>(
 
   const insertedAnchors = options.anchorLink ? insertPerHeadingAnchors(resolved, options) : [];
 
+  const teardownScrollSpy = options.scrollSpy
+    ? setupScrollSpy(resolved, list, { offset: options.scrollSpyOffset })
+    : undefined;
+
   const destroy = () => {
+    teardownScrollSpy?.();
     list.remove();
     for (const anchor of insertedAnchors) anchor.remove();
   };

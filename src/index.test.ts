@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Mokuji } from './index';
-import { MOKUJI_LIST_DATASET_ATTRIBUTE, ANCHOR_DATASET_ATTRIBUTE } from './utils/constants';
+import { MOKUJI_LIST_DATASET_ATTRIBUTE, ANCHOR_DATASET_ATTRIBUTE, ACTIVE_DATASET_ATTRIBUTE } from './utils/constants';
 
 describe('Mokuji.js', () => {
   let container: HTMLElement;
@@ -247,5 +247,50 @@ describe('Mokuji.js', () => {
       }
     }
     expect(hrefs2.size).toBe(tocLinks2?.length); // All hrefs also unique in second call
+  });
+
+  it('marks the active TOC anchor when scrollSpy is enabled and clears it on destroy', () => {
+    const observers: Array<{ disconnect: () => void; targets: Set<Element> }> = [];
+
+    class StubIntersectionObserver {
+      targets = new Set<Element>();
+      constructor() {
+        observers.push(this);
+      }
+      observe(target: Element) {
+        this.targets.add(target);
+      }
+      unobserve(target: Element) {
+        this.targets.delete(target);
+      }
+      disconnect() {
+        this.targets.clear();
+      }
+      takeRecords(): IntersectionObserverEntry[] {
+        return [];
+      }
+    }
+
+    vi.stubGlobal('IntersectionObserver', StubIntersectionObserver);
+
+    container.innerHTML = `
+      <h2 id="alpha">Alpha</h2>
+      <h2 id="beta">Beta</h2>
+    `;
+    const headings = container.querySelectorAll('h2');
+    headings[0].getBoundingClientRect = () => ({ top: -50 }) as DOMRect;
+    headings[1].getBoundingClientRect = () => ({ top: 200 }) as DOMRect;
+
+    const result = Mokuji(container, { scrollSpy: true });
+    expect(result).toBeDefined();
+    expect(observers).toHaveLength(1);
+    expect(observers[0].targets.size).toBe(2);
+
+    const activeAnchor = result?.list.querySelector(`[${ACTIVE_DATASET_ATTRIBUTE}]`);
+    expect(activeAnchor?.getAttribute('href')).toBe('#alpha');
+
+    result?.destroy();
+    expect(observers[0].targets.size).toBe(0);
+    expect(result?.list.querySelector(`[${ACTIVE_DATASET_ATTRIBUTE}]`)).toBeNull();
   });
 });
