@@ -1,43 +1,473 @@
+:root {
+  --bg: #ffffff;
+  --fg: #0a0a0a;
+  --fg-hover: #262626;
+  --muted: #737373;
+  --faint: #a3a3a3;
+  --border: #e5e5e5;
+  --border-strong: #d4d4d4;
+  --surface: #f5f5f5;
+  --surface-soft: #fafafa;
+  --ring: 0 0 0 3px color-mix(in srgb, var(--fg) 6%, transparent);
+  --radius: 8px;
+  --radius-sm: 6px;
+  --scroll-trail: 60vh;
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji';
+  --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 1.5rem;
+}
+
 body {
-  margin: 0 auto;
-  font-size: 1rem;
-  min-height: 500vh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
 }
 
-ol, ul {
-  padding: revert;
-  list-style: revert;
+:focus-visible {
+  outline: none;
+  border-color: var(--faint);
+  box-shadow: var(--ring);
 }
 
-hr {
-  height: 2px;
-  margin: 1.5rem 0;
+.app {
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: 0 clamp(1rem, 3vw, 2rem) 4rem;
 }
 
-.grid > div:first-child {
+/* ---------- site header ---------- */
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 0;
+}
+
+.brand {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.site-nav {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.site-nav a {
+  font-size: 0.875rem;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 150ms ease-out;
+}
+
+.site-nav a:hover {
+  color: var(--fg);
+}
+
+/* ---------- layout ---------- */
+
+.layout {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: clamp(2rem, 4vw, 3.5rem);
+  align-items: start;
+  padding-top: 2.5rem;
+}
+
+.pane {
   position: sticky;
-  top: 1rem;
-  align-self: start;
-  max-height: calc(100vh - 2rem);
+  top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-height: calc(100vh - 4rem);
+}
+
+.pane-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.pane-toc {
+  min-height: 0;
+}
+
+.pane-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 0.9rem;
+}
+
+/* ---------- form controls ---------- */
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field > label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.field select,
+.field input {
+  width: 100%;
+  height: 2.25rem;
+  padding: 0 0.625rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--fg);
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition:
+    border-color 150ms ease-out,
+    box-shadow 150ms ease-out;
+}
+
+.field select {
+  appearance: none;
+  padding-right: 1.75rem;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--faint) 50%),
+    linear-gradient(135deg, var(--faint) 50%, transparent 50%);
+  background-position:
+    calc(100% - 15px) 50%,
+    calc(100% - 10px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.field select:hover,
+.field input:hover:not(:disabled) {
+  border-color: var(--border-strong);
+}
+
+.field input:disabled {
+  opacity: 0.5;
+}
+
+.field:has(input:disabled) > label {
+  opacity: 0.5;
+}
+
+.checks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin-top: 0.875rem;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  cursor: pointer;
+}
+
+.check input {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--fg);
+}
+
+.check span {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--fg);
+}
+
+.checks + .field {
+  margin-top: 0.75rem;
+}
+
+/* ---------- buttons ---------- */
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.btn {
+  flex: 1;
+  height: 2.25rem;
+  padding: 0 0.875rem;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition:
+    background-color 150ms ease-out,
+    border-color 150ms ease-out,
+    transform 100ms ease-out;
+}
+
+.btn:hover {
+  background: var(--surface-soft);
+  border-color: var(--border-strong);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  color: var(--bg);
+  background: var(--fg);
+  border-color: var(--fg);
+}
+
+.btn-primary:hover {
+  background: var(--fg-hover);
+  border-color: var(--fg-hover);
+}
+
+/* ---------- generated toc ---------- */
+
+#mokuji {
   overflow-y: auto;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+#mokuji:empty::before {
+  content: '目次は空です。「Create」を押すと生成されます。';
+  display: block;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--faint);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+}
+
+#mokuji ol ol {
+  margin-left: 0.7rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--border);
 }
 
 #mokuji a {
-  display: inline-block;
-  padding: 0.125rem 0.375rem;
-  border-left: 2px solid transparent;
-  color: var(--pico-muted-color, #6b7280);
+  display: block;
+  padding: 0.35rem 0.625rem;
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
   text-decoration: none;
-  transition: color 200ms ease-out, border-color 200ms ease-out, background-color 200ms ease-out;
+  transition:
+    color 150ms ease-out,
+    background-color 150ms ease-out;
 }
 
 #mokuji a:hover {
-  color: var(--pico-primary, #1095c1);
+  color: var(--fg);
 }
 
 #mokuji a[data-mokuji-active] {
-  color: var(--pico-primary, #1095c1);
-  border-left-color: currentColor;
-  background-color: var(--pico-primary-background, rgba(16, 149, 193, 0.08));
+  color: var(--fg);
+  background: var(--surface);
+  font-weight: 500;
+}
+
+/* ---------- article ---------- */
+
+.content {
+  max-width: 44rem;
+  padding-bottom: var(--scroll-trail);
+  font-size: 0.9375rem;
+  line-height: 1.8;
+}
+
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6 {
+  position: relative;
+  margin: 2.6em 0 0.8em;
+  padding-right: 3rem;
   font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+  color: var(--fg);
+}
+
+.content h1:first-child {
+  margin-top: 0;
+}
+
+.content h1 {
+  font-size: 1.75rem;
+  letter-spacing: -0.02em;
+}
+
+.content h2 {
+  font-size: 1.25rem;
+}
+
+.content h3 {
+  font-size: 1.0625rem;
+}
+
+.content h4 {
+  font-size: 0.9375rem;
+}
+
+.content h5 {
+  font-size: 0.875rem;
+}
+
+.content h6 {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.content :is(h1, h2, h3, h4, h5, h6)::after {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  translate: 0 -50%;
+  padding: 0.15em 0.5em;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--faint);
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.content h1::after {
+  content: 'h1';
+}
+.content h2::after {
+  content: 'h2';
+}
+.content h3::after {
+  content: 'h3';
+}
+.content h4::after {
+  content: 'h4';
+}
+.content h5::after {
+  content: 'h5';
+}
+.content h6::after {
+  content: 'h6';
+}
+
+.content p {
+  margin-bottom: 1.1em;
+  color: var(--muted);
+}
+
+.content code {
+  padding: 0.1em 0.4em;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--fg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.content a[data-mokuji-anchor] {
+  margin-right: 0.4em;
+  color: var(--faint);
+  text-decoration: none;
+  transition: color 150ms ease-out;
+}
+
+.content :is(h1, h2, h3, h4, h5, h6):hover a[data-mokuji-anchor],
+.content a[data-mokuji-anchor]:focus-visible {
+  color: var(--fg);
+}
+
+.content blockquote {
+  margin: 1.5em 0;
+  padding: 0.25em 0 0.25em 1.1em;
+  border-left: 2px solid var(--border);
+  color: var(--muted);
+}
+
+.content blockquote blockquote {
+  margin: 0.8em 0 0.4em;
+}
+
+.content blockquote p {
+  margin-bottom: 0.4em;
+}
+
+.content hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 3rem 0;
+}
+
+/* ---------- motion preference ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 900px) {
+  :root {
+    --scroll-trail: 40vh;
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+    padding-top: 1.5rem;
+  }
+
+  .pane {
+    position: static;
+    max-height: none;
+  }
+
+  #mokuji {
+    max-height: 45vh;
+  }
 }
