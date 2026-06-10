@@ -54,6 +54,12 @@ describe('resolveHeadingIdentities', () => {
     expect(r.identity).toBe('foobar_baz');
   });
 
+  it('strips every colon when the text contains multiple colons', () => {
+    const h = createHeading(2, 'a:b:c d');
+    const [r] = resolveHeadingIdentities([h], { anchorType: true });
+    expect(r.identity).toBe('abc_d');
+  });
+
   it('falls back to mokuji-heading-${i} for empty text without id', () => {
     const h1 = createHeading(2, '');
     const h2 = createHeading(3, '');

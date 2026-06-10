@@ -19,7 +19,7 @@ export type ResolvedHeading = {
 };
 
 const replaceSpacesWithUnderscores = (text: string): string => {
-  return text.replaceAll(WHITESPACE_PATTERN, '_').replace(COLON_CHARACTER, '');
+  return text.replaceAll(WHITESPACE_PATTERN, '_').replaceAll(COLON_CHARACTER, '');
 };
 
 const convertToWikipediaStyleAnchor = (anchor: string): string => {
