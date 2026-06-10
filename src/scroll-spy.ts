@@ -53,7 +53,7 @@ export const setupScrollSpy = (
   };
 
   const observer = new IntersectionObserver(recompute, {
-    rootMargin: `-${offset}px 0px 0px 0px`,
+    rootMargin: `${-offset}px 0px 0px 0px`,
     threshold: [0, 1],
   });
   for (const r of resolved) observer.observe(r.heading);

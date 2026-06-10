@@ -156,6 +156,26 @@ describe('setupScrollSpy', () => {
     expect(findAnchor(list, 'b')?.getAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe('true');
   });
 
+  it('accepts a negative offset and produces a valid expanded root margin', () => {
+    const h1 = document.createElement('h2');
+    h1.id = 'a';
+    body.append(h1);
+    setHeadingTop(h1, -5);
+
+    const list = buildList(['a']);
+    body.append(list);
+
+    setupScrollSpy(buildResolved([h1]), list, { offset: -10 });
+
+    expect(lastObserver().options?.rootMargin).toBe('10px 0px 0px 0px');
+    expect(findAnchor(list, 'a')?.hasAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe(false);
+
+    setHeadingTop(h1, -15);
+    lastObserver().trigger();
+
+    expect(findAnchor(list, 'a')?.getAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe('true');
+  });
+
   it('leaves no anchor active when no heading has scrolled past the offset yet', () => {
     const h1 = document.createElement('h2');
     h1.id = 'a';
