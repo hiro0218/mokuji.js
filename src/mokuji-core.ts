@@ -1,9 +1,9 @@
-import { createElement } from './utils/dom';
+import { createElement, getHeadingText } from './utils/dom';
 import type { ResolvedHeading } from './heading-identity';
 import type { AnchorContainerTagName } from './types';
 
 type TocItem = {
-  text: string | null;
+  text: string;
   href: string;
   children: TocItem[];
 };
@@ -16,7 +16,7 @@ const buildTocHierarchy = (resolved: ReadonlyArray<ResolvedHeading>): TocItem[] 
 
   for (const r of resolved) {
     const newItem: TocItem = {
-      text: r.heading.textContent,
+      text: getHeadingText(r.heading),
       href: `#${r.identity}`,
       children: [],
     };
