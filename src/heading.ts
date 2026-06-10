@@ -32,5 +32,10 @@ export const getFilteredHeadings = (
     return allHeadings;
   }
 
-  return allHeadings.filter((heading) => !heading.closest('blockquote'));
+  // Only blockquotes strictly inside the search root count as quote boundaries;
+  // contains() is self-inclusive, so a blockquote passed as the root must be allowed.
+  return allHeadings.filter((heading) => {
+    const blockquote = heading.closest('blockquote');
+    return !blockquote || blockquote === element || !element.contains(blockquote);
+  });
 };
