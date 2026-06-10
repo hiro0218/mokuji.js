@@ -1,4 +1,5 @@
 import { getHeadingLevel } from './heading';
+import { getHeadingText } from './utils/dom';
 import type { HeadingLevel } from './types';
 
 const WHITESPACE_PATTERN = /\s+/g;
@@ -18,7 +19,7 @@ export type ResolvedHeading = {
 };
 
 const replaceSpacesWithUnderscores = (text: string): string => {
-  return text.replaceAll(WHITESPACE_PATTERN, '_').replace(COLON_CHARACTER, '');
+  return text.replaceAll(WHITESPACE_PATTERN, '_').replaceAll(COLON_CHARACTER, '');
 };
 
 const convertToWikipediaStyleAnchor = (anchor: string): string => {
@@ -46,7 +47,7 @@ const safeDecodeURIComponent = (encoded: string): string => {
 const computeInitialIdentity = (heading: HTMLHeadingElement, isWikipediaStyle: boolean): string => {
   const existingId = heading.getAttribute('id')?.trim();
   if (existingId) return existingId;
-  const text = (heading.textContent ?? '').trim();
+  const text = getHeadingText(heading).trim();
   return text ? generateAnchorText(text, isWikipediaStyle) : '';
 };
 

@@ -1,3 +1,4 @@
+import { ANCHOR_DATASET_ATTRIBUTE } from './constants';
 import type { HeadingLevel } from '../types';
 
 export const getAllHeadingElements = (
@@ -22,4 +23,19 @@ export const removeAllElements = (elements: NodeListOf<Element> | Element[]): vo
   for (const element of elements) {
     element.remove();
   }
+};
+
+/**
+ * Heading text excluding per-heading anchors inserted by a previous Mokuji call,
+ * so repeated invocations never leak the anchor symbol into derived text.
+ */
+export const getHeadingText = (heading: HTMLHeadingElement): string => {
+  let text = '';
+  for (const node of heading.childNodes) {
+    if (node instanceof Element && node.hasAttribute(ANCHOR_DATASET_ATTRIBUTE)) {
+      continue;
+    }
+    text += node.textContent ?? '';
+  }
+  return text;
 };

@@ -82,6 +82,39 @@ describe('heading', () => {
       expect(filtered.map((h) => h.textContent)).toEqual(['Normal heading', 'Quoted heading', 'Another heading']);
     });
 
+    it('keeps headings when the search root itself is inside a blockquote', () => {
+      container.innerHTML = `
+        <blockquote>
+          <div>
+            <h2>Inside root</h2>
+          </div>
+        </blockquote>
+      `;
+      const root = container.querySelector<HTMLElement>('div');
+      if (!root) throw new Error('root missing');
+
+      const filtered = getFilteredHeadings(root, 1, 6);
+
+      expect(filtered.map((h) => h.textContent)).toEqual(['Inside root']);
+    });
+
+    it('keeps direct headings when the search root is a blockquote, excluding nested quotes', () => {
+      container.innerHTML = `
+        <blockquote>
+          <h2>Quoted root</h2>
+          <blockquote>
+            <h3>Nested quote</h3>
+          </blockquote>
+        </blockquote>
+      `;
+      const root = container.querySelector<HTMLElement>('blockquote');
+      if (!root) throw new Error('root missing');
+
+      const filtered = getFilteredHeadings(root, 1, 6);
+
+      expect(filtered.map((h) => h.textContent)).toEqual(['Quoted root']);
+    });
+
     it('excludes headings in nested blockquotes', () => {
       container.innerHTML = `
         <h2>Top</h2>

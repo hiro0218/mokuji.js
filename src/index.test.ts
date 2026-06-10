@@ -249,6 +249,19 @@ describe('Mokuji.js', () => {
     expect(hrefs2.size).toBe(tocLinks2?.length); // All hrefs also unique in second call
   });
 
+  it('keeps TOC link text free of anchor symbols on repeated calls', () => {
+    container.innerHTML = `
+      <h1>Title</h1>
+      <h2>Section 1</h2>
+    `;
+
+    Mokuji(container, { anchorLink: true, anchorLinkSymbol: '#' });
+    const result = Mokuji(container, { anchorLink: true, anchorLinkSymbol: '#' });
+
+    const linkTexts = [...(result?.list.querySelectorAll('a') || [])].map((a) => a.textContent);
+    expect(linkTexts).toEqual(['Title', 'Section 1']);
+  });
+
   it('marks the active TOC anchor when scrollSpy is enabled and clears it on destroy', () => {
     const observers: Array<{ disconnect: () => void; targets: Set<Element> }> = [];
 
