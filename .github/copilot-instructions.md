@@ -38,6 +38,15 @@ npx tsc --noEmit
 # Run tests with coverage
 npx vitest run --coverage
 
+# Run benchmarks
+npm run bench
+
+# Save pre-change benchmark baseline
+npm run bench:baseline
+
+# Compare current benchmark results with saved baseline
+npm run bench:compare
+
 # Format code
 npm run format
 ```
@@ -165,6 +174,13 @@ The pipeline orchestrated by `Mokuji()`:
 - Optimize critical rendering path (Steve Souders principles)
 - Avoid unnecessary re-renders and DOM manipulations
 
+### Benchmark Regression Checks
+
+- Before making performance-sensitive changes, run `npm run bench:baseline` to save the current benchmark results to `tmp/bench-baseline.json`.
+- After making changes, run `npm run bench:compare` and confirm the changed code has not regressed against the saved baseline.
+- Treat a benchmark as suspicious when `hz` drops or `mean` / `median` increases beyond normal run-to-run variance. Re-run the benchmark before concluding there is a regression.
+- Include the before / after benchmark result summary in the final report when benchmark checks are relevant to the task.
+
 ## Recent Architectural Decisions
 
 - **RFC 3986 Compliance**: Standard anchor generation (`anchorType: false`) now uses proper URL encoding via `encodeURIComponent`
@@ -195,4 +211,5 @@ The pipeline orchestrated by `Mokuji()`:
 - NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the user.
 - When modifying code, preserve the existing code style and patterns.
 - Always run tests and linting after making changes.
+- Run benchmarks before and after performance-sensitive changes and confirm there is no regression.
 - Focus on maintaining backward compatibility unless explicitly instructed otherwise.
