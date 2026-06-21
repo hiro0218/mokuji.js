@@ -37,6 +37,9 @@
     "README.md"
   ],
   "scripts": {
+    "bench": "vitest bench --run",
+    "bench:baseline": "mkdir -p tmp && vitest bench --run --outputJson tmp/bench-baseline.json",
+    "bench:compare": "vitest bench --run --compare tmp/bench-baseline.json",
     "build": "tsdown",
     "dev": "tsdown --watch",
     "lint": "eslint --cache ./src/**/*.ts",
