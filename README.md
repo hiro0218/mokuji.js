@@ -175,6 +175,8 @@ Returns `undefined` if no headings are found.
   minLevel: 1,
   maxLevel: 6,
   includeBlockquoteHeadings: false,
+  scrollSpy: false,
+  scrollSpyOffset: 0,
 }
 ```
 
@@ -256,6 +258,42 @@ const result = Mokuji(element);
 // Include blockquote headings
 const result = Mokuji(element, {
   includeBlockquoteHeadings: true,
+});
+```
+
+### `scrollSpy`
+
+(default: `false`)
+
+Whether to mark the active table-of-contents link while the user scrolls.
+
+When enabled, the active TOC link receives `data-mokuji-active="true"` and `aria-current="true"`. The active heading is the visually closest heading above the viewport offset. When `scrollSpyOffset` is zero or positive, the first visible heading is used before any heading has crossed that offset.
+
+```javascript
+const result = Mokuji(element, {
+  scrollSpy: true,
+});
+```
+
+Add CSS for the active state in your own UI:
+
+```css
+[data-mokuji-list] a[data-mokuji-active] {
+  font-weight: 600;
+  color: currentColor;
+}
+```
+
+### `scrollSpyOffset`
+
+(default: `0`)
+
+Pixel offset from the viewport top used by `scrollSpy`. Set this when a sticky header covers the top of the document.
+
+```javascript
+const result = Mokuji(element, {
+  scrollSpy: true,
+  scrollSpyOffset: 64,
 });
 ```
 
