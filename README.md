@@ -267,12 +267,21 @@ const result = Mokuji(element, {
 
 Whether to mark the active table-of-contents link while the user scrolls.
 
-When enabled, the active TOC link receives `data-mokuji-active="true"` and `aria-current="true"`. The active heading is the closest heading above the viewport offset, or the first visible heading before any heading has crossed that offset.
+When enabled, the active TOC link receives `data-mokuji-active="true"` and `aria-current="true"`. The active heading is the visually closest heading above the viewport offset, or the first visible heading before any heading has crossed that offset.
 
 ```javascript
 const result = Mokuji(element, {
   scrollSpy: true,
 });
+```
+
+Add CSS for the active state in your own UI:
+
+```css
+[data-mokuji-list] a[data-mokuji-active] {
+  font-weight: 600;
+  color: currentColor;
+}
 ```
 
 ### `scrollSpyOffset`

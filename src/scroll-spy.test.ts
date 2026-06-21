@@ -37,6 +37,8 @@ class MockIntersectionObserver {
 }
 
 const observerInstances: Array<MockIntersectionObserver> = [];
+let frameCallbacks: FrameRequestCallback[] = [];
+let resizeCallbacks: ResizeObserverCallback[] = [];
 
 const lastObserver = (): MockIntersectionObserver => {
   const last = observerInstances.at(-1);
@@ -47,6 +49,10 @@ const lastObserver = (): MockIntersectionObserver => {
 const setHeadingTop = (heading: HTMLHeadingElement, top: number): void => {
   heading.getBoundingClientRect = () =>
     ({ top, bottom: top + 20, left: 0, right: 100, width: 100, height: 20, x: 0, y: top }) as DOMRect;
+};
+
+const setScrollTop = (scrollTop: number): void => {
+  Object.defineProperty(globalThis, 'scrollY', { configurable: true, value: scrollTop });
 };
 
 const buildResolved = (headings: ReadonlyArray<HTMLHeadingElement>, level: HeadingLevel = 2): Array<ResolvedHeading> =>
@@ -68,12 +74,49 @@ const buildList = (identities: ReadonlyArray<string>): HTMLOListElement => {
 const findAnchor = (list: HTMLElement, identity: string): HTMLAnchorElement | null =>
   list.querySelector<HTMLAnchorElement>(`a[href="#${identity}"]`);
 
+const flushAnimationFrames = (): void => {
+  const callbacks = frameCallbacks;
+  frameCallbacks = [];
+  for (const callback of callbacks) callback(0);
+};
+
+class MockResizeObserver {
+  callback: ResizeObserverCallback;
+
+  constructor(callback: ResizeObserverCallback) {
+    this.callback = callback;
+    resizeCallbacks.push(callback);
+  }
+
+  observe(): void {}
+
+  unobserve(): void {}
+
+  disconnect(): void {}
+}
+
+const triggerResize = (): void => {
+  for (const callback of resizeCallbacks) callback([], {} as ResizeObserver);
+};
+
 describe('setupScrollSpy', () => {
   let body: HTMLElement;
 
   beforeEach(() => {
     observerInstances.length = 0;
+    frameCallbacks = [];
+    resizeCallbacks = [];
     vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
+    vi.stubGlobal('ResizeObserver', MockResizeObserver);
+    vi.stubGlobal('requestAnimationFrame', function (this: typeof globalThis, callback: FrameRequestCallback) {
+      expect(this).toBe(globalThis);
+      frameCallbacks.push(callback);
+      return frameCallbacks.length;
+    });
+    vi.stubGlobal('cancelAnimationFrame', function (this: typeof globalThis) {
+      expect(this).toBe(globalThis);
+    });
+    setScrollTop(0);
     body = document.createElement('div');
     document.body.append(body);
   });
@@ -123,9 +166,31 @@ describe('setupScrollSpy', () => {
     expect(findAnchor(list, 'a')?.getAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe('true');
     expect(findAnchor(list, 'b')?.hasAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe(false);
 
-    setHeadingTop(h1, -300);
-    setHeadingTop(h2, -50);
-    lastObserver().trigger();
+    setScrollTop(250);
+    globalThis.dispatchEvent(new Event('scroll'));
+    flushAnimationFrames();
+
+    expect(findAnchor(list, 'a')?.hasAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe(false);
+    expect(findAnchor(list, 'b')?.getAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe('true');
+  });
+
+  it('updates the active anchor when the document receives a scroll event', () => {
+    const h1 = document.createElement('h2');
+    h1.id = 'a';
+    const h2 = document.createElement('h2');
+    h2.id = 'b';
+    body.append(h1, h2);
+    setHeadingTop(h1, -100);
+    setHeadingTop(h2, 200);
+
+    const list = buildList(['a', 'b']);
+    body.append(list);
+
+    setupScrollSpy(buildResolved([h1, h2]), list, { offset: 0 });
+
+    setScrollTop(250);
+    document.dispatchEvent(new Event('scroll'));
+    flushAnimationFrames();
 
     expect(findAnchor(list, 'a')?.hasAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe(false);
     expect(findAnchor(list, 'b')?.getAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe('true');
@@ -149,8 +214,9 @@ describe('setupScrollSpy', () => {
     expect(findAnchor(list, 'b')?.hasAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe(false);
     expect(lastObserver().options?.rootMargin).toBe('-80px 0px 0px 0px');
 
-    setHeadingTop(h2, 50);
-    lastObserver().trigger();
+    setScrollTop(50);
+    globalThis.dispatchEvent(new Event('scroll'));
+    flushAnimationFrames();
 
     expect(findAnchor(list, 'a')?.hasAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe(false);
     expect(findAnchor(list, 'b')?.getAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe('true');
@@ -170,8 +236,9 @@ describe('setupScrollSpy', () => {
     expect(lastObserver().options?.rootMargin).toBe('10px 0px 0px 0px');
     expect(findAnchor(list, 'a')?.hasAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe(false);
 
-    setHeadingTop(h1, -15);
-    lastObserver().trigger();
+    setScrollTop(10);
+    globalThis.dispatchEvent(new Event('scroll'));
+    flushAnimationFrames();
 
     expect(findAnchor(list, 'a')?.getAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe('true');
   });
@@ -206,7 +273,28 @@ describe('setupScrollSpy', () => {
     expect(findAnchor(list, 'a')?.hasAttribute('aria-current')).toBe(false);
   });
 
-  it('uses logarithmic layout reads when selecting the active heading', () => {
+  it('selects the visually closest heading when visual order differs from DOM order', () => {
+    const h1 = document.createElement('h2');
+    h1.id = 'a';
+    const h2 = document.createElement('h2');
+    h2.id = 'b';
+    const h3 = document.createElement('h2');
+    h3.id = 'c';
+    body.append(h1, h2, h3);
+    setHeadingTop(h1, -100);
+    setHeadingTop(h2, 200);
+    setHeadingTop(h3, -10);
+
+    const list = buildList(['a', 'b', 'c']);
+    body.append(list);
+
+    setupScrollSpy(buildResolved([h1, h2, h3]), list, { offset: 0 });
+
+    expect(findAnchor(list, 'a')?.hasAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe(false);
+    expect(findAnchor(list, 'c')?.getAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe('true');
+  });
+
+  it('does not read heading layout while handling scroll spy notifications', () => {
     const headings = Array.from({ length: 64 }, (_, i) => {
       const heading = document.createElement('h2');
       heading.id = `h-${i}`;
@@ -232,9 +320,55 @@ describe('setupScrollSpy', () => {
     body.append(list);
 
     setupScrollSpy(buildResolved(headings.map(({ heading }) => heading)), list, { offset: 0 });
+    const readsAfterSetup = headings.reduce((sum, { getReads }) => sum + getReads(), 0);
+
+    lastObserver().trigger();
+    lastObserver().trigger();
+    flushAnimationFrames();
 
     const totalReads = headings.reduce((sum, { getReads }) => sum + getReads(), 0);
-    expect(totalReads).toBeLessThan(16);
+    expect(totalReads).toBe(readsAfterSetup);
+  });
+
+  it('refreshes measured positions after layout changes', () => {
+    const h1 = document.createElement('h2');
+    h1.id = 'a';
+    const h2 = document.createElement('h2');
+    h2.id = 'b';
+    body.append(h1, h2);
+    setHeadingTop(h1, -50);
+    setHeadingTop(h2, 200);
+
+    const list = buildList(['a', 'b']);
+    body.append(list);
+
+    setupScrollSpy(buildResolved([h1, h2]), list, { offset: 0 });
+    expect(findAnchor(list, 'a')?.getAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe('true');
+
+    setHeadingTop(h1, 200);
+    setHeadingTop(h2, -20);
+    triggerResize();
+    flushAnimationFrames();
+
+    expect(findAnchor(list, 'a')?.hasAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe(false);
+    expect(findAnchor(list, 'b')?.getAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe('true');
+  });
+
+  it('coalesces multiple observer notifications into one animation frame', () => {
+    const h1 = document.createElement('h2');
+    h1.id = 'a';
+    body.append(h1);
+    setHeadingTop(h1, -10);
+
+    const list = buildList(['a']);
+    body.append(list);
+
+    setupScrollSpy(buildResolved([h1]), list, { offset: 0 });
+    lastObserver().trigger();
+    lastObserver().trigger();
+    lastObserver().trigger();
+
+    expect(frameCallbacks).toHaveLength(1);
   });
 
   it('disconnects the observer and clears the active state on teardown', () => {
@@ -283,6 +417,7 @@ describe('setupScrollSpy', () => {
     const setSpy = vi.spyOn(anchor, 'setAttribute');
 
     lastObserver().trigger();
+    flushAnimationFrames();
 
     expect(removeSpy).not.toHaveBeenCalled();
     expect(setSpy).not.toHaveBeenCalled();

@@ -470,8 +470,13 @@ body {
   }
 
   .pane {
+    order: 2;
     position: static;
     max-height: none;
+  }
+
+  .content {
+    order: 1;
   }
 
   #mokuji {

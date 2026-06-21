@@ -72,8 +72,8 @@ export type MokujiOption = {
   /**
    * Whether to track the active heading and mark its TOC list anchor with
    * `data-mokuji-active="true"` and `aria-current="true"`.
-   * The active heading is the closest heading above the viewport offset, or the
-   * first visible heading before any heading has crossed that offset.
+   * The active heading is the visually closest heading above the viewport offset,
+   * or the first visible heading before any heading has crossed that offset.
    * Cleanup is handled by the result's `destroy()` method.
    * Default: false
    */

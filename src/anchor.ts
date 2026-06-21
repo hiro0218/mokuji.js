@@ -30,7 +30,7 @@ const placeAnchorInHeading = (
 
 const createAnchorLabel = (heading: HTMLHeadingElement, identity: string): string => {
   const text = getHeadingText(heading).trim();
-  return `Link to heading: ${text || identity}`;
+  return text || identity;
 };
 
 export const insertPerHeadingAnchors = (

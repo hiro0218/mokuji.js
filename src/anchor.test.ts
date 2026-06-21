@@ -34,7 +34,7 @@ describe('insertPerHeadingAnchors', () => {
     expect(anchor).toBeTruthy();
     expect(anchor?.textContent).toBe(defaultOptions.anchorLinkSymbol);
     expect(anchor?.getAttribute('href')).toBe('#test');
-    expect(anchor?.getAttribute('aria-label')).toBe('Link to heading: Test Heading');
+    expect(anchor?.getAttribute('aria-label')).toBe('Test Heading');
     expect(anchor).toBe(heading.firstElementChild);
   });
 
@@ -108,7 +108,7 @@ describe('insertPerHeadingAnchors', () => {
     insertPerHeadingAnchors([r(heading, 'fallback-id', 2)], defaultOptions);
 
     const anchor = heading.querySelector(`[${ANCHOR_DATASET_ATTRIBUTE}]`);
-    expect(anchor?.getAttribute('aria-label')).toBe('Link to heading: fallback-id');
+    expect(anchor?.getAttribute('aria-label')).toBe('fallback-id');
   });
 
   it('returns an empty array when no resolved headings are provided', () => {
