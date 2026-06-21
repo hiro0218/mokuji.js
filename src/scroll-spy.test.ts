@@ -196,6 +196,31 @@ describe('setupScrollSpy', () => {
     expect(findAnchor(list, 'b')?.getAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe('true');
   });
 
+  it('falls back when animation frame functions are not available on window', async () => {
+    Object.defineProperty(globalThis.window, 'requestAnimationFrame', { configurable: true, value: undefined });
+    Object.defineProperty(globalThis.window, 'cancelAnimationFrame', { configurable: true, value: undefined });
+
+    const h1 = document.createElement('h2');
+    h1.id = 'a';
+    const h2 = document.createElement('h2');
+    h2.id = 'b';
+    body.append(h1, h2);
+    setHeadingTop(h1, -100);
+    setHeadingTop(h2, 200);
+
+    const list = buildList(['a', 'b']);
+    body.append(list);
+
+    setupScrollSpy(buildResolved([h1, h2]), list, { offset: 0 });
+
+    setScrollTop(250);
+    globalThis.dispatchEvent(new Event('scroll'));
+    await new Promise((resolve) => globalThis.window.setTimeout(resolve, 0));
+
+    expect(findAnchor(list, 'a')?.hasAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe(false);
+    expect(findAnchor(list, 'b')?.getAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe('true');
+  });
+
   it('respects offset so headings only count as active once their top crosses it', () => {
     const h1 = document.createElement('h2');
     h1.id = 'a';

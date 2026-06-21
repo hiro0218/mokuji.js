@@ -30,10 +30,12 @@ const getFrameRequest = (): {
   request: (callback: FrameRequestCallback) => number;
   cancel: (handle: number) => void;
 } => {
-  if (typeof requestAnimationFrame === 'function' && typeof cancelAnimationFrame === 'function') {
+  const requestFrame = globalThis.window.requestAnimationFrame;
+  const cancelFrame = globalThis.window.cancelAnimationFrame;
+  if (typeof requestFrame === 'function' && typeof cancelFrame === 'function') {
     return {
-      request: globalThis.window.requestAnimationFrame.bind(globalThis.window),
-      cancel: globalThis.window.cancelAnimationFrame.bind(globalThis.window),
+      request: requestFrame.bind(globalThis.window),
+      cancel: cancelFrame.bind(globalThis.window),
     };
   }
 
@@ -95,7 +97,8 @@ const findActiveIndex = (
 /**
  * Mark the TOC list anchor whose heading is currently nearest the top of the viewport.
  * Active = visually closest heading above the viewport offset,
- * or the first visible heading before the document has crossed that boundary.
+ * or, for zero and positive offsets, the first visible heading before the
+ * document has crossed that boundary.
  */
 export const setupScrollSpy = (
   resolved: ReadonlyArray<ResolvedHeading>,
