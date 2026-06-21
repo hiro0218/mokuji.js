@@ -1,4 +1,4 @@
-import { createElement, removeAllElements } from './utils/dom';
+import { createElement, getHeadingText, removeAllElements } from './utils/dom';
 import { ANCHOR_DATASET_ATTRIBUTE } from './utils/constants';
 import type { MokujiOption, AnchorLinkPosition } from './types';
 import type { ResolvedHeading } from './heading-identity';
@@ -28,6 +28,11 @@ const placeAnchorInHeading = (
   }
 };
 
+const createAnchorLabel = (heading: HTMLHeadingElement, identity: string): string => {
+  const text = getHeadingText(heading).trim();
+  return `Link to heading: ${text || identity}`;
+};
+
 export const insertPerHeadingAnchors = (
   resolved: ReadonlyArray<ResolvedHeading>,
   options: Required<MokujiOption>,
@@ -40,6 +45,7 @@ export const insertPerHeadingAnchors = (
     const anchor = template.cloneNode(false) as HTMLAnchorElement;
     anchor.href = `#${r.identity}`;
     anchor.textContent = options.anchorLinkSymbol;
+    anchor.setAttribute('aria-label', createAnchorLabel(r.heading, r.identity));
     placeAnchorInHeading(r.heading, anchor, options.anchorLinkPosition);
     inserted.push(anchor);
   }

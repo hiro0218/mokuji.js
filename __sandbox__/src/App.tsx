@@ -58,21 +58,39 @@ function App() {
     const container = refMokuji.current;
     if (!container) return;
 
+    let activeTarget: HTMLElement | undefined;
+    let animationFrame = 0;
+
+    const scrollActiveTargetIntoView = () => {
+      animationFrame = 0;
+      if (!activeTarget) return;
+
+      const containerRect = container.getBoundingClientRect();
+      const linkRect = activeTarget.getBoundingClientRect();
+      if (linkRect.top < containerRect.top || linkRect.bottom > containerRect.bottom) {
+        const centerDelta = linkRect.top - containerRect.top - (containerRect.height - linkRect.height) / 2;
+        container.scrollTop += centerDelta;
+      }
+    };
+
+    const scheduleScrollIntoView = (target: HTMLElement) => {
+      activeTarget = target;
+      if (animationFrame) return;
+      animationFrame = requestAnimationFrame(scrollActiveTargetIntoView);
+    };
+
     const observer = new MutationObserver((mutations) => {
       for (const { target } of mutations) {
         if (!(target instanceof HTMLElement) || !target.hasAttribute(ACTIVE_ATTRIBUTE)) continue;
-
-        const containerRect = container.getBoundingClientRect();
-        const linkRect = target.getBoundingClientRect();
-        if (linkRect.top < containerRect.top || linkRect.bottom > containerRect.bottom) {
-          const centerDelta = linkRect.top - containerRect.top - (containerRect.height - linkRect.height) / 2;
-          container.scrollTop += centerDelta;
-        }
+        scheduleScrollIntoView(target);
         return;
       }
     });
     observer.observe(container, { subtree: true, attributes: true, attributeFilter: [ACTIVE_ATTRIBUTE] });
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (animationFrame) cancelAnimationFrame(animationFrame);
+    };
   }, []);
 
   const handleMinLevelChange = (e: ChangeEvent<HTMLSelectElement>) => {

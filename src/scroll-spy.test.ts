@@ -176,7 +176,7 @@ describe('setupScrollSpy', () => {
     expect(findAnchor(list, 'a')?.getAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe('true');
   });
 
-  it('leaves no anchor active when no heading has scrolled past the offset yet', () => {
+  it('marks the first visible heading before any heading has crossed the offset', () => {
     const h1 = document.createElement('h2');
     h1.id = 'a';
     body.append(h1);
@@ -187,8 +187,54 @@ describe('setupScrollSpy', () => {
 
     setupScrollSpy(buildResolved([h1]), list, { offset: 0 });
 
+    expect(findAnchor(list, 'a')?.getAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe('true');
+    expect(findAnchor(list, 'a')?.getAttribute('aria-current')).toBe('true');
+  });
+
+  it('leaves no anchor active when every heading is below the viewport', () => {
+    const h1 = document.createElement('h2');
+    h1.id = 'a';
+    body.append(h1);
+    setHeadingTop(h1, window.innerHeight + 100);
+
+    const list = buildList(['a']);
+    body.append(list);
+
+    setupScrollSpy(buildResolved([h1]), list, { offset: 0 });
+
     expect(findAnchor(list, 'a')?.hasAttribute(ACTIVE_DATASET_ATTRIBUTE)).toBe(false);
     expect(findAnchor(list, 'a')?.hasAttribute('aria-current')).toBe(false);
+  });
+
+  it('uses logarithmic layout reads when selecting the active heading', () => {
+    const headings = Array.from({ length: 64 }, (_, i) => {
+      const heading = document.createElement('h2');
+      heading.id = `h-${i}`;
+      let reads = 0;
+      heading.getBoundingClientRect = () => {
+        reads++;
+        return {
+          top: i * 40 - 1200,
+          bottom: i * 40 - 1180,
+          left: 0,
+          right: 100,
+          width: 100,
+          height: 20,
+          x: 0,
+          y: 0,
+        } as DOMRect;
+      };
+      return { heading, getReads: () => reads };
+    });
+    body.append(...headings.map(({ heading }) => heading));
+
+    const list = buildList(headings.map(({ heading }) => heading.id));
+    body.append(list);
+
+    setupScrollSpy(buildResolved(headings.map(({ heading }) => heading)), list, { offset: 0 });
+
+    const totalReads = headings.reduce((sum, { getReads }) => sum + getReads(), 0);
+    expect(totalReads).toBeLessThan(16);
   });
 
   it('disconnects the observer and clears the active state on teardown', () => {

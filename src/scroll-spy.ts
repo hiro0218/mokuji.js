@@ -21,20 +21,30 @@ const applyActiveState = (
 };
 
 const findActiveIndex = (resolved: ReadonlyArray<ResolvedHeading>, offset: number): number => {
+  let low = 0;
+  let high = resolved.length - 1;
   let activeIndex = -1;
-  for (const [i, r] of resolved.entries()) {
-    if (r.heading.getBoundingClientRect().top - offset <= 0) {
-      activeIndex = i;
+
+  while (low <= high) {
+    const middle = Math.floor((low + high) / 2);
+    if (resolved[middle].heading.getBoundingClientRect().top - offset <= 0) {
+      activeIndex = middle;
+      low = middle + 1;
     } else {
-      break;
+      high = middle - 1;
     }
   }
-  return activeIndex;
+
+  if (activeIndex >= 0 || offset < 0) return activeIndex;
+
+  const firstRect = resolved[0].heading.getBoundingClientRect();
+  return firstRect.top < window.innerHeight && firstRect.bottom >= offset ? 0 : -1;
 };
 
 /**
  * Mark the TOC list anchor whose heading is currently nearest the top of the viewport.
- * Active = last heading in document order whose top has scrolled past `offset` pixels.
+ * Active = last heading in document order whose top has scrolled past `offset` pixels,
+ * or the first visible heading before the document has crossed that boundary.
  */
 export const setupScrollSpy = (
   resolved: ReadonlyArray<ResolvedHeading>,
